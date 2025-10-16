@@ -1,9 +1,12 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+}
 architectury {
     common rootProject.enabled_platforms.split(",")
 }
 
 loom {
-    accessWidenerPath = file("src/main/resources/template.accesswidener")
+    accessWidenerPath = file("src/main/resources/irobot.accesswidener")
 }
 
 dependencies {
@@ -13,6 +16,14 @@ dependencies {
     // Remove the next line if you don't want to depend on the API
     modApi "dev.architectury:architectury:${project.architectury_version}"
 
-//    compileOnlyApi "curse.maven:supermartijn642s-config-lib-438332:${project.config_library_file_fabric}"
-//    modImplementation "curse.maven:ui-933200:${project.ui_library_file_fabric}-sources-${project.ui_library_file_fabric_sources}"
+    modImplementation "curse.maven:yaml-config-1128669:${project.config_library_file_fabric}-sources-${project.config_library_file_fabric_sources}"
+    modImplementation "curse.maven:ui-933200:${project.ui_library_file_fabric}-sources-${project.ui_library_file_fabric_sources}"
+    modImplementation "software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+}
+repositories {
+    mavenCentral()
+}
+kotlin {
+    jvmToolchain(21)
 }

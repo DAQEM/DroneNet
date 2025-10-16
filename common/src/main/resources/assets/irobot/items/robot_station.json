@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "irobot:item/robot_station",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

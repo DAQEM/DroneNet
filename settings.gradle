@@ -3,14 +3,25 @@ pluginManagement {
         maven { url "https://maven.fabricmc.net/" }
         maven { url "https://maven.architectury.dev/" }
         maven { url "https://maven.minecraftforge.net/" }
-        maven { url "https://maven.neoforged.net/releases/" }
+        maven {
+            url "https://cursemaven.com"
+            content {
+                //noinspection GroovyAssignabilityCheck
+                includeGroup "curse.maven"
+            }
+        }
         gradlePluginPortal()
     }
+    plugins {
+        id 'org.jetbrains.kotlin.jvm' version '2.1.21'
+    }
+}
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
 }
 
 include("common")
 include("fabric")
-//include("forge")
 include("neoforge")
 
-rootProject.name = "minecraft-template"
+rootProject.name = "iRobot 1.21.6"

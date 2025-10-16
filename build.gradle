@@ -1,16 +1,25 @@
+//file:noinspection GroovyAssignabilityCheck
 plugins {
-    id "dev.architectury.loom" version "1.6-SNAPSHOT" apply false
+    id "dev.architectury.loom" version "1.10-SNAPSHOT" apply false
     id "architectury-plugin" version "3.4-SNAPSHOT"
     id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
 }
 
 architectury {
+    //noinspection GrUnresolvedAccess
     minecraft = rootProject.minecraft_version
 }
 
 allprojects {
     group = rootProject.maven_group
     version = rootProject.mod_version
+
+    repositories {
+        maven {
+            name = 'ParchmentMC'
+            url = 'https://maven.parchmentmc.org'
+        }
+    }
 
     task printVersionName  {
         doLast {
@@ -28,7 +37,9 @@ subprojects {
         archivesName = rootProject.archives_base_name
     }
 
+    //noinspection GrUnresolvedAccess
     loom {
+        //noinspection GrUnresolvedAccess
         silentMojangMappingsLicense()
     }
 
@@ -39,11 +50,21 @@ subprojects {
                 includeGroup "curse.maven"
             }
         }
+        maven {
+            name = 'GeckoLib'
+            url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+            content {
+                includeGroup("software.bernie.geckolib")
+            }
+        }
     }
 
     dependencies {
         minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-        mappings loom.officialMojangMappings()
+        mappings loom.layered() {
+            officialMojangMappings()
+            parchment("org.parchmentmc.data:parchment-1.21.6:2025.06.29@zip")
+        }
     }
 
     java {
@@ -60,5 +81,3 @@ subprojects {
         it.options.release = 21
     }
 }
-
-

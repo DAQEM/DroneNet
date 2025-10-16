@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "com.daqem.irobot.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8",
+  "client": [
+  ],
+  "mixins": [
+    "PrimaryLevelDataMixin",
+    "ServerLevelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

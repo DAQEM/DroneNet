@@ -12,22 +12,24 @@
     "sources": "${mod_repository}"
   },
   "license": "${mod_license}",
-  "icon": "assets/template/icon.png",
+  "icon": "assets/irobot/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.daqem.template.fabric.TemplateCommonFabric"
+      "com.daqem.irobot.fabric.IRobotCommonFabric"
     ],
     "client": [
-      "com.daqem.template.fabric.TemplateClientFabric"
+      "com.daqem.irobot.fabric.IRobotClientFabric"
     ]
   },
   "mixins": [
-    "template-common.mixins.json"
+    "irobot-common.mixins.json"
   ],
   "depends": {
     "fabric": "*",
     "minecraft": ">=${minecraft_version}",
-    "architectury": ">=${architectury_version}"
+    "architectury": ">=${architectury_version}",
+    "yamlconfig": ">=${config_library_version}",
+    "uilib": ">=${ui_library_version}"
   }
 }
