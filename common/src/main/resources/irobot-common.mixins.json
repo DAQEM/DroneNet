@@ -6,8 +6,8 @@
   "client": [
   ],
   "mixins": [
-    "PrimaryLevelDataMixin",
-    "ServerLevelMixin"
+    "BrainMixin",
+    "PoiTypesAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

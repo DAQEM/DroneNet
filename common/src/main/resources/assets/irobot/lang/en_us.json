@@ -2,6 +2,11 @@
   "irobot.error.robot.already_assigned": "A robot is already assigned to this station.",
   "irobot.error.robot.not_on_robot_station": "Use this item on a robot station to assign it.",
   "irobot.error.robot.not_owner": "You are not the owner of this robot.",
+  "irobot.error.robot.marker_not_set": "Both positions on the Area Marker must be set first.",
+
+  "irobot.robot.task.assigned_mining": "Assigned mining task to robot.",
+  "irobot.robot.task.mining_complete": "Mining task complete.",
+  "irobot.robot.task.mining_stuck": "Cannot reach any more blocks in the mining area.",
 
   "irobot.item.area_marker.description": "Use to mark areas for the robots to work in.",
   "irobot.item.area_marker.description.left_click": "Left click to set the primary position.",
@@ -19,5 +24,8 @@
 
   "stat.irobot.talked_to_robot": "Talked to Robot",
 
-  "entity.irobot.mini_robot": "Mini Robot"
+  "entity.irobot.mini_robot": "Mini Robot",
+
+  "activity.irobot.work": "Working",
+  "activity.irobot.follow": "Following"
 }

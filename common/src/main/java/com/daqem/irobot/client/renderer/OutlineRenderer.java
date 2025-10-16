@@ -138,7 +138,7 @@ public class OutlineRenderer {
      * @param secondPos The second position of the box.
      * @return The constructed AABB.
      */
-    private static AABB createBoundingBox(BlockPos firstPos, BlockPos secondPos) {
+    public static AABB createBoundingBox(BlockPos firstPos, BlockPos secondPos) {
         // Determine min and max coordinates to ensure both positions are included
         double minX = Math.min(firstPos.getX(), secondPos.getX()) + 0.001;
         double minY = Math.min(firstPos.getY(), secondPos.getY()) + 0.001;

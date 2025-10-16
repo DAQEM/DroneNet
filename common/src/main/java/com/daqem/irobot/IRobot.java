@@ -1,15 +1,16 @@
 package com.daqem.irobot;
 
 import com.daqem.irobot.block.IRobotBlocks;
-import com.daqem.irobot.block.RobotStationBlock;
 import com.daqem.irobot.block.entity.IRobotBlockEntities;
 import com.daqem.irobot.entity.IRobotEntities;
-import com.daqem.irobot.event.BlockBreakEvent;
+import com.daqem.irobot.entity.ai.IRobotActivities;
+import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.daqem.irobot.event.LeftClickBlockEvent;
 import com.daqem.irobot.event.RightClickBlockEvent;
 import com.daqem.irobot.item.IRobotItems;
 import com.daqem.irobot.item.data.IRobotDataComponents;
 import com.daqem.irobot.menu.IRobotMenuTypes;
+import com.daqem.irobot.level.poi.IRobotPoiTypes;
 import com.daqem.irobot.stats.IRobotStats;
 import com.google.common.base.Suppliers;
 import com.mojang.logging.LogUtils;
@@ -23,7 +24,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
 import org.slf4j.Logger;
 
 import java.util.function.Supplier;
@@ -41,14 +41,16 @@ public class IRobot {
 
     public static void init() {
         IRobotBlocks.init();
+        IRobotPoiTypes.init();
         IRobotStats.init();
         IRobotMenuTypes.init();
         IRobotBlockEntities.init();
         IRobotDataComponents.init();
         IRobotItems.init();
         IRobotEntities.init();
+        IRobotActivities.init();
+        IRobotMemoryModuleTypes.init();
 
-        BlockBreakEvent.registerEvent();
         RightClickBlockEvent.registerEvent();
         LeftClickBlockEvent.registerEvent();
     }

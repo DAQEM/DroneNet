@@ -104,4 +104,12 @@ public class RobotMenu extends AbstractContainerMenu {
     public int getRobotEntityId() {
         return this.robot.getEntityId();
     }
+
+    public int getEnergy() {
+        return this.robot.getContainerData().get(1);
+    }
+
+    public int getMaxEnergy() {
+        return this.robot.getContainerData().get(2);
+    }
 }

@@ -5,7 +5,6 @@ import com.daqem.irobot.menu.RobotMenu;
 import com.daqem.uilib.gui.AbstractContainerScreen;
 import com.daqem.uilib.gui.background.BlurredBackground;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -36,5 +35,11 @@ public class RobotScreen extends AbstractContainerScreen<RobotMenu> {
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, 24, 108, 0xFF63EEFB, false);
         guiGraphics.drawString(this.font, this.playerInventoryTitle, 160, 108, 0xFF63EEFB, false);
+
+        // Draw Energy Label
+        int energy = this.menu.getEnergy();
+        int maxEnergy = this.menu.getMaxEnergy();
+        Component energyComponent = Component.literal("Energy: " + energy + " / " + maxEnergy);
+        guiGraphics.drawString(this.font, energyComponent, 24, 8, 0xFFFFFFFF, true);
     }
 }
