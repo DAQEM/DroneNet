@@ -19,6 +19,7 @@ public class MineBlock extends Behavior<MiniRobotEntity> {
 
     private float miningProgress;
     private int lastBreakProgress = -1;
+    private int retryCounter = 0;
     private static final double MAX_REACH_DISTANCE_SQ = 4.5 * 4.5;
     private static final double PREFERRED_REACH_DISTANCE_SQ = 3.0 * 3.0;
 
@@ -33,6 +34,7 @@ public class MineBlock extends Behavior<MiniRobotEntity> {
     protected void start(ServerLevel level, MiniRobotEntity robot, long gameTime) {
         this.miningProgress = 0;
         this.lastBreakProgress = -1;
+        this.retryCounter = 0;
         robot.getBrain().getMemory(IRobotMemoryModuleTypes.MINE_TARGET_POS.get()).ifPresent(globalPos -> {
             robot.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new BlockPosTracker(globalPos.pos()));
             BlockState blockState = level.getBlockState(globalPos.pos());
@@ -62,9 +64,11 @@ public class MineBlock extends Behavior<MiniRobotEntity> {
             return;
         }
         if (distanceSq > PREFERRED_REACH_DISTANCE_SQ) {
-            // Move closer to the block
-            robot.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(minePos.get().pos(), 0.5f, 1));
-            return;
+            if (retryCounter < 5) {
+                robot.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(minePos.get().pos(), 0.5f, 1));
+                retryCounter++;
+                return;
+            }
         }
         robot.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
         level.destroyBlock(minePos.get().pos(), false, robot);

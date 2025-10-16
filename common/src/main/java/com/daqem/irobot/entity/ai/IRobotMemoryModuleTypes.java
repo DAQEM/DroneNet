@@ -12,6 +12,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 
 import java.util.Optional;
+import java.util.Set;
 
 public interface IRobotMemoryModuleTypes {
 
@@ -23,6 +24,7 @@ public interface IRobotMemoryModuleTypes {
     RegistrySupplier<MemoryModuleType<GlobalPos>> MINE_TARGET_POS = register("mine_target_pos", GlobalPos.CODEC);
     RegistrySupplier<MemoryModuleType<GlobalPos>> STATION_POS = register("station_pos", GlobalPos.CODEC);
     RegistrySupplier<MemoryModuleType<Direction>> MINING_DIRECTION = register("mining_direction", Direction.CODEC);
+    RegistrySupplier<MemoryModuleType<Direction>> LANE_DIRECTION = register("lane_direction", Direction.CODEC);
 
 
     static void init() {

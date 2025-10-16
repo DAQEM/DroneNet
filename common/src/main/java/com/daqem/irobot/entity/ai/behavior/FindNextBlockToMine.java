@@ -14,6 +14,9 @@ import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.schedule.Activity;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -57,10 +60,16 @@ public class FindNextBlockToMine extends Behavior<MiniRobotEntity> {
             return;
         }
 
-        // Initialize mining direction if not already set
+        // Initialize mining and lane directions if not already set
+        Direction miningDir = robot.getBrain().getMemory(IRobotMemoryModuleTypes.MINING_DIRECTION.get()).orElse(Direction.EAST);
         if (!robot.getBrain().hasMemoryValue(IRobotMemoryModuleTypes.MINING_DIRECTION.get())) {
-            robot.getBrain().setMemory(IRobotMemoryModuleTypes.MINING_DIRECTION.get(), Direction.EAST);
+            robot.getBrain().setMemory(IRobotMemoryModuleTypes.MINING_DIRECTION.get(), miningDir);
         }
+        if (!robot.getBrain().hasMemoryValue(IRobotMemoryModuleTypes.LANE_DIRECTION.get())) {
+            // Set a persistent direction for lane changes
+            robot.getBrain().setMemory(IRobotMemoryModuleTypes.LANE_DIRECTION.get(), miningDir.getClockWise());
+        }
+
 
         // --- LOCAL SEARCH ---
         // First, search for blocks in the immediate vicinity
@@ -102,7 +111,7 @@ public class FindNextBlockToMine extends Behavior<MiniRobotEntity> {
         // Search from top to bottom, closest to farthest
         for (Integer y : positions.keySet().stream().sorted(Comparator.reverseOrder()).toList()) {
             for (BlockPos pos : positions.get(y)) {
-                if (!level.getBlockState(pos).isAir() && !level.isOutsideBuildHeight(pos) && robot.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) < 3 * 3) {
+                if (!level.getBlockState(pos).isAir() && !level.isOutsideBuildHeight(pos)) {
                     return Optional.of(pos);
                 }
             }
@@ -114,8 +123,7 @@ public class FindNextBlockToMine extends Behavior<MiniRobotEntity> {
      * Scans forward to find the next wall of blocks, or moves to the next lane if a row is complete.
      */
     private void findNextMiningFace(ServerLevel level, MiniRobotEntity robot, AABB miningArea, long gameTime) {
-        Direction miningDir = robot.getBrain().hasMemoryValue(IRobotMemoryModuleTypes.MINING_DIRECTION.get()) ?
-                robot.getBrain().getMemory(IRobotMemoryModuleTypes.MINING_DIRECTION.get()).orElse(Direction.EAST) : Direction.EAST;
+        Direction miningDir = robot.getBrain().getMemory(IRobotMemoryModuleTypes.MINING_DIRECTION.get()).orElse(Direction.EAST);
         BlockPos robotPos = robot.blockPosition();
 
         // Scan forward in the mining direction
@@ -130,17 +138,24 @@ public class FindNextBlockToMine extends Behavior<MiniRobotEntity> {
         }
 
         // If scan completes, we've hit a wall. Move to the next lane.
-        Direction newLaneDir = miningDir.getClockWise(); // Move sideways (e.g., if mining East, move South)
-        BlockPos nextLanePos = robotPos.relative(newLaneDir, LANE_WIDTH);
+        // Use the PERSISTENT lane direction from memory.
+        Optional<Direction> laneDirOpt = robot.getBrain().getMemory(IRobotMemoryModuleTypes.LANE_DIRECTION.get());
+        if (laneDirOpt.isEmpty()) {
+            // Failsafe in case lane direction is somehow not set.
+            finishMiningTask(robot);
+            return;
+        }
+        Direction laneDir = laneDirOpt.get();
+        BlockPos nextLanePos = robotPos.relative(laneDir, LANE_WIDTH);
 
         if (miningArea.contains(Vec3.atCenterOf(nextLanePos))) {
-            // If the next lane is inside the area, move to it and reverse direction
+            // If the next lane is inside the area, move to it and reverse mining direction
             Direction newMiningDir = miningDir.getOpposite();
             robot.getBrain().setMemory(IRobotMemoryModuleTypes.MINING_DIRECTION.get(), newMiningDir);
             robot.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(nextLanePos, 0.5f, 0));
         } else {
-            // We have mined the entire area. The task is complete.
-            finishMiningTask(robot);
+            // We have reached the end of the mining area. Try a last resort search before finishing.
+            lastResortSearch(level, robot, miningArea);
         }
     }
 
@@ -165,6 +180,39 @@ public class FindNextBlockToMine extends Behavior<MiniRobotEntity> {
     }
 
     /**
+     * Instead of finishing the task, performs a last-resort search for a walkable block in a large radius.
+     */
+    private void lastResortSearch(ServerLevel level, MiniRobotEntity robot, AABB miningArea) {
+        BlockPos robotPos = robot.blockPosition();
+        AABB searchBox = new AABB(robotPos).inflate(50, 5, 50).intersect(miningArea);
+        PathNavigation navigator = robot.getNavigation();
+
+        for (int y = Mth.floor(searchBox.maxY); y >= Mth.floor(searchBox.minY); y--) {
+            for (int x = Mth.floor(searchBox.minX); x <= Mth.floor(searchBox.maxX); x++) {
+                for (int z = Mth.floor(searchBox.minZ); z <= Mth.floor(searchBox.maxZ); z++) {
+                    BlockPos potentialTarget = new BlockPos(x, y, z);
+                    if (!level.getBlockState(potentialTarget).isAir()) {
+                        BlockPos walkToTarget = potentialTarget.above();
+
+                        if (level.getBlockState(walkToTarget).isAir()) {
+                            Path path = navigator.createPath(walkToTarget, 1);
+
+                            if (path != null && path.canReach()) {
+                                robot.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(walkToTarget, 0.5f, 0));
+                                return; // Found a walkable target
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // If we get here, the last resort search failed. Now we can truly finish.
+        finishMiningTask(robot);
+    }
+
+
+    /**
      * Clears all mining-related memories from the robot's brain.
      */
     private void finishMiningTask(MiniRobotEntity robot) {
@@ -173,6 +221,8 @@ public class FindNextBlockToMine extends Behavior<MiniRobotEntity> {
         robot.getBrain().eraseMemory(IRobotMemoryModuleTypes.TASK_AREA_START.get());
         robot.getBrain().eraseMemory(IRobotMemoryModuleTypes.TASK_AREA_END.get());
         robot.getBrain().eraseMemory(IRobotMemoryModuleTypes.MINING_DIRECTION.get());
+        robot.getBrain().eraseMemory(IRobotMemoryModuleTypes.LANE_DIRECTION.get());
+        robot.getBrain().setActiveActivityIfPossible(Activity.IDLE);
     }
 
     private Vec3 getClosestPointInAABB(Vec3 point, AABB box) {

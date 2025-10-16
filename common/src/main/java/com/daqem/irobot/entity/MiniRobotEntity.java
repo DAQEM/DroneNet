@@ -83,8 +83,10 @@ public class MiniRobotEntity extends IRobotEntity {
             IRobotMemoryModuleTypes.TASK_AREA_START.get(),
             IRobotMemoryModuleTypes.TASK_AREA_END.get(),
             IRobotMemoryModuleTypes.MINE_TARGET_POS.get(),
-            IRobotMemoryModuleTypes.STATION_POS.get()
-    );
+            IRobotMemoryModuleTypes.STATION_POS.get(),
+            IRobotMemoryModuleTypes.MINING_DIRECTION.get(),
+            IRobotMemoryModuleTypes.LANE_DIRECTION.get()
+            );
 
     public static final ImmutableList<SensorType<? extends Sensor<? super MiniRobotEntity>>> SENSOR_TYPES = ImmutableList.of(
             SensorType.NEAREST_LIVING_ENTITIES,
@@ -162,6 +164,12 @@ public class MiniRobotEntity extends IRobotEntity {
             Activity activity = this.getBrain().getActiveNonCoreActivity().orElse(null);
             if (activity == IRobotActivities.WORK.get()) {
                 setEnergy(getEnergy() - 1); // Consume 1 energy per second
+            }
+        }
+
+        if (brain.getMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get()).orElse(RobotTask.NONE) == RobotTask.MINING) {
+            if (brain.getActiveNonCoreActivity().orElse(Activity.IDLE) == Activity.IDLE) {
+                brain.setActiveActivityIfPossible(IRobotActivities.WORK.get());
             }
         }
 
