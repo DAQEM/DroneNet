@@ -53,24 +53,19 @@ public class RobotBrainPackages {
         );
     }
 
-    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getWorkPackage(float speedModifier) {
+    private static ImmutableList<Pair<Integer, ? extends Behavior<? super MiniRobotEntity>>> getWorkPackage(float speedModifier) {
         return ImmutableList.of(
-                getMinimalLookBehavior(),
-                Pair.of(2, SetWalkTargetFromTaskArea.create(speedModifier, 1, 128)),
                 Pair.of(2, new FindNextBlockToMine()),
-                Pair.of(3, new MineBlock()),
-                Pair.of(4, SetWalkTargetFromTaskArea.create(speedModifier, 1, 128))
-
+                Pair.of(3, new MineBlock())
         );
     }
 
     public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getPanicPackage(float speedModifier) {
         float f = speedModifier * 1.5F;
         return ImmutableList.of(
-                Pair.of(0, VillagerCalmDown.create()),
-                Pair.of(1, SetWalkTargetAwayFrom.entity(MemoryModuleType.NEAREST_HOSTILE, f, 6, false)),
+                Pair.of(0, new RobotCalmDown()),
                 Pair.of(1, SetWalkTargetAwayFrom.entity(MemoryModuleType.HURT_BY_ENTITY, f, 6, false)),
-                Pair.of(3, VillageBoundRandomStroll.create(f, 2, 2)),
+                Pair.of(2, RandomStroll.stroll(f, 2, 2)),
                 getMinimalLookBehavior()
         );
     }

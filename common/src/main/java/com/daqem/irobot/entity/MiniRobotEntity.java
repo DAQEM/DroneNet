@@ -421,4 +421,8 @@ public class MiniRobotEntity extends IRobotEntity {
     public int getMaxEnergy() {
         return MAX_ENERGY;
     }
+
+    public void setBestToolForBlock(BlockState blockState) {
+        this.getInventory().setBestToolForBlock(blockState);
+    }
 }

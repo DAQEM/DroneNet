@@ -7,6 +7,7 @@
   "irobot.robot.task.assigned_mining": "Assigned mining task to robot.",
   "irobot.robot.task.mining_complete": "Mining task complete.",
   "irobot.robot.task.mining_stuck": "Cannot reach any more blocks in the mining area.",
+  "irobot.robot.task.mining_stopped_inventory_full": "Mining task stopped: inventory is full.",
 
   "irobot.item.area_marker.description": "Use to mark areas for the robots to work in.",
   "irobot.item.area_marker.description.left_click": "Left click to set the primary position.",

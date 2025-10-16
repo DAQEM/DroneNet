@@ -22,6 +22,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.NotNull;
@@ -186,6 +187,10 @@ public class RobotInventory implements Container {
         }
 
         return -1;
+    }
+
+    public boolean isFull() {
+        return getFreeSlot() == -1;
     }
 
     public void addAndPickItem(ItemStack stack) {
@@ -569,5 +574,23 @@ public class RobotInventory implements Container {
     public ItemStack removeFromSelected(boolean removeStack) {
         ItemStack itemStack = this.getSelectedItem();
         return itemStack.isEmpty() ? ItemStack.EMPTY : this.removeItem(this.selected, removeStack ? itemStack.getCount() : 1);
+    }
+
+    public void setBestToolForBlock(BlockState blockState) {
+        int bestSlot = -1;
+        float bestSpeed = 1.0f;
+
+        for (int i = 0; i < this.items.size(); i++) {
+            ItemStack itemStack = this.getItem(i);
+            float speed = itemStack.getDestroySpeed(blockState);
+            if (speed > bestSpeed) {
+                bestSpeed = speed;
+                bestSlot = i;
+            }
+        }
+
+        if (bestSlot != -1) {
+            this.setSelectedSlot(bestSlot);
+        }
     }
 }

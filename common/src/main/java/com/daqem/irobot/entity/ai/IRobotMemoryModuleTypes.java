@@ -6,6 +6,7 @@ import com.mojang.serialization.Codec;
 import dev.architectury.registry.registries.Registrar;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -21,6 +22,7 @@ public interface IRobotMemoryModuleTypes {
     RegistrySupplier<MemoryModuleType<GlobalPos>> TASK_AREA_END = register("task_area_end", GlobalPos.CODEC);
     RegistrySupplier<MemoryModuleType<GlobalPos>> MINE_TARGET_POS = register("mine_target_pos", GlobalPos.CODEC);
     RegistrySupplier<MemoryModuleType<GlobalPos>> STATION_POS = register("station_pos", GlobalPos.CODEC);
+    RegistrySupplier<MemoryModuleType<Direction>> MINING_DIRECTION = register("mining_direction", Direction.CODEC);
 
 
     static void init() {
