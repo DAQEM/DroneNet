@@ -50,10 +50,10 @@ public class RobotInventory implements Container {
 
     private final NonNullList<ItemStack> items = NonNullList.withSize(INVENTORY_SIZE, ItemStack.EMPTY);
     private int selected;
-    public final MiniRobotEntity robot;
+    public final IRobotEntity robot;
     private final EntityEquipment equipment;
 
-    public RobotInventory(MiniRobotEntity robot, EntityEquipment equipment) {
+    public RobotInventory(IRobotEntity robot, EntityEquipment equipment) {
         this.robot = robot;
         this.equipment = equipment;
     }

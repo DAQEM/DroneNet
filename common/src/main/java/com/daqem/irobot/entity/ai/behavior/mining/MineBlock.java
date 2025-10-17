@@ -1,9 +1,8 @@
-package com.daqem.irobot.entity.ai.behavior;
+package com.daqem.irobot.entity.ai.behavior.mining;
 
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.google.common.collect.ImmutableMap;
-import io.netty.handler.codec.compression.ZstdOptions;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.behavior.Behavior;
@@ -71,7 +70,9 @@ public class MineBlock extends Behavior<MiniRobotEntity> {
             }
         }
         robot.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
-        level.destroyBlock(minePos.get().pos(), false, robot);
+        if (level.destroyBlock(minePos.get().pos(), true, robot)) {
+            robot.setEnergy(robot.getEnergy() - 5);
+        }
         doStop(level, robot, gameTime);
     }
 

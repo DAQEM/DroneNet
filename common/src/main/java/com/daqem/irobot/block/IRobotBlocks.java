@@ -16,6 +16,7 @@ public interface IRobotBlocks {
     Registrar<Block> BLOCKS = IRobot.MANAGER.get().get(Registries.BLOCK);
 
     RegistrySupplier<RobotStationBlock> ROBOT_STATION = register("robot_station", BlockBehaviour.Properties.of(),RobotStationBlock::new);
+    RegistrySupplier<TaskTableBlock> TASK_TABLE = register("task_table", BlockBehaviour.Properties.of(),TaskTableBlock::new);
 
     static void init() {
     }

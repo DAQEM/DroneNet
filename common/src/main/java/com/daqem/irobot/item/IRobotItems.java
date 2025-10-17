@@ -15,8 +15,10 @@ public interface IRobotItems {
     Registrar<Item> ITEMS = IRobot.MANAGER.get().get(Registries.ITEM);
 
     RegistrySupplier<RobotStationItem> ROBOT_STATION = register("robot_station", RobotStationItem::new);
+    RegistrySupplier<TaskTableItem> TASK_TABLE = register("task_table", TaskTableItem::new);
     RegistrySupplier<MiniRobotItem> MINI_ROBOT = register("mini_robot", MiniRobotItem::new);
-    RegistrySupplier<AreaMarkerItem> AREA_MARKER = register("area_marker", AreaMarkerItem::new);
+    RegistrySupplier<TaskMarkerItem> TASK_MARKER = register("task_marker", TaskMarkerItem::new);
+    RegistrySupplier<TaskItem> TASK = register("task", TaskItem::new);
 
     static void init() {
     }

@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "irobot:item/area_marker"
+    "model": "irobot:item/task_marker"
   }
 }

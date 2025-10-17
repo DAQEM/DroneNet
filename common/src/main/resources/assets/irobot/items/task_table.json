@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "irobot:item/task_table",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

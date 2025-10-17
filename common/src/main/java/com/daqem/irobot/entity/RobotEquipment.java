@@ -6,9 +6,9 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class RobotEquipment extends EntityEquipment {
-    private final MiniRobotEntity robot;
+    private final IRobotEntity robot;
 
-    public RobotEquipment(MiniRobotEntity robot) {
+    public RobotEquipment(IRobotEntity robot) {
         this.robot = robot;
     }
 

@@ -1,6 +1,4 @@
 {
-  "irobot.error.robot.already_assigned": "A robot is already assigned to this station.",
-  "irobot.error.robot.not_on_robot_station": "Use this item on a robot station to assign it.",
   "irobot.error.robot.not_owner": "You are not the owner of this robot.",
   "irobot.error.robot.marker_not_set": "Both positions on the Area Marker must be set first.",
 
@@ -8,24 +6,32 @@
   "irobot.robot.task.mining_complete": "Mining task complete.",
   "irobot.robot.task.mining_stuck": "Cannot reach any more blocks in the mining area.",
   "irobot.robot.task.mining_stopped_inventory_full": "Mining task stopped: inventory is full.",
+  "irobot.robot.error.cant_find_station": "Robot %s cannot find a station to recharge at: X%d, Y%d, Z%d.",
 
-  "irobot.item.area_marker.description": "Use to mark areas for the robots to work in.",
-  "irobot.item.area_marker.description.left_click": "Left click to set the primary position.",
-  "irobot.item.area_marker.description.right_click": "Right click to set the secondary position.",
-  "irobot.item.area_marker.first_pos_set": "Primary position set.",
-  "irobot.item.area_marker.second_pos_set": "Secondary position set.",
+  "irobot.item.task_marker.description": "Use to create an area for a task.",
+  "irobot.item.task_marker.description.left_click": "Left click a block to set the primary position.",
+  "irobot.item.task_marker.description.right_click": "Right click a block to set the secondary position.",
+  "irobot.item.task_marker.description.finalize": "Use a Taskbench to create a Task item.",
+  "irobot.item.task_marker.first_pos_set": "Primary position set.",
+  "irobot.item.task_marker.second_pos_set": "Secondary position set.",
 
   "irobot.gui.robot.title": "Robot",
+  "irobot.gui.tasktable.title": "Task Table",
+  "irobot.gui.tasktable.modes": "Modes",
 
   "itemGroup.irobot.irobot_tab": "iRobot",
 
   "item.irobot.robot_station": "Robot Station",
   "item.irobot.mini_robot": "Mini Robot",
-  "item.irobot.area_marker": "Area Marker",
+  "item.irobot.task_marker": "Task Marker",
+  "item.irobot.task_table": "Task Table",
 
   "stat.irobot.talked_to_robot": "Talked to Robot",
 
   "entity.irobot.mini_robot": "Mini Robot",
+
+  "block.irobot.robot_station": "Robot Station",
+  "block.irobot.task_table": "Task Table",
 
   "activity.irobot.work": "Working",
   "activity.irobot.follow": "Following"

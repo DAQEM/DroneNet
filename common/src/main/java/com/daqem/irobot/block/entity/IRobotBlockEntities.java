@@ -15,6 +15,7 @@ public interface IRobotBlockEntities {
     Registrar<BlockEntityType<?>> BLOCK_ENTITY_TYPES = IRobot.MANAGER.get().get(Registries.BLOCK_ENTITY_TYPE);
 
     RegistrySupplier<BlockEntityType<RobotStationBlockEntity>> ROBOT_STATION = register("robot_station", RobotStationBlockEntity::new, IRobotBlocks.ROBOT_STATION.get());
+    RegistrySupplier<BlockEntityType<TaskTableBlockEntity>> TASK_TABLE = register("task_table", TaskTableBlockEntity::new, IRobotBlocks.TASK_TABLE.get());
 
     static void init() {
     }

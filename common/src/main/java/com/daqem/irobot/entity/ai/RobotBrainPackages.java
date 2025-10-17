@@ -1,7 +1,11 @@
 package com.daqem.irobot.entity.ai;
 
 import com.daqem.irobot.entity.MiniRobotEntity;
-import com.daqem.irobot.entity.ai.behavior.*;
+import com.daqem.irobot.entity.ai.behavior.core.FindRechargeStation;
+import com.daqem.irobot.entity.ai.behavior.mining.FindNextBlockToMine;
+import com.daqem.irobot.entity.ai.behavior.mining.MineBlock;
+import com.daqem.irobot.entity.ai.behavior.panic.RobotCalmDown;
+import com.daqem.irobot.entity.ai.behavior.panic.RobotPanicTrigger;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
@@ -26,7 +30,7 @@ public class RobotBrainPackages {
     public static void registerBrainGoals(Brain<MiniRobotEntity> brain) {
         // Not using schedule because a robot doesn't need to sleep
         brain.addActivity(Activity.CORE, getCorePackage());
-        brain.addActivityWithConditions(IRobotActivities.WORK.get(), getWorkPackage(0.5F),
+        brain.addActivityWithConditions(IRobotActivities.MINE.get(), getMiningPackage(0.5F),
                 ImmutableSet.of(Pair.of(IRobotMemoryModuleTypes.ASSIGNED_TASK.get(), MemoryStatus.VALUE_PRESENT))
         );
         brain.addActivity(Activity.IDLE, getIdlePackage());
@@ -43,7 +47,8 @@ public class RobotBrainPackages {
                 Pair.of(0, InteractWithDoor.create()),
                 Pair.of(0, new LookAtTargetSink(45, 90)),
                 Pair.of(0, new RobotPanicTrigger()),
-                Pair.of(1, new MoveToTargetSink())
+                Pair.of(1, new MoveToTargetSink()),
+                Pair.of(2, new FindRechargeStation())
         );
     }
 
@@ -53,7 +58,7 @@ public class RobotBrainPackages {
         );
     }
 
-    private static ImmutableList<Pair<Integer, ? extends Behavior<? super MiniRobotEntity>>> getWorkPackage(float speedModifier) {
+    private static ImmutableList<Pair<Integer, ? extends Behavior<? super MiniRobotEntity>>> getMiningPackage(float speedModifier) {
         return ImmutableList.of(
                 Pair.of(2, new FindNextBlockToMine()),
                 Pair.of(3, new MineBlock())

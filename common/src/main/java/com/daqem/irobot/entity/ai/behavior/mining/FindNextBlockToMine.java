@@ -1,4 +1,4 @@
-package com.daqem.irobot.entity.ai.behavior;
+package com.daqem.irobot.entity.ai.behavior.mining;
 
 import com.daqem.irobot.client.renderer.OutlineRenderer;
 import com.daqem.irobot.entity.MiniRobotEntity;

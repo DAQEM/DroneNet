@@ -1,7 +1,7 @@
 package com.daqem.irobot.client.renderer;
 
-import com.daqem.irobot.item.AreaMarkerItem;
-import com.daqem.irobot.item.data.AreaMarkerDataComponent;
+import com.daqem.irobot.item.TaskMarkerItem;
+import com.daqem.irobot.item.data.TaskMarkerDataComponent;
 import com.daqem.irobot.item.data.IRobotDataComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
@@ -26,30 +27,30 @@ import java.util.List;
 public class OutlineRenderer {
 
     /**
-     * Renders an outline for the area defined by an AreaMarkerItem held by the player.
+     * Renders an outline for the area defined by an TaskMarkerItem held by the player.
      *
      * @param poseStack The pose stack for rendering transformations.
      */
     public static void renderOutline(PoseStack poseStack) {
-        ItemStack itemStack = getValidAreaMarkerItem();
+        ItemStack itemStack = getValidTaskMarkerItem();
         if (itemStack == null) return;
 
-        AreaMarkerDataComponent data = getAreaMarkerData(itemStack);
+        TaskMarkerDataComponent data = getTaskMarkerData(itemStack);
         if (data == null) return;
 
-        BlockPos firstPos = data.getFirstPos();
-        BlockPos secondPos = data.getSecondPos();
+        GlobalPos firstPos = data.getFirstPos();
+        GlobalPos secondPos = data.getSecondPos();
         if (!isValidBox(firstPos, secondPos)) return;
 
         renderBoxOutline(poseStack, firstPos, secondPos);
     }
 
     /**
-     * Retrieves a valid AreaMarkerItem from the player's main or offhand.
+     * Retrieves a valid TaskMarkerItem from the player's main or offhand.
      *
-     * @return The ItemStack containing an AreaMarkerItem, or null if none found.
+     * @return The ItemStack containing an TaskMarkerItem, or null if none found.
      */
-    private static ItemStack getValidAreaMarkerItem() {
+    private static ItemStack getValidTaskMarkerItem() {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer localPlayer = minecraft.player;
         if (localPlayer == null) {
@@ -57,12 +58,12 @@ public class OutlineRenderer {
         }
 
         ItemStack mainHand = localPlayer.getMainHandItem();
-        if (mainHand.getItem() instanceof AreaMarkerItem) {
+        if (mainHand.getItem() instanceof TaskMarkerItem) {
             return mainHand;
         }
 
         ItemStack offHand = localPlayer.getOffhandItem();
-        if (offHand.getItem() instanceof AreaMarkerItem) {
+        if (offHand.getItem() instanceof TaskMarkerItem) {
             return offHand;
         }
 
@@ -70,13 +71,13 @@ public class OutlineRenderer {
     }
 
     /**
-     * Gets the AreaMarkerDataComponent from the given ItemStack.
+     * Gets the TaskMarkerDataComponent from the given ItemStack.
      *
      * @param itemStack The ItemStack to check for the component.
-     * @return The AreaMarkerDataComponent, or null if not present.
+     * @return The TaskMarkerDataComponent, or null if not present.
      */
-    private static AreaMarkerDataComponent getAreaMarkerData(ItemStack itemStack) {
-        DataComponentType<AreaMarkerDataComponent> component = IRobotDataComponents.AREA_MARKER_DATA.get();
+    private static TaskMarkerDataComponent getTaskMarkerData(ItemStack itemStack) {
+        DataComponentType<TaskMarkerDataComponent> component = IRobotDataComponents.TASK_MARKER_DATA.get();
         if (!itemStack.has(component)) {
             return null;
         }
@@ -90,9 +91,10 @@ public class OutlineRenderer {
      * @param secondPos The second position of the box.
      * @return True if the box is valid, false otherwise.
      */
-    private static boolean isValidBox(BlockPos firstPos, BlockPos secondPos) {
-        return firstPos != null && !firstPos.equals(BlockPos.ZERO) &&
-                secondPos != null && !secondPos.equals(BlockPos.ZERO);
+    private static boolean isValidBox(GlobalPos firstPos, GlobalPos secondPos) {
+        return firstPos != null && !firstPos.pos().equals(BlockPos.ZERO) &&
+                secondPos != null && !secondPos.pos().equals(BlockPos.ZERO) &&
+                firstPos.dimension().equals(secondPos.dimension());
     }
 
     /**
@@ -102,9 +104,12 @@ public class OutlineRenderer {
      * @param firstPos  The first position of the box.
      * @param secondPos The second position of the box.
      */
-    private static void renderBoxOutline(PoseStack poseStack, BlockPos firstPos, BlockPos secondPos) {
+    private static void renderBoxOutline(PoseStack poseStack, GlobalPos firstPos, GlobalPos secondPos) {
         Minecraft minecraft = Minecraft.getInstance();
-        AABB box = createBoundingBox(firstPos, secondPos);
+        if (minecraft.level == null || !firstPos.dimension().equals(minecraft.level.dimension())) {
+            return;
+        }
+        AABB box = createBoundingBox(firstPos.pos(), secondPos.pos());
         Vec3 camera = minecraft.gameRenderer.getMainCamera().getPosition();
 
         poseStack.pushPose();

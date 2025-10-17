@@ -1,4 +1,4 @@
-package com.daqem.irobot.entity.ai.behavior;
+package com.daqem.irobot.entity.ai.behavior.panic;
 
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.google.common.collect.ImmutableMap;
