@@ -11,6 +11,7 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.behavior.Behavior;
+import net.minecraft.world.entity.ai.behavior.BlockPosTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
@@ -80,6 +81,7 @@ public class FindNextBlockToMine extends Behavior<MiniRobotEntity> {
         if (nearestBlock.isPresent()) {
             BlockPos targetPos = nearestBlock.get();
             robot.getBrain().setMemory(IRobotMemoryModuleTypes.MINE_TARGET_POS.get(), GlobalPos.of(level.dimension(), targetPos));
+            robot.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new BlockPosTracker(targetPos));
             // If not close enough to mine, walk towards it
             if (!robot.blockPosition().closerThan(targetPos, 2.0)) {
                 robot.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(targetPos, 0.5f, 2));

@@ -91,7 +91,12 @@ public class MiniRobotEntity extends IRobotEntity {
                     }
                     return PlayState.STOP;
                 }),
-                DefaultAnimations.genericAttackAnimation(DefaultAnimations.ATTACK_SWING)
+                new AnimationController<>("Mining", 0, state -> {
+                    if (this.isMining()) {
+                        return state.setAndContinue(RawAnimation.begin().thenLoop("attack.swing"));
+                    }
+                    return PlayState.STOP;
+                })
         );
     }
 

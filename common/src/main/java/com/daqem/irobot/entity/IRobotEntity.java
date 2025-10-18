@@ -14,6 +14,8 @@ import com.daqem.irobot.stats.IRobotStats;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -51,6 +53,8 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, InteractableRobot {
+
+    private static final EntityDataAccessor<Boolean> IS_MINING = SynchedEntityData.defineId(IRobotEntity.class, EntityDataSerializers.BOOLEAN);
 
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
     protected final RobotInventory inventory;
@@ -131,6 +135,15 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
+        builder.define(IS_MINING, false);
+    }
+
+    public boolean isMining() {
+        return this.entityData.get(IS_MINING);
+    }
+
+    public void setMining(boolean mining) {
+        this.entityData.set(IS_MINING, mining);
     }
 
     public static AttributeSupplier.Builder createRobotAttributes() {
