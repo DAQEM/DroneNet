@@ -35,18 +35,22 @@ public class MiniRobotEntity extends IRobotEntity {
             MemoryModuleType.LOOK_TARGET,
             MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
             MemoryModuleType.PATH,
+            MemoryModuleType.DOORS_TO_CLOSE,
+            MemoryModuleType.NEAREST_LIVING_ENTITIES,
             MemoryModuleType.INTERACTION_TARGET,
             MemoryModuleType.HURT_BY,
             IRobotMemoryModuleTypes.ASSIGNED_TASK.get(),
             IRobotMemoryModuleTypes.TASK_AREA_START.get(),
             IRobotMemoryModuleTypes.TASK_AREA_END.get(),
             IRobotMemoryModuleTypes.MINE_TARGET_POS.get(),
+            IRobotMemoryModuleTypes.TREE_TARGET_POS.get(),
             IRobotMemoryModuleTypes.STATION_POS.get(),
             IRobotMemoryModuleTypes.MINING_DIRECTION.get(),
             IRobotMemoryModuleTypes.LANE_DIRECTION.get(),
-            IRobotMemoryModuleTypes.LANE_DIRECTION.get(),
             IRobotMemoryModuleTypes.DROPOFF_TARGET_POS.get(),
-            IRobotMemoryModuleTypes.IS_CHARING.get()
+            IRobotMemoryModuleTypes.IS_CHARING.get(),
+            IRobotMemoryModuleTypes.SAPLING_TO_PLANT.get(),
+            IRobotMemoryModuleTypes.REPLANT_POS.get()
     );
 
     public static final ImmutableList<SensorType<? extends Sensor<? super MiniRobotEntity>>> SENSOR_TYPES = ImmutableList.of(

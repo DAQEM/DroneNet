@@ -14,7 +14,7 @@ public interface IRobotEntities {
 
     Registrar<EntityType<?>> ENTITY_TYPES = IRobot.MANAGER.get().get(Registries.ENTITY_TYPE);
 
-    RegistrySupplier<EntityType<MiniRobotEntity>> MINI_ROBOT = entityType("mini_robot", EntityType.Builder.of(MiniRobotEntity::new, MobCategory.CREATURE).sized(0.7f, 1.1f));
+    RegistrySupplier<EntityType<MiniRobotEntity>> MINI_ROBOT = entityType("mini_robot", EntityType.Builder.of(MiniRobotEntity::new, MobCategory.CREATURE).sized(0.7f, 0.95f));
 
     static void init() {
     }

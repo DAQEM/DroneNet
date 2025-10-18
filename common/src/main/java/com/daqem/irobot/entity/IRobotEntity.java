@@ -470,7 +470,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
     public List<ItemEntity> getItemEntitiesAround() {
         if (this.level() instanceof ServerLevel serverLevel) {
-            AABB searchArea = this.getBoundingBox().inflate(5.0, 1.0, 5.0);
+            AABB searchArea = this.getBoundingBox().inflate(16.0, 3.0, 16.0);
             return serverLevel.getEntitiesOfClass(ItemEntity.class, searchArea);
         }
         return List.of();
@@ -486,6 +486,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
         double nearestDistanceSq = Double.MAX_VALUE;
         for (ItemEntity item : items) {
             if (item.isAlive()) {
+                if (level().getBlockState(item.blockPosition().below()).isAir()) continue;
                 double distanceSq = this.distanceToSqr(item);
                 if (distanceSq < nearestDistanceSq) {
                     nearestDistanceSq = distanceSq;

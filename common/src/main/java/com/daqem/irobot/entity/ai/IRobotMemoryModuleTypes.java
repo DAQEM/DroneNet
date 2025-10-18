@@ -8,12 +8,12 @@ import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.schedule.Activity;
+import net.minecraft.world.item.Item;
 
 import java.util.Optional;
-import java.util.Set;
 
 public interface IRobotMemoryModuleTypes {
 
@@ -23,12 +23,14 @@ public interface IRobotMemoryModuleTypes {
     RegistrySupplier<MemoryModuleType<GlobalPos>> TASK_AREA_START = register("task_area_start", GlobalPos.CODEC);
     RegistrySupplier<MemoryModuleType<GlobalPos>> TASK_AREA_END = register("task_area_end", GlobalPos.CODEC);
     RegistrySupplier<MemoryModuleType<GlobalPos>> MINE_TARGET_POS = register("mine_target_pos", GlobalPos.CODEC);
+    RegistrySupplier<MemoryModuleType<GlobalPos>> TREE_TARGET_POS = register("tree_target_pos", GlobalPos.CODEC);
     RegistrySupplier<MemoryModuleType<GlobalPos>> STATION_POS = register("station_pos", GlobalPos.CODEC);
     RegistrySupplier<MemoryModuleType<Direction>> MINING_DIRECTION = register("mining_direction", Direction.CODEC);
     RegistrySupplier<MemoryModuleType<Direction>> LANE_DIRECTION = register("lane_direction", Direction.CODEC);
     RegistrySupplier<MemoryModuleType<GlobalPos>> DROPOFF_TARGET_POS = register("dropoff_target_pos", GlobalPos.CODEC);
-    RegistrySupplier<MemoryModuleType<Boolean>> NEEDS_TO_DROPOFF = register("needs_to_dropoff", Codec.BOOL);
     RegistrySupplier<MemoryModuleType<Boolean>> IS_CHARING = register("is_charing", Codec.BOOL);
+    RegistrySupplier<MemoryModuleType<Item>> SAPLING_TO_PLANT = register("sapling_to_plant", BuiltInRegistries.ITEM.byNameCodec());
+    RegistrySupplier<MemoryModuleType<BlockPos>> REPLANT_POS = register("replant_pos", BlockPos.CODEC);
 
 
     static void init() {
@@ -36,9 +38,5 @@ public interface IRobotMemoryModuleTypes {
 
     static <U> RegistrySupplier<MemoryModuleType<U>> register(String name, Codec<U> codec) {
         return MEMORY_MODULE_TYPES.register(IRobot.getId(name), () -> new MemoryModuleType<>(Optional.of(codec)));
-    }
-
-    static RegistrySupplier<MemoryModuleType<BlockPos>> register(String name) {
-        return MEMORY_MODULE_TYPES.register(IRobot.getId(name), () -> new MemoryModuleType<>(Optional.of(BlockPos.CODEC)));
     }
 }

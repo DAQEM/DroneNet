@@ -1,6 +1,5 @@
 package com.daqem.irobot.entity.ai;
 
-import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.behavior.charging.FindRechargeStation;
 import com.daqem.irobot.entity.ai.behavior.charging.StayOnStationAndRecharge;
@@ -16,6 +15,9 @@ import com.daqem.irobot.entity.ai.behavior.mining.MineBlock;
 import com.daqem.irobot.entity.ai.behavior.panic.RobotCalmDown;
 import com.daqem.irobot.entity.ai.behavior.panic.RobotPanicTrigger;
 import com.daqem.irobot.entity.ai.behavior.resting.GoToIdleActivity;
+import com.daqem.irobot.entity.ai.behavior.woodcutting.CutDownTree;
+import com.daqem.irobot.entity.ai.behavior.woodcutting.FindNextTreeToCut;
+import com.daqem.irobot.entity.ai.behavior.woodcutting.ReplantTree;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
@@ -102,7 +104,11 @@ public class RobotBrainPackages {
 
     private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getWoodcuttingPackage() {
         List<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
-        behaviors.addAll(List.of());
+        behaviors.addAll(List.of(
+                Pair.of(2, new FindNextTreeToCut()),
+                Pair.of(3, new CutDownTree()),
+                Pair.of(4, new ReplantTree())
+        ));
         return ImmutableList.copyOf(behaviors);
     }
 
@@ -162,12 +168,12 @@ public class RobotBrainPackages {
                 Pair.of(1, new MoveToTargetSink() {
                     @Override
                     protected boolean checkExtraStartConditions(ServerLevel level, Mob owner) {
-                        return super.checkExtraStartConditions(level, owner) && owner instanceof IRobotEntity robot && robot.getEnergy() > 0;
+                        return super.checkExtraStartConditions(level, owner) && owner instanceof MiniRobotEntity robot && robot.getEnergy() > 0;
                     }
 
                     @Override
                     protected boolean canStillUse(ServerLevel level, Mob entity, long gameTime) {
-                        return super.canStillUse(level, entity, gameTime) && entity instanceof IRobotEntity robot && robot.getEnergy() > 0;
+                        return super.canStillUse(level, entity, gameTime) && entity instanceof MiniRobotEntity robot && robot.getEnergy() > 0;
                     }
                 }),
                 Pair.of(2, new GoToChargingActivity()),
