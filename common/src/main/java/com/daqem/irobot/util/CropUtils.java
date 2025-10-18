@@ -8,12 +8,15 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public class CropUtils {
 
     private static final Map<Block, Item> CROP_TO_SEED_MAP = new HashMap<>();
+    private static final Set<Item> PLANTABLE_ITEMS = new HashSet<>();
 
     static {
         CROP_TO_SEED_MAP.put(Blocks.WHEAT, Items.WHEAT_SEEDS);
@@ -21,6 +24,7 @@ public class CropUtils {
         CROP_TO_SEED_MAP.put(Blocks.POTATOES, Items.POTATO);
         CROP_TO_SEED_MAP.put(Blocks.BEETROOTS, Items.BEETROOT_SEEDS);
         CROP_TO_SEED_MAP.put(Blocks.NETHER_WART, Items.NETHER_WART);
+        PLANTABLE_ITEMS.addAll(CROP_TO_SEED_MAP.values());
     }
 
     /**
@@ -41,6 +45,9 @@ public class CropUtils {
         if (blockState.getBlock() instanceof CropBlock cropBlock) {
             return cropBlock.isMaxAge(blockState);
         }
+        if (blockState.is(Blocks.NETHER_WART)) {
+            return blockState.getValue(net.minecraft.world.level.block.NetherWartBlock.AGE) >= 3;
+        }
         return false;
     }
 
@@ -51,5 +58,14 @@ public class CropUtils {
      */
     public static Optional<Item> getSeedFromCrop(BlockState cropState) {
         return Optional.ofNullable(CROP_TO_SEED_MAP.get(cropState.getBlock()));
+    }
+
+    /**
+     * Checks if an item is a seed or plantable crop.
+     * @param item The Item to check.
+     * @return true if the item can be planted, false otherwise.
+     */
+    public static boolean isPlantable(Item item) {
+        return PLANTABLE_ITEMS.contains(item);
     }
 }

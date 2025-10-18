@@ -79,28 +79,47 @@ public class HarvestAndReplantCrop extends Behavior<MiniRobotEntity> {
         }
 
         BlockState cropState = level.getBlockState(this.targetPos);
-        if (!CropUtils.isMature(cropState)) {
-            // Crop is not mature or gone, stop and find a new one.
-            this.doStop(level, robot, gameTime);
-            return;
+
+        // Case 1: Harvest a mature crop
+        if (CropUtils.isMature(cropState)) {
+            Optional<Item> seedItemOpt = CropUtils.getSeedFromCrop(cropState);
+
+            robot.swing(InteractionHand.MAIN_HAND);
+            level.destroyBlock(this.targetPos, true, robot);
+            robot.setEnergy(robot.getEnergy() - 1); // Small energy cost for harvesting
+
+            seedItemOpt.ifPresent(seedItem -> {
+                if (tryReplant(level, robot, this.targetPos, seedItem)) {
+                    robot.swing(InteractionHand.MAIN_HAND);
+                    robot.setEnergy(robot.getEnergy() - 1); // Small energy cost for replanting
+                }
+            });
+
+            // Case 2: Plant on empty farmland
+        } else if (cropState.isAir() && (level.getBlockState(this.targetPos.below()).is(Blocks.FARMLAND) || level.getBlockState(this.targetPos.below()).is(Blocks.SOUL_SAND))) {
+            Optional<Item> seedToPlant = findSeedInInventory(robot, level, this.targetPos);
+            seedToPlant.ifPresent(seedItem -> {
+                if (tryReplant(level, robot, this.targetPos, seedItem)) {
+                    robot.swing(InteractionHand.MAIN_HAND);
+                    robot.setEnergy(robot.getEnergy() - 1); // Small energy cost for planting
+                }
+            });
         }
-
-        // Harvest
-        robot.swing(InteractionHand.MAIN_HAND);
-        level.destroyBlock(this.targetPos, true, robot);
-        robot.setEnergy(robot.getEnergy() - 1); // Small energy cost for harvesting
-
-        // Replant
-        Optional<Item> seedItemOpt = CropUtils.getSeedFromCrop(cropState);
-        seedItemOpt.ifPresent(seedItem -> {
-            if (tryReplant(level, robot, this.targetPos, seedItem)) {
-                robot.swing(InteractionHand.MAIN_HAND);
-                robot.setEnergy(robot.getEnergy() - 1); // Small energy cost for replanting
-            }
-        });
 
         // Done with this crop
         this.doStop(level, robot, gameTime);
+    }
+
+    private Optional<Item> findSeedInInventory(MiniRobotEntity robot, ServerLevel level, BlockPos plantPos) {
+        for (int i = 0; i < robot.getInventory().getContainerSize(); i++) {
+            ItemStack stack = robot.getInventory().getItem(i);
+            if (!stack.isEmpty() && stack.getItem() instanceof BlockItem blockItem && CropUtils.isPlantable(stack.getItem())) {
+                if (blockItem.getBlock().defaultBlockState().canSurvive(level, plantPos)) {
+                    return Optional.of(stack.getItem());
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     private boolean tryReplant(ServerLevel level, MiniRobotEntity robot, BlockPos pos, Item seedItem) {
@@ -121,8 +140,7 @@ public class HarvestAndReplantCrop extends Behavior<MiniRobotEntity> {
             return false;
         }
 
-        BlockState farmlandState = level.getBlockState(pos.below());
-        if (farmlandState.is(Blocks.FARMLAND) && level.getBlockState(pos).isAir()) {
+        if (level.getBlockState(pos).isAir()) {
             BlockState seedState = blockItem.getBlock().defaultBlockState();
             if (seedState.canSurvive(level, pos)) {
                 level.setBlock(pos, seedState, 3);
@@ -140,6 +158,16 @@ public class HarvestAndReplantCrop extends Behavior<MiniRobotEntity> {
             return false;
         }
         Optional<GlobalPos> farmPos = robot.getBrain().getMemory(IRobotMemoryModuleTypes.FARM_TARGET_POS.get());
-        return farmPos.isPresent() && farmPos.get().pos().equals(this.targetPos);
+        if (farmPos.isEmpty() || !farmPos.get().pos().equals(this.targetPos)) {
+            return false;
+        }
+
+        BlockState targetState = level.getBlockState(this.targetPos);
+        BlockState groundState = level.getBlockState(this.targetPos.below());
+
+        boolean isMatureCrop = CropUtils.isMature(targetState);
+        boolean isEmptyFarmland = targetState.isAir() && (groundState.is(Blocks.FARMLAND) || groundState.is(Blocks.SOUL_SAND));
+
+        return isMatureCrop || isEmptyFarmland;
     }
 }
