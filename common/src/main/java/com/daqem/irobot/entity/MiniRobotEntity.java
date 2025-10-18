@@ -50,7 +50,8 @@ public class MiniRobotEntity extends IRobotEntity {
             IRobotMemoryModuleTypes.DROPOFF_TARGET_POS.get(),
             IRobotMemoryModuleTypes.IS_CHARING.get(),
             IRobotMemoryModuleTypes.SAPLING_TO_PLANT.get(),
-            IRobotMemoryModuleTypes.REPLANT_POS.get()
+            IRobotMemoryModuleTypes.REPLANT_POS.get(),
+            IRobotMemoryModuleTypes.FARM_TARGET_POS.get()
     );
 
     public static final ImmutableList<SensorType<? extends Sensor<? super MiniRobotEntity>>> SENSOR_TYPES = ImmutableList.of(

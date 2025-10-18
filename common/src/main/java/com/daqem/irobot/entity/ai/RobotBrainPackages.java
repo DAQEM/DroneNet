@@ -9,6 +9,8 @@ import com.daqem.irobot.entity.ai.behavior.core.GoToRestActivity;
 import com.daqem.irobot.entity.ai.behavior.core.PickUpItemsAround;
 import com.daqem.irobot.entity.ai.behavior.dropoff.DepositItemsAtDropoff;
 import com.daqem.irobot.entity.ai.behavior.dropoff.FindDropoffChest;
+import com.daqem.irobot.entity.ai.behavior.farming.FindNextCropToFarm;
+import com.daqem.irobot.entity.ai.behavior.farming.HarvestAndReplantCrop;
 import com.daqem.irobot.entity.ai.behavior.idle.GoToTaskActivity;
 import com.daqem.irobot.entity.ai.behavior.mining.FindNextBlockToMine;
 import com.daqem.irobot.entity.ai.behavior.mining.MineBlock;
@@ -114,7 +116,10 @@ public class RobotBrainPackages {
 
     private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getFarmingPackage() {
         List<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
-        behaviors.addAll(List.of());
+        behaviors.addAll(List.of(
+                Pair.of(1, new FindNextCropToFarm()),
+                Pair.of(2, new HarvestAndReplantCrop())
+        ));
         return ImmutableList.copyOf(behaviors);
     }
 

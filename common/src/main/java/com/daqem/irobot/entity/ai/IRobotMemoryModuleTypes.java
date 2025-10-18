@@ -31,6 +31,7 @@ public interface IRobotMemoryModuleTypes {
     RegistrySupplier<MemoryModuleType<Boolean>> IS_CHARING = register("is_charing", Codec.BOOL);
     RegistrySupplier<MemoryModuleType<Item>> SAPLING_TO_PLANT = register("sapling_to_plant", BuiltInRegistries.ITEM.byNameCodec());
     RegistrySupplier<MemoryModuleType<BlockPos>> REPLANT_POS = register("replant_pos", BlockPos.CODEC);
+    RegistrySupplier<MemoryModuleType<GlobalPos>> FARM_TARGET_POS = register("farm_target_pos", GlobalPos.CODEC);
 
 
     static void init() {

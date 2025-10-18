@@ -52,10 +52,12 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
+import java.util.Optional;
 
 public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, InteractableRobot {
 
     private static final EntityDataAccessor<Boolean> IS_MINING = SynchedEntityData.defineId(IRobotEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> IS_FARMING = SynchedEntityData.defineId(IRobotEntity.class, EntityDataSerializers.BOOLEAN);
 
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
     protected final RobotInventory inventory;
@@ -137,6 +139,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(IS_MINING, false);
+        builder.define(IS_FARMING, false);
     }
 
     public boolean isMining() {
@@ -145,6 +148,14 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
     public void setMining(boolean mining) {
         this.entityData.set(IS_MINING, mining);
+    }
+
+    public boolean isFarming() {
+        return this.entityData.get(IS_FARMING);
+    }
+
+    public void setFarming(boolean farming) {
+        this.entityData.set(IS_FARMING, farming);
     }
 
     public static AttributeSupplier.Builder createRobotAttributes() {
@@ -495,5 +506,13 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
             }
         }
         return nearestItem;
+    }
+
+    public boolean isCharging() {
+        return this.getBrain().getActiveNonCoreActivity().orElse(Activity.IDLE).equals(IRobotActivities.RECHARGE.get());
+    }
+
+    public boolean isDroppingOffItems() {
+        return this.getBrain().getActiveNonCoreActivity().orElse(Activity.IDLE).equals(IRobotActivities.DROPOFF.get());
     }
 }

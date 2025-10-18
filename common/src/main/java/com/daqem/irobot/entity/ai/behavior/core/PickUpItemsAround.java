@@ -20,7 +20,7 @@ public class PickUpItemsAround extends Behavior<IRobotEntity> {
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, IRobotEntity owner) {
-        return !owner.getInventory().isMainInventoryFull() && owner.hasItemsAround() && !owner.isMining();
+        return !owner.getInventory().isMainInventoryFull() && owner.hasItemsAround() && !owner.isMining() && !owner.isCharging() && !owner.isDroppingOffItems() && !owner.isFarming();
     }
 
     @Override
