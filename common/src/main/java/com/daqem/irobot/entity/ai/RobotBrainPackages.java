@@ -105,9 +105,9 @@ public class RobotBrainPackages {
     private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getWoodcuttingPackage() {
         List<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
         behaviors.addAll(List.of(
-                Pair.of(2, new FindNextTreeToCut()),
-                Pair.of(3, new CutDownTree()),
-                Pair.of(4, new ReplantTree())
+                Pair.of(2, new ReplantTree()),
+                Pair.of(3, new FindNextTreeToCut()),
+                Pair.of(4, new CutDownTree())
         ));
         return ImmutableList.copyOf(behaviors);
     }
@@ -178,7 +178,7 @@ public class RobotBrainPackages {
                 }),
                 Pair.of(2, new GoToChargingActivity()),
                 Pair.of(3, new GoToDropOffActivity(robot -> robot.getInventory().isMainInventoryFull() && robot.getInventory().hasItemsToDropOff())),
-                Pair.of(4, new PickUpItemsAround())
+                Pair.of(5, new PickUpItemsAround())
         );
     }
 }

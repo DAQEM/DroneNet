@@ -165,11 +165,7 @@ public class RobotInventory implements Container {
     }
 
     public void setSelectedSlot(int slot) {
-        if (!isHotbarSlot(slot)) {
-            throw new IllegalArgumentException("Invalid selected slot");
-        } else {
-            this.selected = slot;
-        }
+        this.selected = slot;
     }
 
     public ItemStack getSelectedItem() {

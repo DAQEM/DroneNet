@@ -16,6 +16,7 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
@@ -53,10 +54,30 @@ public class FindNextTreeToCut extends Behavior<MiniRobotEntity> {
         AABB searchArea = OutlineRenderer.createBoundingBox(startPos, endPos);
 
         findClosestTree(level, robot, searchArea).ifPresent(treePos -> {
+            BlockPos northPos = treePos.north();
+            BlockPos southPos = treePos.south();
+            BlockPos eastPos = treePos.east();
+            BlockPos westPos = treePos.west();
+
+            Vec3 robotVec = robot.position();
+            BlockPos bestPos = northPos;
+            double shortestDistance = northPos.distToCenterSqr(robotVec);
+            if (southPos.distToCenterSqr(robotVec) < shortestDistance) {
+                shortestDistance = southPos.distToCenterSqr(robotVec);
+                bestPos = southPos;
+            }
+            if (eastPos.distToCenterSqr(robotVec) < shortestDistance) {
+                shortestDistance = eastPos.distToCenterSqr(robotVec);
+                bestPos = eastPos;
+            }
+            if (westPos.distToCenterSqr(robotVec) < shortestDistance) {
+                bestPos = westPos;
+            }
+
+            robot.getBrain().setMemory(IRobotMemoryModuleTypes.TREE_TARGET_POS.get(), GlobalPos.of(level.dimension(), treePos));
+            robot.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(bestPos, 0.5f, 1));
             BlockState logState = level.getBlockState(treePos);
             TreeUtils.getSaplingFromLog(logState).ifPresent(sapling -> {
-                robot.getBrain().setMemory(IRobotMemoryModuleTypes.TREE_TARGET_POS.get(), GlobalPos.of(level.dimension(), treePos));
-                robot.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(treePos, 0.5f, 1));
                 robot.getBrain().setMemory(IRobotMemoryModuleTypes.SAPLING_TO_PLANT.get(), sapling);
                 robot.getBrain().setMemory(IRobotMemoryModuleTypes.REPLANT_POS.get(), treePos);
             });
