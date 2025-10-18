@@ -1,6 +1,7 @@
 {
   "irobot.error.robot.not_owner": "You are not the owner of this robot.",
   "irobot.error.robot.marker_not_set": "Both positions on the Area Marker must be set first.",
+  "irobot.robot.error.task_slot_full": "Robot's task slot is already occupied.",
 
   "irobot.robot.task.assigned_mining": "Assigned mining task to robot.",
   "irobot.robot.task.mining_complete": "Mining task complete.",
@@ -33,6 +34,17 @@
   "irobot.gui.robot.title": "Robot",
   "irobot.gui.tasktable.title": "Task Table",
   "irobot.gui.tasktable.modes": "Modes",
+  "irobot.gui.robot.stats": "Stats",
+  "irobot.gui.robot.energy": "Energy: %d / %d",
+  "irobot.gui.robot.current_activity": "Status: %s",
+  "irobot.gui.robot.activity.idle": "Idle",
+  "irobot.gui.robot.activity.rest": "Battery Empty",
+  "irobot.gui.robot.activity.protect": "Protecting",
+  "irobot.gui.robot.activity.mine": "Mining",
+  "irobot.gui.robot.activity.cut_wood": "Woodcutting",
+  "irobot.gui.robot.activity.farm": "Farming",
+  "irobot.gui.robot.activity.follow": "Following",
+  "irobot.gui.robot.activity.recharge": "Recharging",
 
   "itemGroup.irobot.irobot_tab": "iRobot",
 
@@ -52,6 +64,7 @@
   "block.irobot.robot_station": "Robot Station",
   "block.irobot.task_table": "Task Table",
 
-  "activity.irobot.work": "Working",
+  "activity.irobot.mine": "Mining",
+  "activity.irobot.recharge": "Recharging",
   "activity.irobot.follow": "Following"
 }

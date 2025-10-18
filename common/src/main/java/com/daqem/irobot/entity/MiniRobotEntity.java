@@ -4,6 +4,7 @@ import com.daqem.irobot.IRobot;
 import com.daqem.irobot.entity.ai.IRobotActivities;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.daqem.irobot.entity.task.RobotTask;
+import com.daqem.irobot.item.TaskItem;
 import com.daqem.irobot.item.TaskMarkerItem;
 import com.daqem.irobot.item.data.TaskMarkerDataComponent;
 import com.daqem.irobot.item.data.IRobotDataComponents;
@@ -69,38 +70,17 @@ public class MiniRobotEntity extends IRobotEntity {
 
     @Override
     protected InteractionResult handleItemInteraction(ServerPlayer player, ItemStack itemInHand, InteractionHand hand) {
-        if (itemInHand.getItem() instanceof TaskMarkerItem) {
-            return assignTaskFromMarker(player, itemInHand);
+        if (itemInHand.getItem() instanceof TaskItem) {
+            ItemStack currentTask = this.inventory.getTask();
+            if (currentTask.isEmpty()) {
+                this.inventory.setItem(RobotInventory.TASK_SLOT_INDEX, itemInHand.split(1));
+                return InteractionResult.SUCCESS;
+            } else {
+                player.sendSystemMessage(IRobot.translatable("robot.error.task_slot_full").withStyle(ChatFormatting.RED), true);
+                return InteractionResult.FAIL;
+            }
         }
         return InteractionResult.PASS;
-    }
-
-    private InteractionResult assignTaskFromMarker(ServerPlayer player, ItemStack markerStack) {
-        DataComponentType<TaskMarkerDataComponent> componentType = IRobotDataComponents.TASK_MARKER_DATA.get();
-        if (!markerStack.has(componentType)) {
-            player.sendSystemMessage(IRobot.translatable("error.robot.marker_not_set").withStyle(ChatFormatting.RED), true);
-            return InteractionResult.FAIL;
-        }
-
-        TaskMarkerDataComponent data = markerStack.get(componentType);
-        if (data == null || data.getFirstPos().equals(BlockPos.ZERO) || data.getSecondPos().equals(BlockPos.ZERO)) {
-            player.sendSystemMessage(IRobot.translatable("error.robot.marker_not_set").withStyle(ChatFormatting.RED), true);
-            return InteractionResult.FAIL;
-        }
-
-        GlobalPos firstPos = data.getFirstPos();
-        GlobalPos secondPos = data.getSecondPos();
-
-        Brain<IRobotEntity> brain = getBrain();
-        brain.setMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get(), RobotTask.MINING);
-        brain.setMemory(IRobotMemoryModuleTypes.TASK_AREA_START.get(), GlobalPos.of(firstPos.dimension(), new BlockPos(Math.min(firstPos.pos().getX(), secondPos.pos().getX()), Math.min(firstPos.pos().getY(), secondPos.pos().getY()), Math.min(firstPos.pos().getZ(), secondPos.pos().getZ()))));
-        brain.setMemory(IRobotMemoryModuleTypes.TASK_AREA_END.get(), GlobalPos.of(firstPos.dimension(), new BlockPos(Math.max(firstPos.pos().getX(), secondPos.pos().getX()), Math.max(firstPos.pos().getY(), secondPos.pos().getY()), Math.max(firstPos.pos().getZ(), secondPos.pos().getZ()))));
-
-        brain.setActiveActivityIfPossible(IRobotActivities.MINE.get());
-
-        player.sendSystemMessage(IRobot.translatable("robot.task.assigned_mining").withStyle(ChatFormatting.GREEN), true);
-
-        return InteractionResult.SUCCESS;
     }
 
     @Override

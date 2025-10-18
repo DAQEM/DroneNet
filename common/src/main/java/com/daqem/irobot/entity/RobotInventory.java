@@ -1,6 +1,7 @@
 package com.daqem.irobot.entity;
 
 import com.daqem.irobot.item.BatteryItem;
+import com.daqem.irobot.item.TaskItem;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.CrashReport;
@@ -29,7 +30,6 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -37,18 +37,19 @@ public class RobotInventory implements Container {
 
     public static final int INVENTORY_SIZE = 24;
     public static final int BATTERY_SLOT_INDEX = INVENTORY_SIZE;
+    public static final int TASK_SLOT_INDEX = INVENTORY_SIZE + 1;
     public static final Int2ObjectMap<EquipmentSlot> EQUIPMENT_SLOT_MAPPING;
 
     static {
         Int2ObjectArrayMap<EquipmentSlot> map = new Int2ObjectArrayMap<>();
-        map.put(EquipmentSlot.FEET.getIndex(INVENTORY_SIZE + 1), EquipmentSlot.FEET);
-        map.put(EquipmentSlot.LEGS.getIndex(INVENTORY_SIZE + 1), EquipmentSlot.LEGS);
-        map.put(EquipmentSlot.CHEST.getIndex(INVENTORY_SIZE + 1), EquipmentSlot.CHEST);
-        map.put(EquipmentSlot.HEAD.getIndex(INVENTORY_SIZE + 1), EquipmentSlot.HEAD);
+        map.put(EquipmentSlot.FEET.getIndex(INVENTORY_SIZE + 2), EquipmentSlot.FEET);
+        map.put(EquipmentSlot.LEGS.getIndex(INVENTORY_SIZE + 2), EquipmentSlot.LEGS);
+        map.put(EquipmentSlot.CHEST.getIndex(INVENTORY_SIZE + 2), EquipmentSlot.CHEST);
+        map.put(EquipmentSlot.HEAD.getIndex(INVENTORY_SIZE + 2), EquipmentSlot.HEAD);
         EQUIPMENT_SLOT_MAPPING = map;
     }
 
-    private final NonNullList<ItemStack> items = NonNullList.withSize(INVENTORY_SIZE + 1, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> items = NonNullList.withSize(INVENTORY_SIZE + 2, ItemStack.EMPTY);
     private int selected;
     public final IRobotEntity robot;
     private final EntityEquipment equipment;
@@ -99,6 +100,13 @@ public class RobotInventory implements Container {
                 ItemStack batterySlotStack = this.items.get(BATTERY_SLOT_INDEX);
                 if (batterySlotStack.isEmpty()) {
                     this.items.set(BATTERY_SLOT_INDEX, stack.split(1));
+                    return stack;
+                }
+            }
+            if (stack.getItem() instanceof TaskItem) {
+                ItemStack taskSlotStack = this.items.get(TASK_SLOT_INDEX);
+                if (taskSlotStack.isEmpty()) {
+                    this.items.set(TASK_SLOT_INDEX, stack.split(1));
                     return stack;
                 }
             }
@@ -603,5 +611,9 @@ public class RobotInventory implements Container {
 
     public ItemStack getBattery() {
         return this.getItem(BATTERY_SLOT_INDEX);
+    }
+
+    public ItemStack getTask() {
+        return this.getItem(TASK_SLOT_INDEX);
     }
 }

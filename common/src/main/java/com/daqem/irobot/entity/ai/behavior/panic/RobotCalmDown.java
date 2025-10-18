@@ -27,7 +27,7 @@ public class RobotCalmDown extends Behavior<MiniRobotEntity> {
     @Override
     protected void tick(ServerLevel level, MiniRobotEntity robot, long gameTime) {
         if (gameTime - this.calmDownStartedAt >= CALM_DOWN_DURATION) {
-            this.stop(level, robot, gameTime);
+            this.doStop(level, robot, gameTime);
         }
     }
 

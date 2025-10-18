@@ -1,7 +1,9 @@
 package com.daqem.irobot.entity.ai;
 
+import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.behavior.core.FindRechargeStation;
+import com.daqem.irobot.entity.ai.behavior.core.StayOnStationAndRecharge;
 import com.daqem.irobot.entity.ai.behavior.mining.FindNextBlockToMine;
 import com.daqem.irobot.entity.ai.behavior.mining.MineBlock;
 import com.daqem.irobot.entity.ai.behavior.panic.RobotCalmDown;
@@ -9,9 +11,11 @@ import com.daqem.irobot.entity.ai.behavior.panic.RobotPanicTrigger;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -28,13 +32,14 @@ public class RobotBrainPackages {
     }
 
     public static void registerBrainGoals(Brain<MiniRobotEntity> brain) {
-        // Not using schedule because a robot doesn't need to sleep
         brain.addActivity(Activity.CORE, getCorePackage());
         brain.addActivityWithConditions(IRobotActivities.MINE.get(), getMiningPackage(0.5F),
                 ImmutableSet.of(Pair.of(IRobotMemoryModuleTypes.ASSIGNED_TASK.get(), MemoryStatus.VALUE_PRESENT))
         );
+        brain.addActivity(IRobotActivities.RECHARGE.get(), getRechargePackage());
         brain.addActivity(Activity.IDLE, getIdlePackage());
         brain.addActivity(Activity.PANIC, getPanicPackage(0.5F));
+        brain.addActivity(Activity.REST, getRestPackage());
 
         brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
         brain.setDefaultActivity(Activity.IDLE);
@@ -47,8 +52,17 @@ public class RobotBrainPackages {
                 Pair.of(0, InteractWithDoor.create()),
                 Pair.of(0, new LookAtTargetSink(45, 90)),
                 Pair.of(0, new RobotPanicTrigger()),
-                Pair.of(1, new MoveToTargetSink()),
-                Pair.of(2, new FindRechargeStation())
+                Pair.of(1, new MoveToTargetSink() {
+                    @Override
+                    protected boolean checkExtraStartConditions(ServerLevel level, Mob owner) {
+                        return super.checkExtraStartConditions(level, owner) && owner instanceof IRobotEntity robot && robot.getEnergy() > 0;
+                    }
+
+                    @Override
+                    protected boolean canStillUse(ServerLevel level, Mob entity, long gameTime) {
+                        return super.canStillUse(level, entity, gameTime) && entity instanceof IRobotEntity robot && robot.getEnergy() > 0;
+                    }
+                })
         );
     }
 
@@ -63,6 +77,17 @@ public class RobotBrainPackages {
                 Pair.of(2, new FindNextBlockToMine()),
                 Pair.of(3, new MineBlock())
         );
+    }
+
+    private static ImmutableList<Pair<Integer, ? extends Behavior<? super MiniRobotEntity>>> getRechargePackage() {
+        return ImmutableList.of(
+                Pair.of(0, new FindRechargeStation()),
+                Pair.of(1, new StayOnStationAndRecharge())
+        );
+    }
+
+    private static ImmutableList<Pair<Integer, ? extends Behavior<? super MiniRobotEntity>>> getRestPackage() {
+        return ImmutableList.of();
     }
 
     public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getPanicPackage(float speedModifier) {

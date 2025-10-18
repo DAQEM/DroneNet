@@ -1,13 +1,17 @@
 package com.daqem.irobot.menu;
 
 import com.daqem.irobot.client.entity.ClientSideInteractableRobot;
+import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.entity.InteractableRobot;
 import com.daqem.irobot.entity.RobotInventory;
 import com.daqem.irobot.item.BatteryItem;
+import com.daqem.irobot.item.TaskItem;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -37,7 +41,7 @@ public class RobotMenu extends AbstractContainerMenu {
     public RobotMenu(int windowId, Inventory playerInventory, InteractableRobot robot) {
         super(IRobotMenuTypes.ROBOT_MENU.get(), windowId);
         this.robot = robot;
-        int baseArmorSlotIndex = RobotInventory.INVENTORY_SIZE + 1;
+        int baseArmorSlotIndex = RobotInventory.INVENTORY_SIZE + 2;
 
         for (int i = 0; i < 4; i++) {
             EquipmentSlot equipmentSlot = SLOT_IDS[i];
@@ -45,7 +49,8 @@ public class RobotMenu extends AbstractContainerMenu {
             this.addSlot(new ArmorSlot(robot.getInventory(), equipmentSlot, baseArmorSlotIndex + (3 - i), 24, 19 + i * 22, resourceLocation));
         }
 
-        this.addSlot(new BatterySlot(robot.getInventory(), RobotInventory.BATTERY_SLOT_INDEX, 50, 8));
+        this.addSlot(new BatterySlot(robot.getInventory(), RobotInventory.BATTERY_SLOT_INDEX, 119, 19));
+        this.addSlot(new TaskSlot(robot.getInventory(), RobotInventory.TASK_SLOT_INDEX, 119, 41));
 
         for (int slotX = 0; slotX < 6; slotX++) {
             this.addSlot(new Slot(robot.getInventory(), slotX, 24 + slotX * 19, 187));
@@ -80,22 +85,42 @@ public class RobotMenu extends AbstractContainerMenu {
         ItemStack itemStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
         if (slot.hasItem()) {
-            ItemStack itemStack2 = slot.getItem();
-            itemStack = itemStack2.copy();
+            ItemStack sourceStack = slot.getItem();
+            itemStack = sourceStack.copy();
             int containerSize = this.robot.getInventory().getContainerSize();
             if (index < containerSize) {
-                if (!this.moveItemStackTo(itemStack2, containerSize, this.slots.size(), true)) {
+                if (!this.moveItemStackTo(sourceStack, containerSize, this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (itemStack2.getItem() instanceof BatteryItem) {
-                if (!this.moveItemStackTo(itemStack2, 4, 5, false)) {
+            } else if (sourceStack.getItem() instanceof BatteryItem) {
+                if (!this.moveItemStackTo(sourceStack, 4, 5, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (!this.moveItemStackTo(itemStack2, 0, containerSize, false)) {
+            } else if (sourceStack.getItem() instanceof TaskItem) {
+                if (!this.moveItemStackTo(sourceStack, 5, 6, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (sourceStack.get(DataComponents.EQUIPPABLE) != null) {
+                EquipmentSlot equipmentSlot = sourceStack.get(DataComponents.EQUIPPABLE).slot();
+                int armorSlotIndex = 3 - equipmentSlot.getIndex();
+                if (!this.moveItemStackTo(sourceStack, armorSlotIndex, armorSlotIndex + 1, false)) {
+                    if (!this.moveItemStackTo(sourceStack, 6, containerSize, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                }
+            } else if (index >= containerSize && index < containerSize + 27) {
+                if (!this.moveItemStackTo(sourceStack, containerSize + 27, this.slots.size(), false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (index >= containerSize + 27 && index < this.slots.size()) {
+                if (!this.moveItemStackTo(sourceStack, containerSize, containerSize + 27, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (!this.moveItemStackTo(sourceStack, 6, containerSize, false)) {
                 return ItemStack.EMPTY;
             }
 
-            if (itemStack2.isEmpty()) {
+            if (sourceStack.isEmpty()) {
                 slot.setByPlayer(ItemStack.EMPTY);
             } else {
                 slot.setChanged();
@@ -104,6 +129,7 @@ public class RobotMenu extends AbstractContainerMenu {
 
         return itemStack;
     }
+
 
     @Override
     public boolean stillValid(Player player) {
@@ -120,5 +146,14 @@ public class RobotMenu extends AbstractContainerMenu {
 
     public int getMaxEnergy() {
         return this.robot.getContainerData().get(2);
+    }
+
+    public int getActiveActivityIndex() {
+        return this.robot.getContainerData().get(3);
+    }
+
+    public Activity getActiveActivity() {
+        int index = getActiveActivityIndex();
+        return IRobotEntity.getActivityByIndex(index);
     }
 }

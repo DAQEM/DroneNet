@@ -1,26 +1,31 @@
 package com.daqem.irobot.entity;
 
 import com.daqem.irobot.IRobot;
+import com.daqem.irobot.block.IRobotBlocks;
 import com.daqem.irobot.entity.ai.IRobotActivities;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.daqem.irobot.entity.ai.RobotBrainPackages;
 import com.daqem.irobot.entity.task.RobotTask;
 import com.daqem.irobot.item.data.BatteryDataComponent;
 import com.daqem.irobot.item.data.IRobotDataComponents;
+import com.daqem.irobot.item.data.TaskDataComponent;
+import com.daqem.irobot.item.data.TaskMarkerDataComponent;
 import com.daqem.irobot.menu.RobotMenu;
 import com.daqem.irobot.stats.IRobotStats;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.*;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemStackWithSlot;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.effect.MobEffects;
@@ -51,32 +56,61 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
     protected final RobotInventory inventory;
     private @Nullable Player interactingPlayer;
-    private Vec3 lastPos = Vec3.ZERO;
-    private double distanceSqAccumulator = 0.0;
+    private Vec3 lastPos;
+    private double distanceSqAccumulator;
 
     private final ContainerData containerData = new ContainerData() {
         @Override
         public int get(int index) {
             return switch (index) {
                 case 0 -> getEntityId();
-                case 1 -> getEnergy();
-                case 2 -> getMaxEnergy();
+                case 1 -> Mth.floor(getEnergy());
+                case 2 -> Mth.floor(getMaxEnergy());
+                case 3 -> getActiveActivityIndex();
                 default -> 0;
             };
         }
 
         @Override
         public void set(int index, int value) {
-            if (index == 1) {
-                setEnergy(value);
-            }
+            // No-op: This container data is read-only from the client side
         }
 
         @Override
         public int getCount() {
-            return 3;
+            return 4;
         }
     };
+
+    public int getActiveActivityIndex() {
+        return this.getBrain().getActiveNonCoreActivity().map(IRobotEntity::getIndexByActivity).orElse(0);
+    }
+
+    public static Activity getActivityByIndex(int index) {
+        return switch (index) {
+            case 0 -> Activity.IDLE;
+            case 1 -> Activity.REST;
+            case 2 -> IRobotActivities.PROTECT.get();
+            case 3 -> IRobotActivities.MINE.get();
+            case 4 -> IRobotActivities.CUT_WOOD.get();
+            case 5 -> IRobotActivities.FARM.get();
+            case 6 -> IRobotActivities.FOLLOW.get();
+            case 7 -> IRobotActivities.RECHARGE.get();
+            default -> Activity.IDLE;
+        };
+    }
+
+    public static int getIndexByActivity(Activity activity) {
+        if (activity == Activity.IDLE) return 0;
+        if (activity == Activity.REST) return 1;
+        if (activity == IRobotActivities.PROTECT.get()) return 2;
+        if (activity == IRobotActivities.MINE.get()) return 3;
+        if (activity == IRobotActivities.CUT_WOOD.get()) return 4;
+        if (activity == IRobotActivities.FARM.get()) return 5;
+        if (activity == IRobotActivities.FOLLOW.get()) return 6;
+        if (activity == IRobotActivities.RECHARGE.get()) return 7;
+        return 0;
+    }
 
     protected IRobotEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
         super(entityType, level);
@@ -90,6 +124,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
     // Methods for subclasses to implement
     public abstract int getRechargeThreshold();
+
     protected abstract InteractionResult handleItemInteraction(ServerPlayer player, ItemStack itemInHand, InteractionHand hand);
 
     @Override
@@ -132,8 +167,8 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
             if (distSq > 0) {
                 this.distanceSqAccumulator += distSq;
             }
-            this.lastPos = this.position();
         }
+        this.lastPos = this.position();
     }
 
     @Override
@@ -148,22 +183,75 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
         profiler.pop();
 
         if (this.isAlive() && this.tickCount % 20 == 0) {
-            // Consume energy for walking every second. 1 energy per 4 blocks (16 dist sq).
-            int energyCost = (int) Math.floor(this.distanceSqAccumulator / 16.0);
+            double energyCost = this.distanceSqAccumulator / 16.0;
             if (energyCost > 0) {
-                setEnergy(getEnergy() - energyCost);
+                setEnergy(getEnergy() - (int) energyCost);
             }
-            this.distanceSqAccumulator = 0.0; // Reset accumulator
+            this.distanceSqAccumulator = 0.0;
         }
 
-        Brain<IRobotEntity> brain = getBrain();
-        if (brain.getMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get()).orElse(null) == RobotTask.MINING) {
-            if (brain.getActiveNonCoreActivity().orElse(Activity.IDLE) == Activity.IDLE) {
-                brain.setActiveActivityIfPossible(IRobotActivities.MINE.get());
-            }
-        }
+        handleTaskLogic(level);
 
         super.customServerAiStep(level);
+    }
+
+    private void handleTaskLogic(ServerLevel level) {
+        Brain<IRobotEntity> brain = getBrain();
+        ItemStack taskStack = this.inventory.getTask();
+        boolean hasTaskInMemory = brain.hasMemoryValue(IRobotMemoryModuleTypes.ASSIGNED_TASK.get());
+        Activity currentActivity = brain.getActiveNonCoreActivity().orElse(Activity.IDLE);
+
+        if (getEnergy() <= 0) {
+            if (currentActivity != Activity.REST) brain.setActiveActivityIfPossible(Activity.REST);
+            return;
+        }
+
+        if (currentActivity == IRobotActivities.RECHARGE.get()) {
+            if (level.getBlockState(blockPosition()).is(IRobotBlocks.ROBOT_STATION.get())) return;
+        }
+
+        if (!taskStack.isEmpty() && !hasTaskInMemory) {
+            TaskDataComponent taskData = taskStack.get(IRobotDataComponents.TASK_DATA.get());
+            TaskMarkerDataComponent markerData = taskStack.get(IRobotDataComponents.TASK_MARKER_DATA.get());
+
+            if (taskData != null && markerData != null && markerData.getFirstPos() != null && markerData.getSecondPos() != null) {
+                brain.setMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get(), taskData.task());
+                brain.setMemory(IRobotMemoryModuleTypes.TASK_AREA_START.get(), markerData.getFirstPos());
+                brain.setMemory(IRobotMemoryModuleTypes.TASK_AREA_END.get(), markerData.getSecondPos());
+
+                if (taskData.task() == RobotTask.MINING) {
+                    brain.setActiveActivityIfPossible(IRobotActivities.MINE.get());
+                }
+            }
+        } else if (taskStack.isEmpty() && hasTaskInMemory) {
+            finishCurrentTask(level, true);
+        } else if (hasTaskInMemory) {
+            RobotTask currentTask = brain.getMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get()).orElse(null);
+            if (currentTask != null) {
+                Activity desiredActivity = currentTask.getActivity();
+                if (currentActivity != desiredActivity) {
+                    brain.setActiveActivityIfPossible(desiredActivity);
+                }
+            }
+        }
+
+        if (needsRecharging()) {
+            brain.setActiveActivityIfPossible(IRobotActivities.RECHARGE.get());
+        }
+    }
+
+    public void finishCurrentTask(ServerLevel level, boolean forceStopped) {
+        Brain<IRobotEntity> brain = getBrain();
+        brain.eraseMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get());
+        brain.eraseMemory(IRobotMemoryModuleTypes.TASK_AREA_START.get());
+        brain.eraseMemory(IRobotMemoryModuleTypes.TASK_AREA_END.get());
+        brain.eraseMemory(IRobotMemoryModuleTypes.MINE_TARGET_POS.get());
+        brain.eraseMemory(IRobotMemoryModuleTypes.MINING_DIRECTION.get());
+        brain.eraseMemory(IRobotMemoryModuleTypes.LANE_DIRECTION.get());
+        if (!forceStopped && getOwner() instanceof ServerPlayer player) {
+            player.sendSystemMessage(IRobot.translatable("robot.task.mining_complete"));
+        }
+        brain.setActiveActivityIfPossible(Activity.IDLE);
     }
 
     @Override
@@ -349,7 +437,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
     //endregion
 
     //region Energy
-    public int getEnergy() {
+    public double getEnergy() {
         ItemStack battery = this.inventory.getBattery();
         if (battery.isEmpty()) {
             return 0;
@@ -358,7 +446,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
         return data != null ? data.energy() : 0;
     }
 
-    public void setEnergy(int energy) {
+    public void setEnergy(double energy) {
         ItemStack battery = this.inventory.getBattery();
         if (!battery.isEmpty()) {
             BatteryDataComponent data = battery.get(IRobotDataComponents.BATTERY_DATA.get());
@@ -368,7 +456,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
         }
     }
 
-    public int getMaxEnergy() {
+    public double getMaxEnergy() {
         ItemStack battery = this.inventory.getBattery();
         if (battery.isEmpty()) {
             return 0;

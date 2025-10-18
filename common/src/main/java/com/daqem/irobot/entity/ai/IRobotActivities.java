@@ -10,7 +10,11 @@ public interface IRobotActivities {
 
     Registrar<Activity> ACTIVITIES = IRobot.MANAGER.get().get(Registries.ACTIVITY);
 
+    RegistrySupplier<Activity> PROTECT = register("protect");
     RegistrySupplier<Activity> MINE = register("mine");
+    RegistrySupplier<Activity> CUT_WOOD = register("cut_wood");
+    RegistrySupplier<Activity> FARM = register("farm");
+    RegistrySupplier<Activity> FOLLOW = register("follow");
     RegistrySupplier<Activity> RECHARGE = register("recharge");
 
     static void init() {
