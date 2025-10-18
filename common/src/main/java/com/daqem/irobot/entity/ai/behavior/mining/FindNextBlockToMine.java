@@ -56,8 +56,10 @@ public class FindNextBlockToMine extends Behavior<MiniRobotEntity> {
         // Ensure robot is within the mining area before starting
         if (!miningArea.inflate(1).contains(robot.position())) {
             Vec3 closestPoint = getClosestPointInAABB(robot.position(), miningArea);
-            robot.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(closestPoint, 0.5f, 0));
-            return;
+            if (!level.getBlockState(BlockPos.containing(closestPoint).below()).isAir()) {
+                robot.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(closestPoint, 0.5f, 0));
+                return;
+            }
         }
 
         // Initialize mining and lane directions if not already set

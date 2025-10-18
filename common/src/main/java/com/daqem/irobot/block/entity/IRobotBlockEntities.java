@@ -16,6 +16,7 @@ public interface IRobotBlockEntities {
 
     RegistrySupplier<BlockEntityType<RobotStationBlockEntity>> ROBOT_STATION = register("robot_station", RobotStationBlockEntity::new, IRobotBlocks.ROBOT_STATION.get());
     RegistrySupplier<BlockEntityType<TaskTableBlockEntity>> TASK_TABLE = register("task_table", TaskTableBlockEntity::new, IRobotBlocks.TASK_TABLE.get());
+    RegistrySupplier<BlockEntityType<DropoffChestBlockEntity>> DROPOFF_CHEST = register("dropoff_chest", DropoffChestBlockEntity::new, IRobotBlocks.DROPOFF_CHEST.get());
 
     static void init() {
     }

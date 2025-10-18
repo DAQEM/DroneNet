@@ -1,4 +1,4 @@
-package com.daqem.irobot.entity.ai.behavior.core;
+package com.daqem.irobot.entity.ai.behavior.charging;
 
 import com.daqem.irobot.IRobot;
 import com.daqem.irobot.block.IRobotBlocks;

@@ -1,5 +1,6 @@
 package com.daqem.irobot.client.renderer;
 
+import com.daqem.irobot.item.TaskItem;
 import com.daqem.irobot.item.TaskMarkerItem;
 import com.daqem.irobot.item.data.TaskMarkerDataComponent;
 import com.daqem.irobot.item.data.IRobotDataComponents;
@@ -58,12 +59,12 @@ public class OutlineRenderer {
         }
 
         ItemStack mainHand = localPlayer.getMainHandItem();
-        if (mainHand.getItem() instanceof TaskMarkerItem) {
+        if (mainHand.getItem() instanceof TaskMarkerItem || mainHand.getItem() instanceof TaskItem) {
             return mainHand;
         }
 
         ItemStack offHand = localPlayer.getOffhandItem();
-        if (offHand.getItem() instanceof TaskMarkerItem) {
+        if (offHand.getItem() instanceof TaskMarkerItem || mainHand.getItem() instanceof TaskItem) {
             return offHand;
         }
 

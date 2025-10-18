@@ -19,6 +19,7 @@ public interface IRobotPoiTypes {
     Registrar<PoiType> POI_TYPES = IRobot.MANAGER.get().get(Registries.POINT_OF_INTEREST_TYPE);
 
     RegistrySupplier<PoiType> ROBOT_STATION = register("robot_station", getAllStates(IRobotBlocks.ROBOT_STATION.get()), 1, 1);
+    RegistrySupplier<PoiType> DROPOFF_CHEST = register("dropoff_chest", getAllStates(IRobotBlocks.DROPOFF_CHEST.get()), 32, 1);
 
     static void init() {
     }

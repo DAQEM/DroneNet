@@ -1,4 +1,4 @@
-package com.daqem.irobot.entity.ai.behavior.core;
+package com.daqem.irobot.entity.ai.behavior.charging;
 
 import com.daqem.irobot.IRobot;
 import com.daqem.irobot.block.IRobotBlocks;
@@ -54,6 +54,7 @@ public class StayOnStationAndRecharge extends Behavior<IRobotEntity> {
 
         // Remember the station position
         entity.getBrain().setMemory(IRobotMemoryModuleTypes.STATION_POS.get(), new GlobalPos(level.dimension(), stationPos));
+        entity.getBrain().setMemory(IRobotMemoryModuleTypes.IS_CHARING.get(), true);
     }
 
     @Override
@@ -68,6 +69,7 @@ public class StayOnStationAndRecharge extends Behavior<IRobotEntity> {
             level.getPoiManager().release(globalPos.pos());
         });
         robot.getBrain().eraseMemory(IRobotMemoryModuleTypes.STATION_POS.get());
+        robot.getBrain().eraseMemory(IRobotMemoryModuleTypes.IS_CHARING.get());
 
         // Resume previous task
         RobotTask previousTask = robot.getBrain().getMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get()).orElse(null);

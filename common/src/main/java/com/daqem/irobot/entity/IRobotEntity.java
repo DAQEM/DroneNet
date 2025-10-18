@@ -1,11 +1,10 @@
 package com.daqem.irobot.entity;
 
 import com.daqem.irobot.IRobot;
-import com.daqem.irobot.block.IRobotBlocks;
 import com.daqem.irobot.entity.ai.IRobotActivities;
+import com.daqem.irobot.entity.ai.IRobotBrain;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.daqem.irobot.entity.ai.RobotBrainPackages;
-import com.daqem.irobot.entity.task.RobotTask;
 import com.daqem.irobot.item.data.BatteryDataComponent;
 import com.daqem.irobot.item.data.IRobotDataComponents;
 import com.daqem.irobot.item.data.TaskDataComponent;
@@ -96,6 +95,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
             case 5 -> IRobotActivities.FARM.get();
             case 6 -> IRobotActivities.FOLLOW.get();
             case 7 -> IRobotActivities.RECHARGE.get();
+            case 8 -> IRobotActivities.DROPOFF.get();
             default -> Activity.IDLE;
         };
     }
@@ -109,6 +109,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
         if (activity == IRobotActivities.FARM.get()) return 5;
         if (activity == IRobotActivities.FOLLOW.get()) return 6;
         if (activity == IRobotActivities.RECHARGE.get()) return 7;
+        if (activity == IRobotActivities.DROPOFF.get()) return 8;
         return 0;
     }
 
@@ -144,7 +145,11 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
     @Override
     public @NotNull Brain<IRobotEntity> getBrain() {
-        return (Brain<IRobotEntity>) super.getBrain();
+        Brain<IRobotEntity> brain = (Brain<IRobotEntity>) super.getBrain();
+        if (brain instanceof IRobotBrain robotBrain) {
+            robotBrain.irobot$setRobot(this);
+        }
+        return brain;
     }
 
     @Override
@@ -185,73 +190,12 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
         if (this.isAlive() && this.tickCount % 20 == 0) {
             double energyCost = this.distanceSqAccumulator / 16.0;
             if (energyCost > 0) {
-                setEnergy(getEnergy() - (int) energyCost);
+                setEnergy(getEnergy() - energyCost);
             }
             this.distanceSqAccumulator = 0.0;
         }
 
-        handleTaskLogic(level);
-
         super.customServerAiStep(level);
-    }
-
-    private void handleTaskLogic(ServerLevel level) {
-        Brain<IRobotEntity> brain = getBrain();
-        ItemStack taskStack = this.inventory.getTask();
-        boolean hasTaskInMemory = brain.hasMemoryValue(IRobotMemoryModuleTypes.ASSIGNED_TASK.get());
-        Activity currentActivity = brain.getActiveNonCoreActivity().orElse(Activity.IDLE);
-
-        if (getEnergy() <= 0) {
-            if (currentActivity != Activity.REST) brain.setActiveActivityIfPossible(Activity.REST);
-            return;
-        }
-
-        if (currentActivity == IRobotActivities.RECHARGE.get()) {
-            if (level.getBlockState(blockPosition()).is(IRobotBlocks.ROBOT_STATION.get())) return;
-        }
-
-        if (!taskStack.isEmpty() && !hasTaskInMemory) {
-            TaskDataComponent taskData = taskStack.get(IRobotDataComponents.TASK_DATA.get());
-            TaskMarkerDataComponent markerData = taskStack.get(IRobotDataComponents.TASK_MARKER_DATA.get());
-
-            if (taskData != null && markerData != null && markerData.getFirstPos() != null && markerData.getSecondPos() != null) {
-                brain.setMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get(), taskData.task());
-                brain.setMemory(IRobotMemoryModuleTypes.TASK_AREA_START.get(), markerData.getFirstPos());
-                brain.setMemory(IRobotMemoryModuleTypes.TASK_AREA_END.get(), markerData.getSecondPos());
-
-                if (taskData.task() == RobotTask.MINING) {
-                    brain.setActiveActivityIfPossible(IRobotActivities.MINE.get());
-                }
-            }
-        } else if (taskStack.isEmpty() && hasTaskInMemory) {
-            finishCurrentTask(level, true);
-        } else if (hasTaskInMemory) {
-            RobotTask currentTask = brain.getMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get()).orElse(null);
-            if (currentTask != null) {
-                Activity desiredActivity = currentTask.getActivity();
-                if (currentActivity != desiredActivity) {
-                    brain.setActiveActivityIfPossible(desiredActivity);
-                }
-            }
-        }
-
-        if (needsRecharging()) {
-            brain.setActiveActivityIfPossible(IRobotActivities.RECHARGE.get());
-        }
-    }
-
-    public void finishCurrentTask(ServerLevel level, boolean forceStopped) {
-        Brain<IRobotEntity> brain = getBrain();
-        brain.eraseMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get());
-        brain.eraseMemory(IRobotMemoryModuleTypes.TASK_AREA_START.get());
-        brain.eraseMemory(IRobotMemoryModuleTypes.TASK_AREA_END.get());
-        brain.eraseMemory(IRobotMemoryModuleTypes.MINE_TARGET_POS.get());
-        brain.eraseMemory(IRobotMemoryModuleTypes.MINING_DIRECTION.get());
-        brain.eraseMemory(IRobotMemoryModuleTypes.LANE_DIRECTION.get());
-        if (!forceStopped && getOwner() instanceof ServerPlayer player) {
-            player.sendSystemMessage(IRobot.translatable("robot.task.mining_complete"));
-        }
-        brain.setActiveActivityIfPossible(Activity.IDLE);
     }
 
     @Override
@@ -260,10 +204,10 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
             EntityReference<LivingEntity> ownerReference = this.getOwnerReference();
             if (ownerReference == null) return InteractionResult.PASS;
 
-            if (!ownerReference.matches(player)) {
-                serverPlayer.sendSystemMessage(IRobot.translatable("error.robot.not_owner").withStyle(ChatFormatting.RED), true);
-                return InteractionResult.CONSUME;
-            }
+//            if (!ownerReference.matches(player)) {
+//                serverPlayer.sendSystemMessage(IRobot.translatable("error.robot.not_owner").withStyle(ChatFormatting.RED), true);
+//                return InteractionResult.CONSUME;
+//            }
 
             ItemStack itemInHand = player.getItemInHand(hand);
             InteractionResult itemResult = handleItemInteraction(serverPlayer, itemInHand, hand);
@@ -483,5 +427,30 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
     @Override
     public @Nullable AgeableMob getBreedOffspring(ServerLevel level, AgeableMob otherParent) {
         return null; // Robots can't breed
+    }
+
+    public boolean needsToDropOff() {
+        return this.getBrain().hasMemoryValue(IRobotMemoryModuleTypes.NEEDS_TO_DROPOFF.get()) || this.inventory.isMainInventoryFull();
+    }
+
+    public boolean hasTaskItem() {
+        ItemStack task = this.getInventory().getTask();
+        return task != null && !task.isEmpty();
+    }
+
+    public @Nullable TaskDataComponent getTaskItemData() {
+        ItemStack task = this.getInventory().getTask();
+        if (task != null && !task.isEmpty() && task.has(IRobotDataComponents.TASK_DATA.get())) {
+            return task.get(IRobotDataComponents.TASK_DATA.get());
+        }
+        return null;
+    }
+
+    public TaskMarkerDataComponent getTaskMarkerData() {
+        ItemStack task = this.getInventory().getTask();
+        if (task != null && !task.isEmpty() && task.has(IRobotDataComponents.TASK_MARKER_DATA.get())) {
+            return task.get(IRobotDataComponents.TASK_MARKER_DATA.get());
+        }
+        return null;
     }
 }

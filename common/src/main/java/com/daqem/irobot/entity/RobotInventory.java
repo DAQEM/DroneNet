@@ -24,6 +24,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -206,6 +207,15 @@ public class RobotInventory implements Container {
 
     public boolean isFull() {
         return getFreeSlot() == -1;
+    }
+
+    public boolean isMainInventoryFull() {
+        for (int i = 0; i < INVENTORY_SIZE; i++) {
+            if (this.items.get(i).isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void addAndPickItem(ItemStack stack) {
@@ -615,5 +625,20 @@ public class RobotInventory implements Container {
 
     public ItemStack getTask() {
         return this.getItem(TASK_SLOT_INDEX);
+    }
+
+    public boolean canAddItem(Container container) {
+        for (int i = 0; i < INVENTORY_SIZE; i++) {
+            ItemStack stack = this.items.get(i);
+            for (int j = 0; j < container.getContainerSize(); j++) {
+                ItemStack conatinerStack = container.getItem(j);
+                if (container.canPlaceItem(j, stack)) {
+                    if (conatinerStack.isEmpty() || (ItemStack.isSameItemSameComponents(stack, conatinerStack) && conatinerStack.getCount() < conatinerStack.getMaxStackSize())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }

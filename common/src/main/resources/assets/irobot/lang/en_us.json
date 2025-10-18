@@ -8,6 +8,7 @@
   "irobot.robot.task.mining_stuck": "Cannot reach any more blocks in the mining area.",
   "irobot.robot.task.mining_stopped_inventory_full": "Mining task stopped: inventory is full.",
   "irobot.robot.error.cant_find_station": "Robot %s cannot find a station to recharge at: X%d, Y%d, Z%d.",
+  "irobot.robot.error.cant_find_dropoff": "Robot %s cannot find a dropoff chest.",
 
   "irobot.item.task_marker.description": "Use to create an area for a task.",
   "irobot.item.task_marker.description.left_click": "Left click a block to set the primary position.",
@@ -45,12 +46,14 @@
   "irobot.gui.robot.activity.farm": "Farming",
   "irobot.gui.robot.activity.follow": "Following",
   "irobot.gui.robot.activity.recharge": "Recharging",
+  "irobot.gui.robot.activity.dropoff": "Dropping Off Items",
 
   "itemGroup.irobot.irobot_tab": "iRobot",
 
   "item.irobot.robot_station": "Robot Station",
   "item.irobot.mini_robot": "Mini Robot",
   "item.irobot.task_marker": "Task Marker",
+  "item.irobot.dropoff_chest": "Dropoff Chest",
   "item.irobot.task_table": "Task Table",
   "item.irobot.task": "Robot Task",
   "item.irobot.small_battery": "Small Battery",
@@ -63,8 +66,11 @@
 
   "block.irobot.robot_station": "Robot Station",
   "block.irobot.task_table": "Task Table",
+  "block.irobot.dropoff_chest": "Dropoff Chest",
+  "container.irobot.dropoff_chest": "Dropoff Chest",
 
   "activity.irobot.mine": "Mining",
   "activity.irobot.recharge": "Recharging",
-  "activity.irobot.follow": "Following"
+  "activity.irobot.follow": "Following",
+  "activity.irobot.dropoff": "Dropping Off"
 }

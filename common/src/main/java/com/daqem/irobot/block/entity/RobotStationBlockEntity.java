@@ -48,6 +48,8 @@ public class RobotStationBlockEntity extends BlockEntity implements GeoBlockEnti
             if (data != null && data.energy() < data.maxEnergy()) {
                 double newEnergy = Math.min(data.energy() + CHARGE_RATE_PER_TICK, data.maxEnergy());
                 batteryStack.set(IRobotDataComponents.BATTERY_DATA.get(), data.withEnergy(newEnergy));
+            } else if (data == null) {
+                batteryStack.set(IRobotDataComponents.BATTERY_DATA.get(), new BatteryDataComponent(0, ((BatteryItem) batteryStack.getItem()).getMaxEnergy()));
             }
         }
     }

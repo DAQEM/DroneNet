@@ -1,25 +1,16 @@
 package com.daqem.irobot.entity;
 
 import com.daqem.irobot.IRobot;
-import com.daqem.irobot.entity.ai.IRobotActivities;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
-import com.daqem.irobot.entity.task.RobotTask;
 import com.daqem.irobot.item.TaskItem;
-import com.daqem.irobot.item.TaskMarkerItem;
-import com.daqem.irobot.item.data.TaskMarkerDataComponent;
-import com.daqem.irobot.item.data.IRobotDataComponents;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.GlobalPos;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.TamableAnimal;
-import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.Sensor;
@@ -52,7 +43,11 @@ public class MiniRobotEntity extends IRobotEntity {
             IRobotMemoryModuleTypes.MINE_TARGET_POS.get(),
             IRobotMemoryModuleTypes.STATION_POS.get(),
             IRobotMemoryModuleTypes.MINING_DIRECTION.get(),
-            IRobotMemoryModuleTypes.LANE_DIRECTION.get()
+            IRobotMemoryModuleTypes.LANE_DIRECTION.get(),
+            IRobotMemoryModuleTypes.LANE_DIRECTION.get(),
+            IRobotMemoryModuleTypes.DROPOFF_TARGET_POS.get(),
+            IRobotMemoryModuleTypes.NEEDS_TO_DROPOFF.get(),
+            IRobotMemoryModuleTypes.IS_CHARING.get()
     );
 
     public static final ImmutableList<SensorType<? extends Sensor<? super MiniRobotEntity>>> SENSOR_TYPES = ImmutableList.of(

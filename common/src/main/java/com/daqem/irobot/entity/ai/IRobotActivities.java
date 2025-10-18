@@ -16,6 +16,7 @@ public interface IRobotActivities {
     RegistrySupplier<Activity> FARM = register("farm");
     RegistrySupplier<Activity> FOLLOW = register("follow");
     RegistrySupplier<Activity> RECHARGE = register("recharge");
+    RegistrySupplier<Activity> DROPOFF = register("dropoff");
 
     static void init() {
     }

@@ -17,6 +17,8 @@ public interface IRobotBlocks {
 
     RegistrySupplier<RobotStationBlock> ROBOT_STATION = register("robot_station", BlockBehaviour.Properties.of(),RobotStationBlock::new);
     RegistrySupplier<TaskTableBlock> TASK_TABLE = register("task_table", BlockBehaviour.Properties.of(),TaskTableBlock::new);
+    RegistrySupplier<DropoffChestBlock> DROPOFF_CHEST = register("dropoff_chest", BlockBehaviour.Properties.of().strength(2.5F), DropoffChestBlock::new);
+
 
     static void init() {
     }

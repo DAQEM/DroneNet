@@ -26,6 +26,9 @@ public interface IRobotMemoryModuleTypes {
     RegistrySupplier<MemoryModuleType<GlobalPos>> STATION_POS = register("station_pos", GlobalPos.CODEC);
     RegistrySupplier<MemoryModuleType<Direction>> MINING_DIRECTION = register("mining_direction", Direction.CODEC);
     RegistrySupplier<MemoryModuleType<Direction>> LANE_DIRECTION = register("lane_direction", Direction.CODEC);
+    RegistrySupplier<MemoryModuleType<GlobalPos>> DROPOFF_TARGET_POS = register("dropoff_target_pos", GlobalPos.CODEC);
+    RegistrySupplier<MemoryModuleType<Boolean>> NEEDS_TO_DROPOFF = register("needs_to_dropoff", Codec.BOOL);
+    RegistrySupplier<MemoryModuleType<Boolean>> IS_CHARING = register("is_charing", Codec.BOOL);
 
 
     static void init() {
