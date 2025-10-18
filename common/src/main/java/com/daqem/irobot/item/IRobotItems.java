@@ -19,6 +19,10 @@ public interface IRobotItems {
     RegistrySupplier<MiniRobotItem> MINI_ROBOT = register("mini_robot", MiniRobotItem::new);
     RegistrySupplier<TaskMarkerItem> TASK_MARKER = register("task_marker", TaskMarkerItem::new);
     RegistrySupplier<TaskItem> TASK = register("task", TaskItem::new);
+    RegistrySupplier<BatteryItem> SMALL_BATTERY = register("small_battery", p -> new BatteryItem(p, 500));
+    RegistrySupplier<BatteryItem> MEDIUM_BATTERY = register("medium_battery", p -> new BatteryItem(p, 1500));
+    RegistrySupplier<BatteryItem> LARGE_BATTERY = register("large_battery", p -> new BatteryItem(p, 3000));
+
 
     static void init() {
     }

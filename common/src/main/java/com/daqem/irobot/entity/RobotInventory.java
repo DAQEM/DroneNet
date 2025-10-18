@@ -1,5 +1,6 @@
 package com.daqem.irobot.entity;
 
+import com.daqem.irobot.item.BatteryItem;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.CrashReport;
@@ -35,20 +36,19 @@ import java.util.stream.Collectors;
 public class RobotInventory implements Container {
 
     public static final int INVENTORY_SIZE = 24;
-    public static final Int2ObjectMap<EquipmentSlot> EQUIPMENT_SLOT_MAPPING = new Int2ObjectArrayMap<>(
-            Map.of(
-                    EquipmentSlot.FEET.getIndex(INVENTORY_SIZE),
-                    EquipmentSlot.FEET,
-                    EquipmentSlot.LEGS.getIndex(INVENTORY_SIZE),
-                    EquipmentSlot.LEGS,
-                    EquipmentSlot.CHEST.getIndex(INVENTORY_SIZE),
-                    EquipmentSlot.CHEST,
-                    EquipmentSlot.HEAD.getIndex(INVENTORY_SIZE),
-                    EquipmentSlot.HEAD
-            )
-    );
+    public static final int BATTERY_SLOT_INDEX = INVENTORY_SIZE;
+    public static final Int2ObjectMap<EquipmentSlot> EQUIPMENT_SLOT_MAPPING;
 
-    private final NonNullList<ItemStack> items = NonNullList.withSize(INVENTORY_SIZE, ItemStack.EMPTY);
+    static {
+        Int2ObjectArrayMap<EquipmentSlot> map = new Int2ObjectArrayMap<>();
+        map.put(EquipmentSlot.FEET.getIndex(INVENTORY_SIZE + 1), EquipmentSlot.FEET);
+        map.put(EquipmentSlot.LEGS.getIndex(INVENTORY_SIZE + 1), EquipmentSlot.LEGS);
+        map.put(EquipmentSlot.CHEST.getIndex(INVENTORY_SIZE + 1), EquipmentSlot.CHEST);
+        map.put(EquipmentSlot.HEAD.getIndex(INVENTORY_SIZE + 1), EquipmentSlot.HEAD);
+        EQUIPMENT_SLOT_MAPPING = map;
+    }
+
+    private final NonNullList<ItemStack> items = NonNullList.withSize(INVENTORY_SIZE + 1, ItemStack.EMPTY);
     private int selected;
     public final IRobotEntity robot;
     private final EntityEquipment equipment;
@@ -95,6 +95,13 @@ public class RobotInventory implements Container {
         if (stack.isEmpty()) {
             return ItemStack.EMPTY;
         } else {
+            if (stack.getItem() instanceof BatteryItem) {
+                ItemStack batterySlotStack = this.items.get(BATTERY_SLOT_INDEX);
+                if (batterySlotStack.isEmpty()) {
+                    this.items.set(BATTERY_SLOT_INDEX, stack.split(1));
+                    return stack;
+                }
+            }
             ItemStack itemStack = stack.copy();
             this.moveItemToOccupiedSlotsWithSameType(itemStack);
             if (itemStack.isEmpty()) {
@@ -441,8 +448,8 @@ public class RobotInventory implements Container {
     public void setItem(int slot, ItemStack stack) {
         if (slot < this.items.size()) {
             this.items.set(slot, stack);
+            return;
         }
-
         EquipmentSlot equipmentSlot = EQUIPMENT_SLOT_MAPPING.get(slot);
         if (equipmentSlot != null) {
             this.equipment.set(equipmentSlot, stack);
@@ -592,5 +599,9 @@ public class RobotInventory implements Container {
         if (bestSlot != -1) {
             this.setSelectedSlot(bestSlot);
         }
+    }
+
+    public ItemStack getBattery() {
+        return this.getItem(BATTERY_SLOT_INDEX);
     }
 }

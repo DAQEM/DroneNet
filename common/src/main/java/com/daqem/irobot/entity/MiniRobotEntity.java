@@ -36,8 +36,7 @@ import java.util.EnumMap;
 
 public class MiniRobotEntity extends IRobotEntity {
 
-    private static final int MAX_ENERGY = 1500;
-    private static final int SHOULD_RECHARGE = 1000;
+    private static final float RECHARGE_THRESHOLD_PERCENTAGE = 0.2F;
 
     public static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
             MemoryModuleType.WALK_TARGET,
@@ -122,12 +121,7 @@ public class MiniRobotEntity extends IRobotEntity {
     }
 
     @Override
-    public int getMaxEnergy() {
-        return MAX_ENERGY;
-    }
-
-    @Override
     public int getRechargeThreshold() {
-        return SHOULD_RECHARGE;
+        return (int) (getMaxEnergy() * RECHARGE_THRESHOLD_PERCENTAGE);
     }
 }

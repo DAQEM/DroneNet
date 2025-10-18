@@ -2,6 +2,8 @@ package com.daqem.irobot.menu;
 
 import com.daqem.irobot.client.entity.ClientSideInteractableRobot;
 import com.daqem.irobot.entity.InteractableRobot;
+import com.daqem.irobot.entity.RobotInventory;
+import com.daqem.irobot.item.BatteryItem;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
@@ -35,12 +37,15 @@ public class RobotMenu extends AbstractContainerMenu {
     public RobotMenu(int windowId, Inventory playerInventory, InteractableRobot robot) {
         super(IRobotMenuTypes.ROBOT_MENU.get(), windowId);
         this.robot = robot;
+        int baseArmorSlotIndex = RobotInventory.INVENTORY_SIZE + 1;
 
         for (int i = 0; i < 4; i++) {
             EquipmentSlot equipmentSlot = SLOT_IDS[i];
             ResourceLocation resourceLocation = TEXTURE_EMPTY_SLOTS.get(equipmentSlot);
-            this.addSlot(new ArmorSlot(robot.getInventory(), equipmentSlot, 27 - i, 24, 19 + i * 22, resourceLocation));
+            this.addSlot(new ArmorSlot(robot.getInventory(), equipmentSlot, baseArmorSlotIndex + (3 - i), 24, 19 + i * 22, resourceLocation));
         }
+
+        this.addSlot(new BatterySlot(robot.getInventory(), RobotInventory.BATTERY_SLOT_INDEX, 50, 8));
 
         for (int slotX = 0; slotX < 6; slotX++) {
             this.addSlot(new Slot(robot.getInventory(), slotX, 24 + slotX * 19, 187));
@@ -77,9 +82,13 @@ public class RobotMenu extends AbstractContainerMenu {
         if (slot.hasItem()) {
             ItemStack itemStack2 = slot.getItem();
             itemStack = itemStack2.copy();
-            int containerSize = this.robot.getInventory().getContainerSize() + TEXTURE_EMPTY_SLOTS.size();
+            int containerSize = this.robot.getInventory().getContainerSize();
             if (index < containerSize) {
-                if (!this.moveItemStackTo(itemStack2, containerSize, this.slots.size(), false)) {
+                if (!this.moveItemStackTo(itemStack2, containerSize, this.slots.size(), true)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (itemStack2.getItem() instanceof BatteryItem) {
+                if (!this.moveItemStackTo(itemStack2, 4, 5, false)) {
                     return ItemStack.EMPTY;
                 }
             } else if (!this.moveItemStackTo(itemStack2, 0, containerSize, false)) {

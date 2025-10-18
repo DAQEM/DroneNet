@@ -5,6 +5,8 @@ import com.daqem.irobot.entity.ai.IRobotActivities;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.daqem.irobot.entity.ai.RobotBrainPackages;
 import com.daqem.irobot.entity.task.RobotTask;
+import com.daqem.irobot.item.data.BatteryDataComponent;
+import com.daqem.irobot.item.data.IRobotDataComponents;
 import com.daqem.irobot.menu.RobotMenu;
 import com.daqem.irobot.stats.IRobotStats;
 import com.mojang.serialization.Dynamic;
@@ -45,8 +47,6 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, InteractableRobot {
-
-    protected static final EntityDataAccessor<Integer> DATA_ENERGY_ID = SynchedEntityData.defineId(IRobotEntity.class, EntityDataSerializers.INT);
 
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
     protected final RobotInventory inventory;
@@ -89,14 +89,12 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
     }
 
     // Methods for subclasses to implement
-    public abstract int getMaxEnergy();
     public abstract int getRechargeThreshold();
     protected abstract InteractionResult handleItemInteraction(ServerPlayer player, ItemStack itemInHand, InteractionHand hand);
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
-        builder.define(DATA_ENERGY_ID, getMaxEnergy());
     }
 
     public static AttributeSupplier.Builder createRobotAttributes() {
@@ -208,14 +206,12 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
         this.inventory.save(output.list("Inventory", ItemStackWithSlot.CODEC));
-        output.putInt("Energy", this.getEnergy());
     }
 
     @Override
     protected void readAdditionalSaveData(ValueInput input) {
         super.readAdditionalSaveData(input);
         this.inventory.load(input.listOrEmpty("Inventory", ItemStackWithSlot.CODEC));
-        this.setEnergy(input.getIntOr("Energy", getMaxEnergy()));
     }
 
     //region Interaction and GUI
@@ -354,11 +350,31 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
     //region Energy
     public int getEnergy() {
-        return this.entityData.get(DATA_ENERGY_ID);
+        ItemStack battery = this.inventory.getBattery();
+        if (battery.isEmpty()) {
+            return 0;
+        }
+        BatteryDataComponent data = battery.get(IRobotDataComponents.BATTERY_DATA.get());
+        return data != null ? data.energy() : 0;
     }
 
     public void setEnergy(int energy) {
-        this.entityData.set(DATA_ENERGY_ID, Math.max(0, Math.min(energy, getMaxEnergy())));
+        ItemStack battery = this.inventory.getBattery();
+        if (!battery.isEmpty()) {
+            BatteryDataComponent data = battery.get(IRobotDataComponents.BATTERY_DATA.get());
+            if (data != null) {
+                battery.set(IRobotDataComponents.BATTERY_DATA.get(), data.withEnergy(energy));
+            }
+        }
+    }
+
+    public int getMaxEnergy() {
+        ItemStack battery = this.inventory.getBattery();
+        if (battery.isEmpty()) {
+            return 0;
+        }
+        BatteryDataComponent data = battery.get(IRobotDataComponents.BATTERY_DATA.get());
+        return data != null ? data.maxEnergy() : 0;
     }
 
     public boolean needsRecharging() {

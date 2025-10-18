@@ -22,6 +22,7 @@
   "irobot.tooltip.task_item.second_position_none": "Second Position not set.",
   "irobot.tooltip.task_item.task_name": "Task: %s.",
   "irobot.tooltip.task_item.no_task_data": "No task assigned.",
+  "tooltip.irobot.energy": "Energy: %s / %s",
 
   "irobot.task.protecting": "Protecting",
   "irobot.task.mining": "Mining",
@@ -40,6 +41,9 @@
   "item.irobot.task_marker": "Task Marker",
   "item.irobot.task_table": "Task Table",
   "item.irobot.task": "Robot Task",
+  "item.irobot.small_battery": "Small Battery",
+  "item.irobot.medium_battery": "Medium Battery",
+  "item.irobot.large_battery": "Large Battery",
 
   "stat.irobot.talked_to_robot": "Talked to Robot",
 

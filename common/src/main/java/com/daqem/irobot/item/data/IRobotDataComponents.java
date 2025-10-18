@@ -15,6 +15,7 @@ public interface IRobotDataComponents {
 
     RegistrySupplier<DataComponentType<TaskMarkerDataComponent>> TASK_MARKER_DATA = register("task_marker_data", TaskMarkerDataComponent.CODEC, TaskMarkerDataComponent.STREAM_CODEC);
     RegistrySupplier<DataComponentType<TaskDataComponent>> TASK_DATA = register("task_data", TaskDataComponent.CODEC, TaskDataComponent.STREAM_CODEC);
+    RegistrySupplier<DataComponentType<BatteryDataComponent>> BATTERY_DATA = register("battery_data", BatteryDataComponent.CODEC, BatteryDataComponent.STREAM_CODEC);
 
     static void init() {
     }
@@ -22,5 +23,4 @@ public interface IRobotDataComponents {
     static <T> RegistrySupplier<DataComponentType<T>> register(String name, Codec<T> codec, StreamCodec<RegistryFriendlyByteBuf, T> streamCodec) {
         return DATA_COMPONENTS.register(IRobot.getId(name), () -> ((DataComponentType.Builder) DataComponentType.builder()).persistent(codec).networkSynchronized(streamCodec).build());
     }
-
 }

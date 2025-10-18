@@ -1,14 +1,19 @@
 package com.daqem.irobot.block;
 
 import com.daqem.irobot.block.entity.IRobotBlockEntities;
+import com.daqem.irobot.block.entity.RobotStationBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -33,6 +38,12 @@ public class RobotStationBlock extends BaseEntityBlock {
     }
 
     @Override
+    @Nullable
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+        return level.isClientSide ? null : createTickerHelper(blockEntityType, IRobotBlockEntities.ROBOT_STATION.get(), RobotStationBlockEntity::serverTick);
+    }
+
+    @Override
     protected @NotNull VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return Shapes.or(
                 Block.box(0, 0, 0, 4, 3, 4),
@@ -42,5 +53,10 @@ public class RobotStationBlock extends BaseEntityBlock {
                 Block.box(1, 0, 1, 15, 7, 15),
                 Block.box(0, 7, 0, 16, 10, 16)
         );
+    }
+
+    @Override
+    protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
+        return false;
     }
 }

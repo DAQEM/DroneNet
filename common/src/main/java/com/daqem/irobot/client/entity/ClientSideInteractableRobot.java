@@ -10,7 +10,7 @@ import net.minecraft.world.inventory.SimpleContainerData;
 public class ClientSideInteractableRobot implements InteractableRobot {
 
     private final ContainerData containerData = new SimpleContainerData(3);
-    private final Container inventory = new SimpleContainer(28);
+    private final Container inventory = new SimpleContainer(29);
     private Player interactingPlayer;
 
     public ClientSideInteractableRobot(Player interactingPlayer) {
