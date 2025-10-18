@@ -15,6 +15,11 @@ public class RobotPanicTrigger extends Behavior<MiniRobotEntity> {
         super(ImmutableMap.of());
     }
 
+    @Override
+    protected boolean checkExtraStartConditions(ServerLevel level, MiniRobotEntity owner) {
+        return (!owner.isFollowing() || (owner.isFollowing() && owner.getRandom().nextInt(100) < 2)) && isHurt(owner);
+    }
+
     protected boolean canStillUse(ServerLevel level, MiniRobotEntity entity, long gameTime) {
         return isHurt(entity);
     }

@@ -11,6 +11,8 @@ import com.daqem.irobot.entity.ai.behavior.dropoff.DepositItemsAtDropoff;
 import com.daqem.irobot.entity.ai.behavior.dropoff.FindDropoffChest;
 import com.daqem.irobot.entity.ai.behavior.farming.FindFarmableBlock;
 import com.daqem.irobot.entity.ai.behavior.farming.HarvestAndReplantCrop;
+import com.daqem.irobot.entity.ai.behavior.following.FollowAndProtectOwner;
+import com.daqem.irobot.entity.ai.behavior.following.MeleeAttack;
 import com.daqem.irobot.entity.ai.behavior.idle.GoToTaskActivity;
 import com.daqem.irobot.entity.ai.behavior.mining.FindNextBlockToMine;
 import com.daqem.irobot.entity.ai.behavior.mining.MineBlock;
@@ -125,7 +127,12 @@ public class RobotBrainPackages {
 
     private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getFollowingPackage() {
         List<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
-        behaviors.addAll(List.of());
+        behaviors.addAll(List.of(
+                Pair.of(0, StopAttackingIfTargetInvalid.create()),
+                Pair.of(1, SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(0.75F)),
+                Pair.of(1, new MeleeAttack(5)),
+                Pair.of(2, new FollowAndProtectOwner())
+        ));
         return ImmutableList.copyOf(behaviors);
     }
 

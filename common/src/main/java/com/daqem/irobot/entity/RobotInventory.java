@@ -16,14 +16,21 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.ItemStackWithSlot;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityEquipment;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -31,6 +38,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -646,5 +654,34 @@ public class RobotInventory implements Container {
             }
         }
         return false;
+    }
+
+    public void selectBestWeapon(LivingEntity target) {
+        if (this.robot.level() instanceof ServerLevel serverLevel) {
+            int bestSlot = -1;
+            float bestDamage = 1.0f;
+
+            for (int i = 0; i < this.items.size(); i++) {
+                ItemStack itemStack = this.getItem(i);
+                if (itemStack.isEmpty()) {
+                    continue;
+                }
+                float damage = (float) robot.getAttributeValue(Attributes.ATTACK_DAMAGE);
+                DamageSource damageSource = Optional.ofNullable(itemStack.getItem().getDamageSource(robot)).orElse(robot.damageSources().mobAttack(robot));
+                damage = EnchantmentHelper.modifyDamage(serverLevel, itemStack, target, damageSource, damage);
+                damage += itemStack.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY).modifiers().stream()
+                        .filter(modifier -> Attributes.ATTACK_DAMAGE.is(modifier.attribute().unwrapKey().orElseThrow()))
+                        .map(x -> (float) x.modifier().amount())
+                        .reduce(0f, Float::sum);
+                if (damage > bestDamage) {
+                    bestDamage = damage;
+                    bestSlot = i;
+                }
+            }
+
+            if (bestSlot != -1) {
+                this.setSelectedSlot(bestSlot);
+            }
+        }
     }
 }

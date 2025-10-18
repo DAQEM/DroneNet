@@ -36,6 +36,7 @@
   "irobot.gui.tasktable.title": "Task Table",
   "irobot.gui.tasktable.modes": "Modes",
   "irobot.gui.robot.stats": "Stats",
+  "irobot.gui.robot.health": "Health: %d / %d",
   "irobot.gui.robot.energy": "Energy: %d / %d",
   "irobot.gui.robot.current_activity": "Status: %s",
   "irobot.gui.robot.activity.idle": "Idle",

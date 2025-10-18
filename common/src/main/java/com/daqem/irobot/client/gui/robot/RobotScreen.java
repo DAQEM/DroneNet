@@ -39,17 +39,21 @@ public class RobotScreen extends AbstractContainerScreen<RobotMenu> {
         guiGraphics.drawString(this.font, this.title, 24, 108, 0xFF63EEFB, false);
         guiGraphics.drawString(this.font, this.playerInventoryTitle, 160, 108, 0xFF63EEFB, false);
 
+        int health = this.menu.getHealth();
+        int maxHealth = this.menu.getMaxHealth();
         int energy = this.menu.getEnergy();
         int maxEnergy = this.menu.getMaxEnergy();
         Activity currentActivity = this.menu.getActiveActivity() == null ? Activity.IDLE : this.menu.getActiveActivity();
 
         Component statsComponent = IRobot.translatable("gui.robot.stats").withStyle(ChatFormatting.BOLD);
+        Component healthComponent = IRobot.translatable("gui.robot.health", health, maxHealth);
         Component energyComponent = IRobot.translatable("gui.robot.energy", energy, maxEnergy);
         Component activityComponent = IRobot.translatable("gui.robot.current_activity", IRobot.translatable("gui.robot.activity." + currentActivity.getName()));
 
         guiGraphics.drawString(this.font, statsComponent, 160, 20, 0xFF63EEFB, false);
-        guiGraphics.drawString(this.font, energyComponent, 160, 30, 0xFF63EEFB, false);
-        guiGraphics.drawString(this.font, activityComponent, 160, 40, 0xFF63EEFB, false);
+        guiGraphics.drawString(this.font, healthComponent, 160, 30, 0xFF63EEFB, false);
+        guiGraphics.drawString(this.font, energyComponent, 160, 40, 0xFF63EEFB, false);
+        guiGraphics.drawString(this.font, activityComponent, 160, 50, 0xFF63EEFB, false);
     }
 
     @Override

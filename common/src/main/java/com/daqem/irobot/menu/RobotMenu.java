@@ -156,4 +156,12 @@ public class RobotMenu extends AbstractContainerMenu {
         int index = getActiveActivityIndex();
         return IRobotEntity.getActivityByIndex(index);
     }
+
+    public int getHealth() {
+        return this.robot.getContainerData().get(4);
+    }
+
+    public int getMaxHealth() {
+        return this.robot.getContainerData().get(5);
+    }
 }

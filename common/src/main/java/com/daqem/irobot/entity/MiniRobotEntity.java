@@ -33,10 +33,13 @@ public class MiniRobotEntity extends IRobotEntity {
     public static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
             MemoryModuleType.WALK_TARGET,
             MemoryModuleType.LOOK_TARGET,
+            MemoryModuleType.ATTACK_TARGET,
+            MemoryModuleType.ATTACK_COOLING_DOWN,
             MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
             MemoryModuleType.PATH,
             MemoryModuleType.DOORS_TO_CLOSE,
             MemoryModuleType.NEAREST_LIVING_ENTITIES,
+            MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
             MemoryModuleType.INTERACTION_TARGET,
             MemoryModuleType.HURT_BY,
             IRobotMemoryModuleTypes.ASSIGNED_TASK.get(),

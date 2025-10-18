@@ -52,12 +52,16 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
-import java.util.Optional;
 
 public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, InteractableRobot {
 
     private static final EntityDataAccessor<Boolean> IS_MINING = SynchedEntityData.defineId(IRobotEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_FARMING = SynchedEntityData.defineId(IRobotEntity.class, EntityDataSerializers.BOOLEAN);
+
+    private static final int REGENERATION_COOLDOWN_TICKS = 20; // 1 second
+    private static final double REGENERATION_ENERGY_COST = 10.0; // Energy cost per half-heart
+    private static final float REGENERATION_AMOUNT = 1.0F; // Heal 1.0F (half a heart)
+    private int regenerationCooldown = 0;
 
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
     protected final RobotInventory inventory;
@@ -73,6 +77,8 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
                 case 1 -> Mth.floor(getEnergy());
                 case 2 -> Mth.floor(getMaxEnergy());
                 case 3 -> getActiveActivityIndex();
+                case 4 -> Mth.floor(getHealth());
+                case 5 -> Mth.floor(getMaxHealth());
                 default -> 0;
             };
         }
@@ -84,7 +90,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
         @Override
         public int getCount() {
-            return 4;
+            return 6;
         }
     };
 
@@ -165,7 +171,8 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
                 .add(Attributes.MAX_HEALTH, 20.0)
                 .add(Attributes.BLOCK_BREAK_SPEED, 1.0)
                 .add(Attributes.MINING_EFFICIENCY, 0.0)
-                .add(Attributes.SUBMERGED_MINING_SPEED, 0.2);
+                .add(Attributes.SUBMERGED_MINING_SPEED, 0.2)
+                .add(Attributes.ATTACK_DAMAGE, 4.0);
     }
 
     @Override
@@ -212,15 +219,31 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
         this.inventory.tick();
         profiler.pop();
 
-        if (this.isAlive() && this.tickCount % 20 == 0) {
-            double energyCost = this.distanceSqAccumulator / 16.0;
-            if (energyCost > 0) {
-                setEnergy(getEnergy() - energyCost);
+        if (this.isAlive()) {
+            if (this.tickCount % 20 == 0) {
+                double energyCost = this.distanceSqAccumulator / 16.0;
+                if (energyCost > 0) {
+                    setEnergy(getEnergy() - energyCost);
+                }
+                this.distanceSqAccumulator = 0.0;
             }
-            this.distanceSqAccumulator = 0.0;
+
+            handleHealthRegeneration();
         }
 
         super.customServerAiStep(level);
+    }
+
+    private void handleHealthRegeneration() {
+        if (this.getHealth() < this.getMaxHealth() && this.getEnergy() >= REGENERATION_ENERGY_COST) {
+            if (this.regenerationCooldown > 0) {
+                this.regenerationCooldown--;
+            } else {
+                this.heal(REGENERATION_AMOUNT);
+                this.setEnergy(this.getEnergy() - REGENERATION_ENERGY_COST);
+                this.regenerationCooldown = REGENERATION_COOLDOWN_TICKS;
+            }
+        }
     }
 
     @Override
@@ -514,5 +537,9 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
     public boolean isDroppingOffItems() {
         return this.getBrain().getActiveNonCoreActivity().orElse(Activity.IDLE).equals(IRobotActivities.DROPOFF.get());
+    }
+
+    public boolean isFollowing() {
+        return this.getBrain().getActiveNonCoreActivity().orElse(Activity.IDLE).equals(IRobotActivities.FOLLOW.get());
     }
 }
