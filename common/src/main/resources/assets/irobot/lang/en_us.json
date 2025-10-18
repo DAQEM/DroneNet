@@ -11,9 +11,23 @@
   "irobot.item.task_marker.description": "Use to create an area for a task.",
   "irobot.item.task_marker.description.left_click": "Left click a block to set the primary position.",
   "irobot.item.task_marker.description.right_click": "Right click a block to set the secondary position.",
-  "irobot.item.task_marker.description.finalize": "Use a Taskbench to create a Task item.",
+  "irobot.item.task_marker.description.finalize": "Use a Task Table to create a Task item.",
   "irobot.item.task_marker.first_pos_set": "Primary position set.",
   "irobot.item.task_marker.second_pos_set": "Secondary position set.",
+
+  "irobot.tooltip.task_item.no_marker_data": "Missing area data. Use a Task Marker to set an area first.",
+  "irobot.tooltip.task_item.first_position": "First Position: X%s Y%s Z%s.",
+  "irobot.tooltip.task_item.first_position_none": "First Position not set.",
+  "irobot.tooltip.task_item.second_position": "Second Position: X%s Y%s Z%s.",
+  "irobot.tooltip.task_item.second_position_none": "Second Position not set.",
+  "irobot.tooltip.task_item.task_name": "Task: %s.",
+  "irobot.tooltip.task_item.no_task_data": "No task assigned.",
+
+  "irobot.task.protecting": "Protecting",
+  "irobot.task.mining": "Mining",
+  "irobot.task.woodcutting": "Woodcutting",
+  "irobot.task.farming": "Farming",
+  "irobot.task.following": "Following",
 
   "irobot.gui.robot.title": "Robot",
   "irobot.gui.tasktable.title": "Task Table",
@@ -25,6 +39,7 @@
   "item.irobot.mini_robot": "Mini Robot",
   "item.irobot.task_marker": "Task Marker",
   "item.irobot.task_table": "Task Table",
+  "item.irobot.task": "Robot Task",
 
   "stat.irobot.talked_to_robot": "Talked to Robot",
 

@@ -129,9 +129,9 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
     @Override
     public void aiStep() {
         super.aiStep();
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide && this.lastPos != Vec3.ZERO) {
             double distSq = this.position().distanceToSqr(this.lastPos);
-            if (distSq > 1.0E-6) {
+            if (distSq > 0) {
                 this.distanceSqAccumulator += distSq;
             }
             this.lastPos = this.position();
@@ -159,7 +159,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
         }
 
         Brain<IRobotEntity> brain = getBrain();
-        if (brain.getMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get()).orElse(RobotTask.NONE) == RobotTask.MINING) {
+        if (brain.getMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get()).orElse(null) == RobotTask.MINING) {
             if (brain.getActiveNonCoreActivity().orElse(Activity.IDLE) == Activity.IDLE) {
                 brain.setActiveActivityIfPossible(IRobotActivities.MINE.get());
             }

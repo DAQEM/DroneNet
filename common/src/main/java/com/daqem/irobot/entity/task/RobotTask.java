@@ -1,13 +1,17 @@
 package com.daqem.irobot.entity.task;
 
+import com.daqem.irobot.IRobot;
 import com.mojang.serialization.Codec;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
 public enum RobotTask implements StringRepresentable {
-    NONE("none"),
+    PROTECTING("protecting"),
     MINING("mining"),
-    FAILED_TOO_FAR("failed_too_far");
+    WOODCUTTING("woodcutting"),
+    FARMING("farming"),
+    FOLLOWING("following");
 
     public static final Codec<RobotTask> CODEC = StringRepresentable.fromEnum(RobotTask::values);
 
@@ -20,5 +24,9 @@ public enum RobotTask implements StringRepresentable {
     @Override
     public @NotNull String getSerializedName() {
         return this.name;
+    }
+
+    public Component getName() {
+        return IRobot.translatable("task." + this.name);
     }
 }

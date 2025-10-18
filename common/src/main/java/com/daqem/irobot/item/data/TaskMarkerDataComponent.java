@@ -12,8 +12,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class TaskMarkerDataComponent {
 
-    private GlobalPos firstPos;
-    private GlobalPos secondPos;
+    private final GlobalPos firstPos;
+    private final GlobalPos secondPos;
 
     public TaskMarkerDataComponent() {
         this(
@@ -60,14 +60,6 @@ public class TaskMarkerDataComponent {
 
     public GlobalPos getSecondPos() {
         return secondPos;
-    }
-
-    public void setFirstPos(GlobalPos firstPos) {
-        this.firstPos = firstPos;
-    }
-
-    public void setSecondPos(GlobalPos secondPos) {
-        this.secondPos = secondPos;
     }
 
     public TaskMarkerDataComponent withFirstPos(GlobalPos blockPos) {

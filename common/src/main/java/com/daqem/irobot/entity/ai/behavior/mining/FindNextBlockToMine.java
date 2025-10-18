@@ -39,7 +39,7 @@ public class FindNextBlockToMine extends Behavior<MiniRobotEntity> {
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, MiniRobotEntity robot) {
-        return robot.getBrain().getMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get()).orElse(RobotTask.NONE) == RobotTask.MINING;
+        return robot.getBrain().getMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get()).orElse(null) == RobotTask.MINING;
     }
 
     @Override

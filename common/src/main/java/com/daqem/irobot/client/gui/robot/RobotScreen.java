@@ -42,4 +42,10 @@ public class RobotScreen extends AbstractContainerScreen<RobotMenu> {
         Component energyComponent = Component.literal("Energy: " + energy + " / " + maxEnergy);
         guiGraphics.drawString(this.font, energyComponent, 24, 8, 0xFFFFFFFF, true);
     }
+
+    @Override
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        this.renderTooltip(guiGraphics, mouseX, mouseY);
+    }
 }

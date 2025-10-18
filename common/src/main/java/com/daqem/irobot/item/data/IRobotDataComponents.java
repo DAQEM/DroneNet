@@ -14,6 +14,7 @@ public interface IRobotDataComponents {
     Registrar<DataComponentType<?>> DATA_COMPONENTS = IRobot.MANAGER.get().get(Registries.DATA_COMPONENT_TYPE);
 
     RegistrySupplier<DataComponentType<TaskMarkerDataComponent>> TASK_MARKER_DATA = register("task_marker_data", TaskMarkerDataComponent.CODEC, TaskMarkerDataComponent.STREAM_CODEC);
+    RegistrySupplier<DataComponentType<TaskDataComponent>> TASK_DATA = register("task_data", TaskDataComponent.CODEC, TaskDataComponent.STREAM_CODEC);
 
     static void init() {
     }
