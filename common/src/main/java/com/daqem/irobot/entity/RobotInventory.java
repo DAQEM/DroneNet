@@ -641,4 +641,14 @@ public class RobotInventory implements Container {
         }
         return false;
     }
+
+    public boolean hasItemsToDropOff() {
+        for (int i = 0; i < INVENTORY_SIZE; i++) {
+            ItemStack stack = this.items.get(i);
+            if (!stack.isEmpty() && !stack.isDamageableItem()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

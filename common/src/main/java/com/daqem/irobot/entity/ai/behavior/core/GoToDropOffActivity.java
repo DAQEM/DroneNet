@@ -9,19 +9,23 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 
 import java.util.Map;
+import java.util.function.Predicate;
 
 public class GoToDropOffActivity extends Behavior<IRobotEntity> {
 
-    public GoToDropOffActivity() {
+    private final Predicate<IRobotEntity> condition;
+
+    public GoToDropOffActivity(Predicate<IRobotEntity> condition) {
         super(Map.of(
                 MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT,
                 IRobotMemoryModuleTypes.IS_CHARING.get(), MemoryStatus.VALUE_ABSENT
         ));
+        this.condition = condition;
     }
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, IRobotEntity owner) {
-        return owner.needsToDropOff();
+        return condition.test(owner);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.daqem.irobot.entity;
 
-import com.daqem.irobot.IRobot;
 import com.daqem.irobot.entity.ai.IRobotActivities;
 import com.daqem.irobot.entity.ai.IRobotBrain;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
@@ -12,7 +11,6 @@ import com.daqem.irobot.item.data.TaskMarkerDataComponent;
 import com.daqem.irobot.menu.RobotMenu;
 import com.daqem.irobot.stats.IRobotStats;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -45,12 +43,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
+
+import java.util.List;
 
 public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, InteractableRobot {
 
@@ -443,7 +444,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
     }
 
     public boolean needsToDropOff() {
-        return this.getBrain().hasMemoryValue(IRobotMemoryModuleTypes.NEEDS_TO_DROPOFF.get()) || this.inventory.isMainInventoryFull();
+        return this.inventory.isMainInventoryFull();
     }
 
     public boolean hasTaskItem() {
@@ -465,5 +466,33 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
             return task.get(IRobotDataComponents.TASK_MARKER_DATA.get());
         }
         return null;
+    }
+
+    public List<ItemEntity> getItemEntitiesAround() {
+        if (this.level() instanceof ServerLevel serverLevel) {
+            AABB searchArea = this.getBoundingBox().inflate(5.0, 1.0, 5.0);
+            return serverLevel.getEntitiesOfClass(ItemEntity.class, searchArea);
+        }
+        return List.of();
+    }
+
+    public boolean hasItemsAround() {
+        return this.getItemEntitiesAround().stream().anyMatch(ItemEntity::isAlive);
+    }
+
+    public ItemEntity getNearestItemEntity() {
+        List<ItemEntity> items = this.getItemEntitiesAround();
+        ItemEntity nearestItem = null;
+        double nearestDistanceSq = Double.MAX_VALUE;
+        for (ItemEntity item : items) {
+            if (item.isAlive()) {
+                double distanceSq = this.distanceToSqr(item);
+                if (distanceSq < nearestDistanceSq) {
+                    nearestDistanceSq = distanceSq;
+                    nearestItem = item;
+                }
+            }
+        }
+        return nearestItem;
     }
 }

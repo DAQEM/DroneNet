@@ -7,6 +7,7 @@ import com.daqem.irobot.entity.ai.behavior.charging.StayOnStationAndRecharge;
 import com.daqem.irobot.entity.ai.behavior.core.GoToChargingActivity;
 import com.daqem.irobot.entity.ai.behavior.core.GoToDropOffActivity;
 import com.daqem.irobot.entity.ai.behavior.core.GoToRestActivity;
+import com.daqem.irobot.entity.ai.behavior.core.PickUpItemsAround;
 import com.daqem.irobot.entity.ai.behavior.dropoff.DepositItemsAtDropoff;
 import com.daqem.irobot.entity.ai.behavior.dropoff.FindDropoffChest;
 import com.daqem.irobot.entity.ai.behavior.idle.GoToTaskActivity;
@@ -77,7 +78,9 @@ public class RobotBrainPackages {
         List<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
         behaviors.addAll(List.of(
                 Pair.of(0, new GoToTaskActivity()),
-                Pair.of(1, new RandomLookAround(UniformInt.of(150, 250), 30.0F, 0.0F, 0.0F))
+                Pair.of(1, new RandomLookAround(UniformInt.of(150, 250), 30.0F, 0.0F, 0.0F)),
+                Pair.of(3, new GoToDropOffActivity(robot -> robot.getInventory().hasItemsToDropOff()))
+
         ));
         return ImmutableList.copyOf(behaviors);
     }
@@ -168,7 +171,8 @@ public class RobotBrainPackages {
                     }
                 }),
                 Pair.of(2, new GoToChargingActivity()),
-                Pair.of(3, new GoToDropOffActivity())
+                Pair.of(3, new GoToDropOffActivity(robot -> robot.getInventory().isMainInventoryFull() && robot.getInventory().hasItemsToDropOff())),
+                Pair.of(4, new PickUpItemsAround())
         );
     }
 }

@@ -57,7 +57,6 @@ public class DepositItemsAtDropoff extends Behavior<IRobotEntity> {
             }
         });
 
-        robot.getBrain().eraseMemory(IRobotMemoryModuleTypes.NEEDS_TO_DROPOFF.get());
         robot.getBrain().eraseMemory(IRobotMemoryModuleTypes.DROPOFF_TARGET_POS.get());
         robot.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
         robot.getBrain().setActiveActivityIfPossible(Activity.IDLE);

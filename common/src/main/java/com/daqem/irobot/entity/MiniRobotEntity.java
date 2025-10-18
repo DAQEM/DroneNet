@@ -46,7 +46,6 @@ public class MiniRobotEntity extends IRobotEntity {
             IRobotMemoryModuleTypes.LANE_DIRECTION.get(),
             IRobotMemoryModuleTypes.LANE_DIRECTION.get(),
             IRobotMemoryModuleTypes.DROPOFF_TARGET_POS.get(),
-            IRobotMemoryModuleTypes.NEEDS_TO_DROPOFF.get(),
             IRobotMemoryModuleTypes.IS_CHARING.get()
     );
 

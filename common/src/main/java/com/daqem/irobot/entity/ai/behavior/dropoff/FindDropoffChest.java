@@ -42,7 +42,6 @@ public class FindDropoffChest extends Behavior<IRobotEntity> {
             if (robot.getOwner() instanceof ServerPlayer serverPlayer) {
                 serverPlayer.sendSystemMessage(IRobot.translatable("robot.error.cant_find_dropoff", robot.getDisplayName()));
             }
-            robot.getBrain().eraseMemory(IRobotMemoryModuleTypes.NEEDS_TO_DROPOFF.get());
             robot.getBrain().setActiveActivityIfPossible(Activity.REST);
         });
     }
