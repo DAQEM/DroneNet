@@ -18,6 +18,8 @@ import com.daqem.irobot.entity.ai.behavior.mining.FindNextBlockToMine;
 import com.daqem.irobot.entity.ai.behavior.mining.MineBlock;
 import com.daqem.irobot.entity.ai.behavior.panic.RobotCalmDown;
 import com.daqem.irobot.entity.ai.behavior.panic.RobotPanicTrigger;
+import com.daqem.irobot.entity.ai.behavior.protecting.FindHostileMobInArea;
+import com.daqem.irobot.entity.ai.behavior.protecting.StrollInArea;
 import com.daqem.irobot.entity.ai.behavior.resting.GoToIdleActivity;
 import com.daqem.irobot.entity.ai.behavior.woodcutting.CutDownTree;
 import com.daqem.irobot.entity.ai.behavior.woodcutting.FindNextTreeToCut;
@@ -93,7 +95,13 @@ public class RobotBrainPackages {
 
     private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getProtectingPackage() {
         List<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
-        behaviors.addAll(List.of());
+        behaviors.addAll(List.of(
+                Pair.of(0, StopAttackingIfTargetInvalid.create()),
+                Pair.of(1, SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(0.75F)),
+                Pair.of(2, new MeleeAttack(5)),
+                Pair.of(3, new FindHostileMobInArea()),
+                Pair.of(4, new StrollInArea())
+        ));
         return ImmutableList.copyOf(behaviors);
     }
 

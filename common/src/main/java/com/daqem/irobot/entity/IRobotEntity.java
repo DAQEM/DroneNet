@@ -1,5 +1,6 @@
 package com.daqem.irobot.entity;
 
+import com.daqem.irobot.client.renderer.OutlineRenderer;
 import com.daqem.irobot.entity.ai.IRobotActivities;
 import com.daqem.irobot.entity.ai.IRobotBrain;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
@@ -32,6 +33,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
@@ -244,6 +246,24 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
                 this.regenerationCooldown = REGENERATION_COOLDOWN_TICKS;
             }
         }
+    }
+
+    @Override
+    public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount) {
+        boolean wasHurt = super.hurtServer(level, damageSource, amount);
+        if (wasHurt) {
+            Entity attacker = damageSource.getEntity();
+            if (attacker instanceof LivingEntity livingAttacker) {
+                // Don't attack players who damage the robot
+                if (attacker instanceof Player) {
+                    return true;
+                }
+
+                // Set the attacker as the target, prompting the robot to fight back
+                this.getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, livingAttacker);
+            }
+        }
+        return wasHurt;
     }
 
     @Override
@@ -505,6 +525,15 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
     public List<ItemEntity> getItemEntitiesAround() {
         if (this.level() instanceof ServerLevel serverLevel) {
             AABB searchArea = this.getBoundingBox().inflate(16.0, 3.0, 16.0);
+            if (this.hasTaskItem()) {
+                TaskMarkerDataComponent taskMarkerData = this.getTaskMarkerData();
+                if (taskMarkerData != null && this.level().dimension().equals(taskMarkerData.getFirstPos().dimension())) {
+                    searchArea = OutlineRenderer.createBoundingBox(
+                            taskMarkerData.getFirstPos().pos(),
+                            taskMarkerData.getSecondPos().pos()
+                    ).inflate(2);
+                }
+            }
             return serverLevel.getEntitiesOfClass(ItemEntity.class, searchArea);
         }
         return List.of();

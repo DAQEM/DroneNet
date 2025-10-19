@@ -1,6 +1,7 @@
 package com.daqem.irobot.entity.ai.behavior.panic;
 
 import com.daqem.irobot.entity.MiniRobotEntity;
+import com.daqem.irobot.entity.ai.IRobotActivities;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -9,15 +10,27 @@ import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.schedule.Activity;
 
+import java.util.Optional;
+
 public class RobotPanicTrigger extends Behavior<MiniRobotEntity> {
 
     public RobotPanicTrigger() {
         super(ImmutableMap.of());
     }
 
+    private boolean isDoingCombatTask(MiniRobotEntity robot) {
+        Optional<Activity> activity = robot.getBrain().getActiveNonCoreActivity();
+        if (activity.isEmpty()) {
+            return false;
+        }
+        Activity currentActivity = activity.get();
+        return currentActivity.equals(IRobotActivities.PROTECT.get()) || currentActivity.equals(IRobotActivities.FOLLOW.get());
+    }
+
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, MiniRobotEntity owner) {
-        return (!owner.isFollowing() || (owner.isFollowing() && owner.getRandom().nextInt(100) < 2)) && isHurt(owner);
+        // Only panic if hurt AND not already in a combat-oriented task.
+        return isHurt(owner) && !isDoingCombatTask(owner);
     }
 
     protected boolean canStillUse(ServerLevel level, MiniRobotEntity entity, long gameTime) {
