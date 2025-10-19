@@ -54,7 +54,6 @@ public class FindNextBlockToMine extends Behavior<MiniRobotEntity> {
 
         AABB miningArea = OutlineRenderer.createBoundingBox(startPosOpt.get().pos(), endPosOpt.get().pos());
 
-        // Ensure robot is within the mining area before starting
         if (!miningArea.inflate(1).contains(robot.position())) {
             Vec3 closestPoint = getClosestPointInAABB(robot.position(), miningArea);
             if (!level.getBlockState(BlockPos.containing(closestPoint).below()).isAir()) {
@@ -63,13 +62,11 @@ public class FindNextBlockToMine extends Behavior<MiniRobotEntity> {
             }
         }
 
-        // Initialize mining and lane directions if not already set
         Direction miningDir = robot.getBrain().getMemory(IRobotMemoryModuleTypes.MINING_DIRECTION.get()).orElse(Direction.EAST);
         if (!robot.getBrain().hasMemoryValue(IRobotMemoryModuleTypes.MINING_DIRECTION.get())) {
             robot.getBrain().setMemory(IRobotMemoryModuleTypes.MINING_DIRECTION.get(), miningDir);
         }
         if (!robot.getBrain().hasMemoryValue(IRobotMemoryModuleTypes.LANE_DIRECTION.get())) {
-            // Set a persistent direction for lane changes
             robot.getBrain().setMemory(IRobotMemoryModuleTypes.LANE_DIRECTION.get(), miningDir.getClockWise());
         }
 

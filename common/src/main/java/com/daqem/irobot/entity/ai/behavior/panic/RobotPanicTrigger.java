@@ -33,7 +33,6 @@ public class RobotPanicTrigger extends Behavior<MiniRobotEntity> {
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, MiniRobotEntity owner) {
-        // Only panic if hurt AND not already in a combat-oriented task.
         return isHurt(owner) && !isDoingCombatTask(owner);
     }
 

@@ -74,7 +74,6 @@ public class HarvestAndReplantCrop extends Behavior<MiniRobotEntity> {
 
         this.ticksSinceStarted++;
 
-        // Give it a moment to look at the block
         if (this.ticksSinceStarted < 20) {
             return;
         }
@@ -87,13 +86,13 @@ public class HarvestAndReplantCrop extends Behavior<MiniRobotEntity> {
 
             robot.swing(InteractionHand.MAIN_HAND);
             level.destroyBlock(this.targetPos, true, robot);
-            robot.setEnergy(robot.getEnergy() - (1 * robot.getEnergyConsumptionModifier())); // Small energy cost for harvesting
+            robot.setEnergy(robot.getEnergy() - (1 * robot.getEnergyConsumptionModifier()));
 
             if (robot.hasModule(ModuleItem.ModuleType.CROP_REPLANT)) {
                 seedItemOpt.ifPresent(seedItem -> {
                     if (tryReplant(level, robot, this.targetPos, seedItem)) {
                         robot.swing(InteractionHand.MAIN_HAND);
-                        robot.setEnergy(robot.getEnergy() - (1 * robot.getEnergyConsumptionModifier())); // Small energy cost for replanting
+                        robot.setEnergy(robot.getEnergy() - (1 * robot.getEnergyConsumptionModifier()));
                     }
                 });
             }
@@ -105,13 +104,12 @@ public class HarvestAndReplantCrop extends Behavior<MiniRobotEntity> {
                 seedToPlant.ifPresent(seedItem -> {
                     if (tryReplant(level, robot, this.targetPos, seedItem)) {
                         robot.swing(InteractionHand.MAIN_HAND);
-                        robot.setEnergy(robot.getEnergy() - (1 * robot.getEnergyConsumptionModifier())); // Small energy cost for planting
+                        robot.setEnergy(robot.getEnergy() - (1 * robot.getEnergyConsumptionModifier()));
                     }
                 });
             }
         }
 
-        // Done with this crop
         this.doStop(level, robot, gameTime);
     }
 
@@ -141,7 +139,6 @@ public class HarvestAndReplantCrop extends Behavior<MiniRobotEntity> {
         }
 
         if (seedSlot == -1) {
-            // No seeds to replant
             return false;
         }
 

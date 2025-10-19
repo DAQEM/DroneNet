@@ -117,7 +117,6 @@ public class OutlineRenderer {
         OutlineBufferSource buffer = minecraft.renderBuffers().outlineBufferSource();
         VertexConsumer consumer = buffer.getBuffer(RenderType.debugQuads());
 
-        // Adjust box for camera position and inflation
         float inflate = box.contains(camera) ? -1 / 128f : 1 / 128f;
         box = box.move(camera.scale(-1));
 
@@ -146,7 +145,6 @@ public class OutlineRenderer {
      * @return The constructed AABB.
      */
     public static AABB createBoundingBox(BlockPos firstPos, BlockPos secondPos) {
-        // Determine min and max coordinates to ensure both positions are included
         double minX = Math.min(firstPos.getX(), secondPos.getX()) + 0.001;
         double minY = Math.min(firstPos.getY(), secondPos.getY()) + 0.001;
         double minZ = Math.min(firstPos.getZ(), secondPos.getZ()) + 0.001;
@@ -165,12 +163,10 @@ public class OutlineRenderer {
 
         PoseStack.Pose pose = ms.last();
 
-        // Precompute edge lengths
         float lenX = maxPos.x() - minPos.x();
         float lenY = maxPos.y() - minPos.y();
         float lenZ = maxPos.z() - minPos.z();
 
-        // Define edges: {startX, startY, startZ, direction, length}
         class Edge {
             final float x, y, z, len;
             final Direction dir;
@@ -185,7 +181,6 @@ public class OutlineRenderer {
         }
 
         List<Edge> edges = List.of(
-                // bottom rectangle
                 new Edge(minPos.x(), minPos.y(), minPos.z(), Direction.EAST, lenX),
                 new Edge(minPos.x(), minPos.y(), minPos.z(), Direction.UP, lenY),
                 new Edge(minPos.x(), minPos.y(), minPos.z(), Direction.SOUTH, lenZ),
@@ -199,13 +194,11 @@ public class OutlineRenderer {
                 new Edge(minPos.x(), minPos.y(), maxPos.z(), Direction.EAST, lenX),
                 new Edge(minPos.x(), minPos.y(), maxPos.z(), Direction.UP, lenY),
 
-                // top rectangle connections
                 new Edge(minPos.x(), maxPos.y(), maxPos.z(), Direction.EAST, lenX),
                 new Edge(maxPos.x(), minPos.y(), maxPos.z(), Direction.UP, lenY),
                 new Edge(maxPos.x(), maxPos.y(), minPos.z(), Direction.SOUTH, lenZ)
         );
 
-        // Emit all edges
         Vector3f origin = new Vector3f();
         for (Edge e : edges) {
             origin.set(e.x, e.y, e.z);
@@ -240,19 +233,17 @@ public class OutlineRenderer {
         Matrix4f posMatrix = pose.pose();
         Matrix3f normalMatrix = pose.normal();
 
-        // cube corner positions in object space
         Vector3f[] corners = {
-                new Vector3f(minPos.x(), minPos.y(), maxPos.z()), // 0
-                new Vector3f(minPos.x(), minPos.y(), minPos.z()), // 1
-                new Vector3f(maxPos.x(), minPos.y(), minPos.z()), // 2
-                new Vector3f(maxPos.x(), minPos.y(), maxPos.z()), // 3
-                new Vector3f(minPos.x(), maxPos.y(), minPos.z()), // 4
-                new Vector3f(minPos.x(), maxPos.y(), maxPos.z()), // 5
-                new Vector3f(maxPos.x(), maxPos.y(), maxPos.z()), // 6
-                new Vector3f(maxPos.x(), maxPos.y(), minPos.z())  // 7
+                new Vector3f(minPos.x(), minPos.y(), maxPos.z()),
+                new Vector3f(minPos.x(), minPos.y(), minPos.z()),
+                new Vector3f(maxPos.x(), minPos.y(), minPos.z()),
+                new Vector3f(maxPos.x(), minPos.y(), maxPos.z()),
+                new Vector3f(minPos.x(), maxPos.y(), minPos.z()),
+                new Vector3f(minPos.x(), maxPos.y(), maxPos.z()),
+                new Vector3f(maxPos.x(), maxPos.y(), maxPos.z()),
+                new Vector3f(maxPos.x(), maxPos.y(), minPos.z())
         };
 
-        // transform corners to world space
         Vector4f temp = new Vector4f();
         float[][] worldCorners = new float[corners.length][3];
         for (int i = 0; i < corners.length; i++) {
@@ -263,32 +254,28 @@ public class OutlineRenderer {
             worldCorners[i][2] = temp.z();
         }
 
-        // face definitions (indices into an array or corners)
         int[][] faces = {
-                {0, 1, 2, 3}, // down
-                {4, 5, 6, 7}, // up
-                {7, 2, 1, 4}, // north
-                {5, 0, 3, 6}, // south
-                {4, 1, 0, 5}, // west
-                {6, 3, 2, 7}  // east
+                {0, 1, 2, 3},
+                {4, 5, 6, 7},
+                {7, 2, 1, 4},
+                {5, 0, 3, 6},
+                {4, 1, 0, 5},
+                {6, 3, 2, 7}
         };
 
-        // face normals (object space)
         Vector3f[] normals = {
-                new Vector3f(0, -1, 0), // down
-                new Vector3f(0, 1, 0), // up
-                new Vector3f(0, 0, -1),// north
-                new Vector3f(0, 0, 1),// south
-                new Vector3f(-1, 0, 0), // west
-                new Vector3f(1, 0, 0)  // east
+                new Vector3f(0, -1, 0),
+                new Vector3f(0, 1, 0),
+                new Vector3f(0, 0, -1),
+                new Vector3f(0, 0, 1),
+                new Vector3f(-1, 0, 0),
+                new Vector3f(1, 0, 0)
         };
 
-        // UV mapping (same for all faces)
         float[][] uvs = {
                 {0, 0}, {0, 1}, {1, 1}, {1, 0}
         };
 
-        // emit faces
         Vector3f normalTemp = new Vector3f();
         for (int f = 0; f < faces.length; f++) {
             normalTemp.set(normals[f]);
@@ -298,7 +285,6 @@ public class OutlineRenderer {
             float ny = normalTemp.y();
             float nz = normalTemp.z();
 
-            // emit 4 vertices for this face
             for (int v = 0; v < 4; v++) {
                 int idx = faces[f][v];
                 float[] pos = worldCorners[idx];

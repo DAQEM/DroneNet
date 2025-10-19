@@ -43,7 +43,6 @@ public class StayOnStationAndRecharge extends Behavior<IRobotEntity> {
 
     @Override
     protected void start(ServerLevel level, IRobotEntity entity, long gameTime) {
-        // Reserve the station
         BlockPos stationPos = entity.blockPosition();
         level.getPoiManager().take(
                 poiTypeHolder -> poiTypeHolder.is(IRobotPoiTypes.ROBOT_STATION.getId()),
@@ -52,7 +51,6 @@ public class StayOnStationAndRecharge extends Behavior<IRobotEntity> {
                 0
         );
 
-        // Remember the station position
         entity.getBrain().setMemory(IRobotMemoryModuleTypes.STATION_POS.get(), new GlobalPos(level.dimension(), stationPos));
         entity.getBrain().setMemory(IRobotMemoryModuleTypes.IS_CHARING.get(), true);
     }
@@ -64,14 +62,12 @@ public class StayOnStationAndRecharge extends Behavior<IRobotEntity> {
 
     @Override
     protected void stop(ServerLevel level, IRobotEntity robot, long gameTime) {
-        // Recharging is done, release the station
         robot.getBrain().getMemory(IRobotMemoryModuleTypes.STATION_POS.get()).ifPresent(globalPos -> {
             level.getPoiManager().release(globalPos.pos());
         });
         robot.getBrain().eraseMemory(IRobotMemoryModuleTypes.STATION_POS.get());
         robot.getBrain().eraseMemory(IRobotMemoryModuleTypes.IS_CHARING.get());
 
-        // Resume previous task
         RobotTask previousTask = robot.getBrain().getMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get()).orElse(null);
         if (previousTask == null) {
             robot.getBrain().setActiveActivityIfPossible(Activity.IDLE);
