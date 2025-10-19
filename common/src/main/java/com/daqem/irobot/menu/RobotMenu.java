@@ -1,5 +1,6 @@
 package com.daqem.irobot.menu;
 
+import com.daqem.irobot.IRobot;
 import com.daqem.irobot.client.entity.ClientSideInteractableRobot;
 import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.entity.InteractableRobot;
@@ -20,10 +21,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 public class RobotMenu extends AbstractContainerMenu {
-    public static final ResourceLocation EMPTY_ARMOR_SLOT_HELMET = ResourceLocation.withDefaultNamespace("container/slot/helmet");
-    public static final ResourceLocation EMPTY_ARMOR_SLOT_CHESTPLATE = ResourceLocation.withDefaultNamespace("container/slot/chestplate");
-    public static final ResourceLocation EMPTY_ARMOR_SLOT_LEGGINGS = ResourceLocation.withDefaultNamespace("container/slot/leggings");
-    public static final ResourceLocation EMPTY_ARMOR_SLOT_BOOTS = ResourceLocation.withDefaultNamespace("container/slot/boots");
+    public static final ResourceLocation EMPTY_ARMOR_SLOT_HELMET = IRobot.getId("robot/helmet_empty");
+    public static final ResourceLocation EMPTY_ARMOR_SLOT_CHESTPLATE = IRobot.getId("robot/chestplate_empty");
+    public static final ResourceLocation EMPTY_ARMOR_SLOT_LEGGINGS = IRobot.getId("robot/leggings_empty");
+    public static final ResourceLocation EMPTY_ARMOR_SLOT_BOOTS = IRobot.getId("robot/boots_empty");
     private static final Map<EquipmentSlot, ResourceLocation> TEXTURE_EMPTY_SLOTS = Map.of(
             EquipmentSlot.FEET,
             EMPTY_ARMOR_SLOT_BOOTS,
@@ -55,7 +56,6 @@ public class RobotMenu extends AbstractContainerMenu {
         for (int slotX = 0; slotX < 6; slotX++) {
             this.addSlot(new Slot(robot.getInventory(), slotX, 24 + slotX * 19, 187));
         }
-
 
         for (int slotY = 0; slotY < 3; slotY++) {
             for (int slotX = 0; slotX < 6; slotX++) {
