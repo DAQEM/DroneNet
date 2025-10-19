@@ -1,5 +1,7 @@
 package com.daqem.irobot.entity.ai.behavior.woodcutting;
 
+import com.daqem.irobot.IRobot;
+import com.daqem.irobot.config.IRobotConfig;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.daqem.irobot.util.TreeUtils;
@@ -36,7 +38,7 @@ public class CutDownTree extends Behavior<MiniRobotEntity> {
 
     @Override
     protected boolean timedOut(long gameTime) {
-        return this.ticksSinceStarted > 6000; // 5 minutes timeout
+        return this.ticksSinceStarted > IRobotConfig.CUT_TREE_TIMEOUT_TICKS.get();
     }
 
     @Override
@@ -91,7 +93,7 @@ public class CutDownTree extends Behavior<MiniRobotEntity> {
         }
 
         if (distanceSq > PREFERRED_REACH_DISTANCE_SQ) {
-            if (retryCounter < 5) {
+            if (retryCounter < IRobotConfig.CUT_TREE_RETRY_ATTEMPTS.get()) {
                 robot.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(this.targetPos, 0.5f, 1));
                 retryCounter++;
                 return; // Let MoveToTargetSink handle moving
@@ -117,7 +119,7 @@ public class CutDownTree extends Behavior<MiniRobotEntity> {
             for (BlockPos pos : treeBlocks) {
                 level.destroyBlock(pos, canHarvest, robot);
             }
-            robot.setEnergy(robot.getEnergy() - (treeBlocks.size() * 2.0));
+            robot.setEnergy(robot.getEnergy() - (treeBlocks.size() * IRobotConfig.WOODCUTTING_ENERGY_COST_PER_LOG.get()) * robot.getEnergyConsumptionModifier());
             doStop(level, robot, gameTime);
         }
     }

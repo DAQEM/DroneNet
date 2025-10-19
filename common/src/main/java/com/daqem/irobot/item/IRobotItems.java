@@ -2,6 +2,7 @@ package com.daqem.irobot.item;
 
 import com.daqem.irobot.IRobot;
 import com.daqem.irobot.block.IRobotBlocks;
+import com.daqem.irobot.config.IRobotConfig;
 import com.daqem.irobot.item.module.ModuleItem;
 import dev.architectury.registry.registries.Registrar;
 import dev.architectury.registry.registries.RegistrySupplier;
@@ -23,9 +24,9 @@ public interface IRobotItems {
     RegistrySupplier<MiniRobotItem> MINI_ROBOT = register("mini_robot", MiniRobotItem::new);
     RegistrySupplier<TaskMarkerItem> TASK_MARKER = register("task_marker", TaskMarkerItem::new);
     RegistrySupplier<TaskItem> TASK = register("task", TaskItem::new);
-    RegistrySupplier<BatteryItem> SMALL_BATTERY = register("small_battery", p -> new BatteryItem(p, 500));
-    RegistrySupplier<BatteryItem> MEDIUM_BATTERY = register("medium_battery", p -> new BatteryItem(p, 1500));
-    RegistrySupplier<BatteryItem> LARGE_BATTERY = register("large_battery", p -> new BatteryItem(p, 3000));
+    RegistrySupplier<BatteryItem> SMALL_BATTERY = register("small_battery", p -> new BatteryItem(p, IRobotConfig.SMALL_BATTERY_CAPACITY.get()));
+    RegistrySupplier<BatteryItem> MEDIUM_BATTERY = register("medium_battery", p -> new BatteryItem(p, IRobotConfig.MEDIUM_BATTERY_CAPACITY.get()));
+    RegistrySupplier<BatteryItem> LARGE_BATTERY = register("large_battery", p -> new BatteryItem(p, IRobotConfig.LARGE_BATTERY_CAPACITY.get()));
 
     RegistrySupplier<ModuleItem> SPEED_BOOST_MODULE = register("speed_boost_module", p -> new ModuleItem(p, ModuleItem.ModuleType.SPEED_BOOST));
     RegistrySupplier<ModuleItem> MINING_SPEED_MODULE = register("mining_speed_module", p -> new ModuleItem(p, ModuleItem.ModuleType.MINING_SPEED));

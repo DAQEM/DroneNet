@@ -2,6 +2,7 @@ package com.daqem.irobot.entity.ai.behavior.charging;
 
 import com.daqem.irobot.IRobot;
 import com.daqem.irobot.block.IRobotBlocks;
+import com.daqem.irobot.config.IRobotConfig;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.level.poi.IRobotPoiTypes;
 import com.google.common.collect.ImmutableMap;
@@ -36,7 +37,7 @@ public class FindRechargeStation extends Behavior<MiniRobotEntity> {
         level.getPoiManager().findClosestWithType(
                 poiTypeHolder -> poiTypeHolder.is(IRobotPoiTypes.ROBOT_STATION.getId()),
                 robot.blockPosition(),
-                128,
+                IRobotConfig.POI_SEARCH_RANGE.get(),
                 PoiManager.Occupancy.HAS_SPACE
         ).ifPresentOrElse(pair -> {
                     BlockPos stationPos = pair.getSecond();

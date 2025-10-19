@@ -2,6 +2,7 @@ package com.daqem.irobot.entity;
 
 import com.daqem.irobot.IRobot;
 import com.daqem.irobot.client.renderer.OutlineRenderer;
+import com.daqem.irobot.config.IRobotConfig;
 import com.daqem.irobot.entity.ai.IRobotActivities;
 import com.daqem.irobot.entity.ai.IRobotBrain;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
@@ -71,9 +72,6 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
     private static final EntityDataAccessor<Boolean> IS_MINING = SynchedEntityData.defineId(IRobotEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_FARMING = SynchedEntityData.defineId(IRobotEntity.class, EntityDataSerializers.BOOLEAN);
 
-    private static final int REGENERATION_COOLDOWN_TICKS = 20; // 1 second
-    private static final double REGENERATION_ENERGY_COST = 10.0; // Energy cost per half-heart
-    private static final float REGENERATION_AMOUNT = 1.0F; // Heal 1.0F (half a heart)
     private static final EnumMap<ModuleItem.ModuleType, ResourceLocation> ATTRIBUTE_MODIFIER_LOCATIONS = new EnumMap<>(ModuleItem.ModuleType.class);
 
     static {
@@ -154,13 +152,13 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
     public static AttributeSupplier.Builder createRobotAttributes() {
         return LivingEntity.createLivingAttributes()
-                .add(Attributes.FOLLOW_RANGE, 16.0)
-                .add(Attributes.MOVEMENT_SPEED, 0.5)
-                .add(Attributes.MAX_HEALTH, 20.0)
-                .add(Attributes.BLOCK_BREAK_SPEED, 1.0)
-                .add(Attributes.MINING_EFFICIENCY, 0.0)
-                .add(Attributes.SUBMERGED_MINING_SPEED, 0.2)
-                .add(Attributes.ATTACK_DAMAGE, 4.0);
+                .add(Attributes.FOLLOW_RANGE, IRobotConfig.FOLLOW_RANGE.get())
+                .add(Attributes.MOVEMENT_SPEED, IRobotConfig.MOVEMENT_SPEED.get())
+                .add(Attributes.MAX_HEALTH, IRobotConfig.MAX_HEALTH.get())
+                .add(Attributes.BLOCK_BREAK_SPEED, IRobotConfig.BLOCK_BREAK_SPEED.get())
+                .add(Attributes.MINING_EFFICIENCY, IRobotConfig.MINING_EFFICIENCY.get())
+                .add(Attributes.SUBMERGED_MINING_SPEED, IRobotConfig.SUBMERGED_MINING_SPEED.get())
+                .add(Attributes.ATTACK_DAMAGE, IRobotConfig.ATTACK_DAMAGE.get());
     }
 
     public int getActiveActivityIndex() {
@@ -242,10 +240,13 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
         if (this.isAlive()) {
             if (this.tickCount % 20 == 0) {
-                double energyCost = this.distanceSqAccumulator / 16.0;
+                double distanceTraveled = Math.sqrt(this.distanceSqAccumulator);
+                double energyCost = distanceTraveled * IRobotConfig.MOVEMENT_ENERGY_COST_PER_METER.get();
+
                 if (energyCost > 0) {
                     setEnergy(getEnergy() - (energyCost * getEnergyConsumptionModifier()));
                 }
+
                 this.distanceSqAccumulator = 0.0;
             }
 
@@ -257,21 +258,21 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
     }
 
     private void handleHealthRegeneration() {
-        if (this.getHealth() < this.getMaxHealth() && this.getEnergy() >= REGENERATION_ENERGY_COST) {
+        if (this.getHealth() < this.getMaxHealth() && this.getEnergy() >= IRobotConfig.REGENERATION_ENERGY_COST.get()) {
             if (this.regenerationCooldown > 0) {
                 this.regenerationCooldown--;
             } else {
-                this.heal(REGENERATION_AMOUNT);
-                this.setEnergy(this.getEnergy() - (REGENERATION_ENERGY_COST * getEnergyConsumptionModifier()));
-                this.regenerationCooldown = REGENERATION_COOLDOWN_TICKS;
+                this.heal(IRobotConfig.REGENERATION_AMOUNT.get());
+                this.setEnergy(this.getEnergy() - (IRobotConfig.REGENERATION_ENERGY_COST.get() * getEnergyConsumptionModifier()));
+                this.regenerationCooldown = IRobotConfig.REGENERATION_COOLDOWN_TICKS.get();
             }
         }
     }
 
     private void handleSolarCharging() {
         if (hasModule(ModuleItem.ModuleType.SOLAR_PANEL) && this.isDay() && this.level().canSeeSky(this.blockPosition())) {
-            if (this.tickCount % 20 == 0) { // Every second
-                double energyToGen = 2.0; // 2 energy per second
+            if (this.tickCount % 20 == 0) {
+                double energyToGen = IRobotConfig.SOLAR_PANEL_ENERGY_PER_SECOND.get();
                 setEnergy(getEnergy() + energyToGen);
             }
         }
@@ -575,10 +576,10 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
     private double getModuleValue(ModuleItem.ModuleType type) {
         return switch (type) {
-            case SPEED_BOOST -> 0.5;
-            case MINING_SPEED -> 2.0;
-            case ATTACK_DAMAGE -> 4.0;
-            case DURABILITY -> 20.0;
+            case SPEED_BOOST -> IRobotConfig.SPEED_BOOST_MULTIPLIER.get();
+            case MINING_SPEED -> IRobotConfig.MINING_SPEED_BONUS.get();
+            case ATTACK_DAMAGE -> IRobotConfig.ATTACK_DAMAGE_BONUS.get();
+            case DURABILITY -> IRobotConfig.DURABILITY_HEALTH_BONUS.get();
             default -> 0.0;
         };
     }
@@ -596,7 +597,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
     public double getEnergyConsumptionModifier() {
         if (hasModule(ModuleItem.ModuleType.BATTERY_EFFICIENCY)) {
-            return 0.75; // 25% less energy consumption
+            return IRobotConfig.BATTERY_EFFICIENCY_MULTIPLIER.get();
         }
         return 1.0;
     }
