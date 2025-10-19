@@ -46,14 +46,12 @@ public class FindHostileMobInArea extends Behavior<MiniRobotEntity> {
     }
 
     private Optional<LivingEntity> findNearestHostileMob(ServerLevel level, MiniRobotEntity robot, AABB protectionArea) {
-        // Get all monsters within the specified protection area that are alive and visible to the robot.
         List<Monster> hostilesInArea = level.getEntitiesOfClass(Monster.class, protectionArea, entity -> entity.isAlive() && robot.canAttack(entity));
 
         if (hostilesInArea.isEmpty()) {
             return Optional.empty();
         }
 
-        // Find the closest hostile mob to the robot to prioritize the nearest threat.
         return hostilesInArea.stream()
                 .min(Comparator.comparingDouble(hostile -> hostile.distanceToSqr(robot)))
                 .map(monster -> monster);

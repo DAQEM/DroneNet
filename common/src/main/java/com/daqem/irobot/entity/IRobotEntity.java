@@ -16,6 +16,7 @@ import com.daqem.irobot.stats.IRobotStats;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.mojang.serialization.Dynamic;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -312,10 +313,10 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
             EntityReference<LivingEntity> ownerReference = this.getOwnerReference();
             if (ownerReference == null) return InteractionResult.PASS;
 
-//            if (!ownerReference.matches(player)) {
-//                serverPlayer.sendSystemMessage(IRobot.translatable("error.robot.not_owner").withStyle(ChatFormatting.RED), true);
-//                return InteractionResult.CONSUME;
-//            }
+            if (!ownerReference.matches(player)) {
+                serverPlayer.sendSystemMessage(IRobot.translatable("error.robot.not_owner").withStyle(ChatFormatting.RED), true);
+                return InteractionResult.CONSUME;
+            }
 
             ItemStack itemInHand = player.getItemInHand(hand);
             InteractionResult itemResult = handleItemInteraction(serverPlayer, itemInHand, hand);

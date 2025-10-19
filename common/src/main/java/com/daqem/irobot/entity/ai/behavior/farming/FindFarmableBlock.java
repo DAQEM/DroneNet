@@ -52,7 +52,6 @@ public class FindFarmableBlock extends Behavior<MiniRobotEntity> {
 
         AABB searchArea = OutlineRenderer.createBoundingBox(startPosOpt.get().pos(), endPosOpt.get().pos());
 
-        // First, look for a mature crop to harvest.
         Optional<BlockPos> matureCrop = findClosestMatureCrop(level, robot, searchArea);
         if (matureCrop.isPresent()) {
             robot.getBrain().setMemory(IRobotMemoryModuleTypes.FARM_TARGET_POS.get(), GlobalPos.of(level.dimension(), matureCrop.get()));
@@ -61,7 +60,6 @@ public class FindFarmableBlock extends Behavior<MiniRobotEntity> {
         }
 
         if (robot.hasModule(ModuleItem.ModuleType.CROP_REPLANT)) {
-            // If no mature crops, look for an empty spot to plant.
             findClosestEmptyFarmland(level, robot, searchArea).ifPresent(emptySpot -> {
                 robot.getBrain().setMemory(IRobotMemoryModuleTypes.FARM_TARGET_POS.get(), GlobalPos.of(level.dimension(), emptySpot));
                 robot.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(emptySpot, 0.5f, 1));
@@ -89,7 +87,6 @@ public class FindFarmableBlock extends Behavior<MiniRobotEntity> {
             return false;
         }
 
-        // Check if robot has a seed that can be planted here
         for (int i = 0; i < robot.getInventory().getContainerSize(); i++) {
             ItemStack stack = robot.getInventory().getItem(i);
             if (!stack.isEmpty() && stack.getItem() instanceof BlockItem blockItem) {
