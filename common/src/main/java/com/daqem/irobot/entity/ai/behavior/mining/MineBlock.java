@@ -1,5 +1,6 @@
 package com.daqem.irobot.entity.ai.behavior.mining;
 
+import com.daqem.irobot.config.IRobotConfig;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.google.common.collect.ImmutableMap;
@@ -49,7 +50,7 @@ public class MineBlock extends Behavior<MiniRobotEntity> {
 
     @Override
     protected boolean timedOut(long gameTime) {
-        return this.miningTicks > 600; // 30 seconds
+        return this.miningTicks > IRobotConfig.MINE_BLOCK_TIMEOUT_TICKS.get();
     }
 
     @Override
@@ -85,7 +86,7 @@ public class MineBlock extends Behavior<MiniRobotEntity> {
         }
 
         if (distanceSq > PREFERRED_REACH_DISTANCE_SQ) {
-            if (retryCounter < 5) {
+            if (retryCounter < IRobotConfig.MINE_BLOCK_RETRY_ATTEMPTS.get()) {
                 robot.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(currentTargetPos, 0.5f, 1));
                 retryCounter++;
                 return; // Let MoveToTargetSink handle moving
@@ -117,7 +118,7 @@ public class MineBlock extends Behavior<MiniRobotEntity> {
 
         if (this.miningProgress >= 1.0F) {
             if (level.destroyBlock(currentTargetPos, robot.hasCorrectToolForDrops(blockState), robot)) {
-                robot.setEnergy(robot.getEnergy() - (5 * robot.getEnergyConsumptionModifier()));
+                robot.setEnergy(robot.getEnergy() - (IRobotConfig.MINING_ENERGY_COST_PER_BLOCK.get() * robot.getEnergyConsumptionModifier()));
             }
             doStop(level, robot, gameTime);
         }

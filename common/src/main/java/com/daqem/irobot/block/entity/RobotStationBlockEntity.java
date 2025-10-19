@@ -1,7 +1,9 @@
 package com.daqem.irobot.block.entity;
 
+import com.daqem.irobot.config.IRobotConfig;
 import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.item.BatteryItem;
+import com.daqem.irobot.item.IRobotItems;
 import com.daqem.irobot.item.data.BatteryDataComponent;
 import com.daqem.irobot.item.data.IRobotDataComponents;
 import net.minecraft.core.BlockPos;
@@ -21,7 +23,6 @@ import java.util.List;
 
 public class RobotStationBlockEntity extends BlockEntity implements GeoBlockEntity {
 
-    private static final int CHARGE_RATE_PER_TICK = 1;
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public RobotStationBlockEntity(BlockPos pos, BlockState blockState) {
@@ -46,7 +47,7 @@ public class RobotStationBlockEntity extends BlockEntity implements GeoBlockEnti
         if (!batteryStack.isEmpty() && batteryStack.getItem() instanceof BatteryItem) {
             BatteryDataComponent data = batteryStack.get(IRobotDataComponents.BATTERY_DATA.get());
             if (data != null && data.energy() < data.maxEnergy()) {
-                double newEnergy = Math.min(data.energy() + CHARGE_RATE_PER_TICK, data.maxEnergy());
+                double newEnergy = Math.min(data.energy() + IRobotConfig.ROBOT_STATION_CHARGE_RATE.get(), data.maxEnergy());
                 batteryStack.set(IRobotDataComponents.BATTERY_DATA.get(), data.withEnergy(newEnergy));
             } else if (data == null) {
                 batteryStack.set(IRobotDataComponents.BATTERY_DATA.get(), new BatteryDataComponent(0, ((BatteryItem) batteryStack.getItem()).getMaxEnergy()));
@@ -59,7 +60,7 @@ public class RobotStationBlockEntity extends BlockEntity implements GeoBlockEnti
         if (itemStack.getItem() instanceof BatteryItem batteryItem) {
             BatteryDataComponent data = itemStack.get(IRobotDataComponents.BATTERY_DATA.get());
             if (data != null && data.energy() < data.maxEnergy()) {
-                double newEnergy = Math.min(data.energy() + CHARGE_RATE_PER_TICK, data.maxEnergy());
+                double newEnergy = Math.min(data.energy() + IRobotConfig.ROBOT_STATION_CHARGE_RATE.get(), data.maxEnergy());
                 itemStack.set(IRobotDataComponents.BATTERY_DATA.get(), data.withEnergy(newEnergy));
             } else if (data == null) {
                 itemStack.set(IRobotDataComponents.BATTERY_DATA.get(), new BatteryDataComponent(0, batteryItem.getMaxEnergy()));

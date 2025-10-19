@@ -1,5 +1,6 @@
 package com.daqem.irobot.client.renderer;
 
+import com.daqem.irobot.client.config.IRobotClientConfig;
 import com.daqem.irobot.item.TaskItem;
 import com.daqem.irobot.item.TaskMarkerItem;
 import com.daqem.irobot.item.data.IRobotDataComponents;
@@ -33,6 +34,8 @@ public class OutlineRenderer {
      * @param poseStack The pose stack for rendering transformations.
      */
     public static void renderOutline(PoseStack poseStack) {
+        if (!IRobotClientConfig.RENDER_TASK_AREA_OUTLINE.get()) return;
+
         ItemStack itemStack = getValidTaskMarkerItem();
         if (itemStack == null) return;
 
@@ -212,7 +215,7 @@ public class OutlineRenderer {
         Vector3f minPos = new Vector3f();
         Vector3f maxPos = new Vector3f();
 
-        float halfWidth = 0.0625F / 2;
+        float halfWidth = IRobotClientConfig.OUTLINE_WIDTH.get() / 2;
         minPos.set(origin.x() - halfWidth, origin.y() - halfWidth, origin.z() - halfWidth);
         maxPos.set(origin.x() + halfWidth, origin.y() + halfWidth, origin.z() + halfWidth);
 
@@ -291,7 +294,12 @@ public class OutlineRenderer {
                 float[] uv = uvs[v];
 
                 consumer.addVertex(pos[0], pos[1], pos[2])
-                        .setColor(64, 229, 242, 255)
+                        .setColor(
+                                IRobotClientConfig.OUTLINE_COLOR_RED.get(),
+                                IRobotClientConfig.OUTLINE_COLOR_GREEN.get(),
+                                IRobotClientConfig.OUTLINE_COLOR_BLUE.get(),
+                                IRobotClientConfig.OUTLINE_COLOR_ALPHA.get()
+                        )
                         .setUv(uv[0], uv[1])
                         .setOverlay(OverlayTexture.NO_OVERLAY)
                         .setLight(1)

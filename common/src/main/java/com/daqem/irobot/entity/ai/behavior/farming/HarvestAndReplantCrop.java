@@ -1,5 +1,6 @@
 package com.daqem.irobot.entity.ai.behavior.farming;
 
+import com.daqem.irobot.config.IRobotConfig;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.daqem.irobot.item.module.ModuleItem;
@@ -74,7 +75,7 @@ public class HarvestAndReplantCrop extends Behavior<MiniRobotEntity> {
 
         this.ticksSinceStarted++;
 
-        if (this.ticksSinceStarted < 20) {
+        if (this.ticksSinceStarted < IRobotConfig.HARVEST_CROP_DELAY_TICKS.get()) {
             return;
         }
 
@@ -86,13 +87,13 @@ public class HarvestAndReplantCrop extends Behavior<MiniRobotEntity> {
 
             robot.swing(InteractionHand.MAIN_HAND);
             level.destroyBlock(this.targetPos, true, robot);
-            robot.setEnergy(robot.getEnergy() - (1 * robot.getEnergyConsumptionModifier()));
+            robot.setEnergy(robot.getEnergy() - (IRobotConfig.FARMING_ENERGY_COST_PER_HARVEST.get() * robot.getEnergyConsumptionModifier()));
 
             if (robot.hasModule(ModuleItem.ModuleType.CROP_REPLANT)) {
                 seedItemOpt.ifPresent(seedItem -> {
                     if (tryReplant(level, robot, this.targetPos, seedItem)) {
                         robot.swing(InteractionHand.MAIN_HAND);
-                        robot.setEnergy(robot.getEnergy() - (1 * robot.getEnergyConsumptionModifier()));
+                        robot.setEnergy(robot.getEnergy() - (IRobotConfig.FARMING_ENERGY_COST_PER_REPLANT.get() * robot.getEnergyConsumptionModifier()));
                     }
                 });
             }
@@ -104,7 +105,7 @@ public class HarvestAndReplantCrop extends Behavior<MiniRobotEntity> {
                 seedToPlant.ifPresent(seedItem -> {
                     if (tryReplant(level, robot, this.targetPos, seedItem)) {
                         robot.swing(InteractionHand.MAIN_HAND);
-                        robot.setEnergy(robot.getEnergy() - (1 * robot.getEnergyConsumptionModifier()));
+                        robot.setEnergy(robot.getEnergy() - (IRobotConfig.FARMING_ENERGY_COST_PER_REPLANT.get() * robot.getEnergyConsumptionModifier()));
                     }
                 });
             }

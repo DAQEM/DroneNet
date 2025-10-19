@@ -1,6 +1,7 @@
 package com.daqem.irobot.entity.ai.behavior.dropoff;
 
 import com.daqem.irobot.IRobot;
+import com.daqem.irobot.config.IRobotConfig;
 import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.daqem.irobot.level.poi.IRobotPoiTypes;
@@ -30,7 +31,7 @@ public class FindDropoffChest extends Behavior<IRobotEntity> {
                 poiTypeHolder -> poiTypeHolder.is(IRobotPoiTypes.DROPOFF_CHEST.getId()),
                 blockPos -> level.getBlockEntity(blockPos) instanceof Container container && robot.getInventory().canAddItem(container),
                 robot.blockPosition(),
-                128,
+                IRobotConfig.POI_SEARCH_RANGE.get(),
                 PoiManager.Occupancy.ANY
         ).ifPresentOrElse(poiPos -> {
             robot.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(poiPos, 0.5f, 1));

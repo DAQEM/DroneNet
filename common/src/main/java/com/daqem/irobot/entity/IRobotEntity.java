@@ -2,6 +2,7 @@ package com.daqem.irobot.entity;
 
 import com.daqem.irobot.IRobot;
 import com.daqem.irobot.client.renderer.OutlineRenderer;
+import com.daqem.irobot.config.IRobotConfig;
 import com.daqem.irobot.entity.ai.IRobotActivities;
 import com.daqem.irobot.entity.ai.IRobotBrain;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
@@ -25,6 +26,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.Profiler;
@@ -47,7 +49,9 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
@@ -63,6 +67,7 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 
@@ -70,10 +75,10 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
     private static final EntityDataAccessor<Boolean> IS_MINING = SynchedEntityData.defineId(IRobotEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_FARMING = SynchedEntityData.defineId(IRobotEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> DATA_COLOR = SynchedEntityData.defineId(IRobotEntity.class, EntityDataSerializers.INT);
 
-    private static final int REGENERATION_COOLDOWN_TICKS = 20; // 1 second
-    private static final double REGENERATION_ENERGY_COST = 10.0; // Energy cost per half-heart
-    private static final float REGENERATION_AMOUNT = 1.0F; // Heal 1.0F (half a heart)
+    private static final int DEFAULT_COLOR = 0x707080;
+
     private static final EnumMap<ModuleItem.ModuleType, ResourceLocation> ATTRIBUTE_MODIFIER_LOCATIONS = new EnumMap<>(ModuleItem.ModuleType.class);
 
     static {
@@ -154,13 +159,45 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
     public static AttributeSupplier.Builder createRobotAttributes() {
         return LivingEntity.createLivingAttributes()
-                .add(Attributes.FOLLOW_RANGE, 16.0)
-                .add(Attributes.MOVEMENT_SPEED, 0.5)
-                .add(Attributes.MAX_HEALTH, 20.0)
-                .add(Attributes.BLOCK_BREAK_SPEED, 1.0)
-                .add(Attributes.MINING_EFFICIENCY, 0.0)
-                .add(Attributes.SUBMERGED_MINING_SPEED, 0.2)
-                .add(Attributes.ATTACK_DAMAGE, 4.0);
+                .add(Attributes.FOLLOW_RANGE, IRobotConfig.FOLLOW_RANGE.get())
+                .add(Attributes.MOVEMENT_SPEED, IRobotConfig.MOVEMENT_SPEED.get())
+                .add(Attributes.MAX_HEALTH, IRobotConfig.MAX_HEALTH.get())
+                .add(Attributes.BLOCK_BREAK_SPEED, IRobotConfig.BLOCK_BREAK_SPEED.get())
+                .add(Attributes.MINING_EFFICIENCY, IRobotConfig.MINING_EFFICIENCY.get())
+                .add(Attributes.SUBMERGED_MINING_SPEED, IRobotConfig.SUBMERGED_MINING_SPEED.get())
+                .add(Attributes.ATTACK_DAMAGE, IRobotConfig.ATTACK_DAMAGE.get());
+    }
+
+    /**
+     * Blends a list of integer colors by averaging their RGB components.
+     *
+     * @param colors A list of integer colors to blend.
+     * @return The resulting blended integer color.
+     */
+    public static int mixColors(List<Integer> colors) {
+        if (colors == null || colors.isEmpty()) {
+            return DEFAULT_COLOR;
+        }
+        if (colors.size() == 1) {
+            return colors.get(0);
+        }
+
+        int totalRed = 0;
+        int totalGreen = 0;
+        int totalBlue = 0;
+        int colorCount = colors.size();
+
+        for (int color : colors) {
+            totalRed += (color >> 16) & 0xFF;
+            totalGreen += (color >> 8) & 0xFF;
+            totalBlue += color & 0xFF;
+        }
+
+        int avgRed = totalRed / colorCount;
+        int avgGreen = totalGreen / colorCount;
+        int avgBlue = totalBlue / colorCount;
+
+        return (avgRed << 16) | (avgGreen << 8) | avgBlue;
     }
 
     public int getActiveActivityIndex() {
@@ -177,6 +214,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
         super.defineSynchedData(builder);
         builder.define(IS_MINING, false);
         builder.define(IS_FARMING, false);
+        builder.define(DATA_COLOR, DEFAULT_COLOR);
     }
 
     public boolean isMining() {
@@ -193,6 +231,14 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
     public void setFarming(boolean farming) {
         this.entityData.set(IS_FARMING, farming);
+    }
+
+    public int getColor() {
+        return this.entityData.get(DATA_COLOR);
+    }
+
+    public void setColor(int color) {
+        this.entityData.set(DATA_COLOR, color);
     }
 
     @Override
@@ -242,10 +288,13 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
         if (this.isAlive()) {
             if (this.tickCount % 20 == 0) {
-                double energyCost = this.distanceSqAccumulator / 16.0;
+                double distanceTraveled = Math.sqrt(this.distanceSqAccumulator);
+                double energyCost = distanceTraveled * IRobotConfig.MOVEMENT_ENERGY_COST_PER_METER.get();
+
                 if (energyCost > 0) {
                     setEnergy(getEnergy() - (energyCost * getEnergyConsumptionModifier()));
                 }
+
                 this.distanceSqAccumulator = 0.0;
             }
 
@@ -257,21 +306,21 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
     }
 
     private void handleHealthRegeneration() {
-        if (this.getHealth() < this.getMaxHealth() && this.getEnergy() >= REGENERATION_ENERGY_COST) {
+        if (this.getHealth() < this.getMaxHealth() && this.getEnergy() >= IRobotConfig.REGENERATION_ENERGY_COST.get()) {
             if (this.regenerationCooldown > 0) {
                 this.regenerationCooldown--;
             } else {
-                this.heal(REGENERATION_AMOUNT);
-                this.setEnergy(this.getEnergy() - (REGENERATION_ENERGY_COST * getEnergyConsumptionModifier()));
-                this.regenerationCooldown = REGENERATION_COOLDOWN_TICKS;
+                this.heal(IRobotConfig.REGENERATION_AMOUNT.get());
+                this.setEnergy(this.getEnergy() - (IRobotConfig.REGENERATION_ENERGY_COST.get() * getEnergyConsumptionModifier()));
+                this.regenerationCooldown = IRobotConfig.REGENERATION_COOLDOWN_TICKS.get();
             }
         }
     }
 
     private void handleSolarCharging() {
         if (hasModule(ModuleItem.ModuleType.SOLAR_PANEL) && this.isDay() && this.level().canSeeSky(this.blockPosition())) {
-            if (this.tickCount % 20 == 0) { // Every second
-                double energyToGen = 2.0; // 2 energy per second
+            if (this.tickCount % 20 == 0) {
+                double energyToGen = IRobotConfig.SOLAR_PANEL_ENERGY_PER_SECOND.get();
                 setEnergy(getEnergy() + energyToGen);
             }
         }
@@ -319,6 +368,34 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
             }
 
             ItemStack itemInHand = player.getItemInHand(hand);
+
+            if (itemInHand.getItem() instanceof DyeItem dyeItem) {
+                int currentColor = this.getColor();
+                int dyeColor = dyeItem.getDyeColor().getTextureDiffuseColor();
+                List<Integer> colorsToBlend = new ArrayList<>();
+                if (currentColor != DEFAULT_COLOR) {
+                    colorsToBlend.add(currentColor);
+                }
+                colorsToBlend.add(dyeColor);
+                this.setColor(mixColors(colorsToBlend));
+                if (!player.getAbilities().instabuild) {
+                    itemInHand.shrink(1);
+                }
+                this.playSound(SoundEvents.DYE_USE, 1.0F, 1.0F);
+                return InteractionResult.SUCCESS;
+            }
+
+            if (itemInHand.is(Items.WATER_BUCKET)) {
+                if (this.getColor() != DEFAULT_COLOR) {
+                    this.setColor(DEFAULT_COLOR);
+                    if (!player.getAbilities().instabuild) {
+                        player.setItemInHand(hand, new ItemStack(Items.BUCKET));
+                    }
+                    this.playSound(SoundEvents.BUCKET_EMPTY, 1.0F, 1.0F);
+                    return InteractionResult.SUCCESS;
+                }
+            }
+
             InteractionResult itemResult = handleItemInteraction(serverPlayer, itemInHand, hand);
             if (itemResult.consumesAction()) {
                 return itemResult;
@@ -347,6 +424,9 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
         this.inventory.save(output.list("Inventory", ItemStackWithSlot.CODEC));
+        if (this.getColor() != DEFAULT_COLOR) {
+            output.putInt("Color", this.getColor());
+        }
     }
 
     @Override
@@ -356,6 +436,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
         if (this.level() instanceof ServerLevel) {
             recalculateAttributes();
         }
+        this.setColor(input.getIntOr("Color", DEFAULT_COLOR));
     }
 
     //region Interaction and GUI
@@ -575,10 +656,10 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
     private double getModuleValue(ModuleItem.ModuleType type) {
         return switch (type) {
-            case SPEED_BOOST -> 0.5;
-            case MINING_SPEED -> 2.0;
-            case ATTACK_DAMAGE -> 4.0;
-            case DURABILITY -> 20.0;
+            case SPEED_BOOST -> IRobotConfig.SPEED_BOOST_MULTIPLIER.get();
+            case MINING_SPEED -> IRobotConfig.MINING_SPEED_BONUS.get();
+            case ATTACK_DAMAGE -> IRobotConfig.ATTACK_DAMAGE_BONUS.get();
+            case DURABILITY -> IRobotConfig.DURABILITY_HEALTH_BONUS.get();
             default -> 0.0;
         };
     }
@@ -596,7 +677,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
     public double getEnergyConsumptionModifier() {
         if (hasModule(ModuleItem.ModuleType.BATTERY_EFFICIENCY)) {
-            return 0.75; // 25% less energy consumption
+            return IRobotConfig.BATTERY_EFFICIENCY_MULTIPLIER.get();
         }
         return 1.0;
     }

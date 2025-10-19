@@ -2,6 +2,7 @@ package com.daqem.irobot;
 
 import com.daqem.irobot.block.IRobotBlocks;
 import com.daqem.irobot.block.entity.IRobotBlockEntities;
+import com.daqem.irobot.config.IRobotConfig;
 import com.daqem.irobot.entity.IRobotEntities;
 import com.daqem.irobot.entity.ai.IRobotActivities;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
@@ -40,6 +41,8 @@ public class IRobot {
                     () -> new ItemStack(IRobotItems.MINI_ROBOT.get())));
 
     public static void init() {
+        IRobotConfig.init();
+
         IRobotBlocks.init();
         IRobotStats.init();
         IRobotMenuTypes.init();

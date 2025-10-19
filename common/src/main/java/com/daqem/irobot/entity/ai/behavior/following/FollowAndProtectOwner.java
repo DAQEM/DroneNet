@@ -1,5 +1,6 @@
 package com.daqem.irobot.entity.ai.behavior.following;
 
+import com.daqem.irobot.config.IRobotConfig;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.server.level.ServerLevel;
@@ -15,11 +16,6 @@ import net.minecraft.world.entity.monster.Monster;
 import java.util.Optional;
 
 public class FollowAndProtectOwner extends Behavior<MiniRobotEntity> {
-
-    private static final float SPEED_MODIFIER = 0.75F;
-    private static final int START_FOLLOWING_DISTANCE_SQ = 6 * 6;
-    private static final int STOP_FOLLOWING_DISTANCE_SQ = 4 * 4;
-    private static final int PROTECTION_RANGE_SQ = 16 * 16;
 
     public FollowAndProtectOwner() {
         super(ImmutableMap.of(
@@ -64,21 +60,24 @@ public class FollowAndProtectOwner extends Behavior<MiniRobotEntity> {
 
         // 3. Follow Logic
         double distanceSq = robot.distanceToSqr(owner);
-        if (distanceSq > START_FOLLOWING_DISTANCE_SQ) {
-            brain.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new EntityTracker(owner, false), SPEED_MODIFIER, 2));
-        } else if (distanceSq < STOP_FOLLOWING_DISTANCE_SQ) {
+        int followStartDistance = IRobotConfig.FOLLOW_START_DISTANCE.get();
+        int followStopDistance = IRobotConfig.FOLLOW_STOP_DISTANCE.get();
+        if (distanceSq > followStartDistance * followStartDistance) {
+            brain.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new EntityTracker(owner, false), IRobotConfig.FOLLOW_OWNER_SPEED.get(), 2));
+        } else if (distanceSq < followStopDistance * followStopDistance) {
             brain.eraseMemory(MemoryModuleType.WALK_TARGET);
         }
     }
 
     private Optional<LivingEntity> findNearestAttacker(MiniRobotEntity robot, LivingEntity owner) {
+        int protectionRange = IRobotConfig.PROTECT_OWNER_RANGE.get();
         return robot.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES)
                 .flatMap(entities -> entities.stream()
                         .filter(entity -> entity instanceof Monster && entity.isAlive())
                         .map(entity -> (Monster) entity)
                         .filter(monster -> owner.equals(monster.getTarget()))
                         .filter(robot::hasLineOfSight)
-                        .filter(monster -> monster.distanceToSqr(owner) < PROTECTION_RANGE_SQ)
+                        .filter(monster -> monster.distanceToSqr(owner) < protectionRange * protectionRange)
                         .map(monster -> (LivingEntity) monster)
                         .findFirst());
     }

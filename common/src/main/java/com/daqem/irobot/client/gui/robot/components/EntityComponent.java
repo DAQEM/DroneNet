@@ -1,5 +1,6 @@
 package com.daqem.irobot.client.gui.robot.components;
 
+import com.daqem.irobot.client.config.IRobotClientConfig;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.uilib.gui.component.AbstractComponent;
 import net.minecraft.client.Minecraft;
@@ -29,8 +30,8 @@ public class EntityComponent extends AbstractComponent {
         if (level == null) return;
         Entity entity = level.getEntity(this.entityIdSupplier.get());
         if (entity instanceof LivingEntity livingEntity) {
-            int scale = livingEntity instanceof MiniRobotEntity ? 40 : 30;
-            float yOffset = livingEntity instanceof MiniRobotEntity ? 0.25F : 0.0625F;
+            int scale = livingEntity instanceof MiniRobotEntity ? IRobotClientConfig.ROBOT_SCREEN_ENTITY_SCALE.get() : 30;
+            float yOffset = livingEntity instanceof MiniRobotEntity ? IRobotClientConfig.ROBOT_SCREEN_ENTITY_Y_OFFSET.get() : 0.0625F;
             float f = (getTotalX() + getTotalX() + getWidth()) / 2.0F;
             float g = (getTotalY() + getTotalY() + getHeight()) / 2.0F;
             guiGraphics.enableScissor(getTotalX(), getTotalY(), getTotalX() + getWidth(), getTotalY() + getHeight());

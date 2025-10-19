@@ -1,6 +1,7 @@
 package com.daqem.irobot.entity;
 
 import com.daqem.irobot.IRobot;
+import com.daqem.irobot.config.IRobotConfig;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.daqem.irobot.item.TaskItem;
 import com.google.common.collect.ImmutableList;
@@ -58,7 +59,6 @@ public class MiniRobotEntity extends IRobotEntity {
             SensorType.NEAREST_LIVING_ENTITIES,
             SensorType.HURT_BY
     );
-    private static final float RECHARGE_THRESHOLD_PERCENTAGE = 0.2F;
 
     public MiniRobotEntity(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
@@ -107,6 +107,6 @@ public class MiniRobotEntity extends IRobotEntity {
 
     @Override
     public int getRechargeThreshold() {
-        return (int) (getMaxEnergy() * RECHARGE_THRESHOLD_PERCENTAGE);
+        return (int) (getMaxEnergy() * IRobotConfig.RECHARGE_THRESHOLD_PERCENTAGE.get());
     }
 }

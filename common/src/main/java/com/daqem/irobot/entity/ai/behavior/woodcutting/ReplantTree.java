@@ -1,5 +1,6 @@
 package com.daqem.irobot.entity.ai.behavior.woodcutting;
 
+import com.daqem.irobot.config.IRobotConfig;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.google.common.collect.ImmutableMap;
@@ -78,6 +79,7 @@ public class ReplantTree extends Behavior<MiniRobotEntity> {
         if (level.getBlockState(pos).canBeReplaced() && saplingState.canSurvive(level, pos)) {
             level.setBlock(pos, saplingState, 3);
             robot.getInventory().getItem(saplingSlot).shrink(1);
+            robot.setEnergy(robot.getEnergy() - (IRobotConfig.WOODCUTTING_ENERGY_COST_PER_REPLANT.get() * robot.getEnergyConsumptionModifier()));
             return true;
         }
 

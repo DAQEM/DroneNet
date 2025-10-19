@@ -1,6 +1,7 @@
 package com.daqem.irobot.entity.ai.behavior.protecting;
 
 import com.daqem.irobot.client.renderer.OutlineRenderer;
+import com.daqem.irobot.config.IRobotConfig;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.google.common.collect.ImmutableMap;
@@ -20,7 +21,6 @@ import java.util.Optional;
 
 public class StrollInArea extends Behavior<MiniRobotEntity> {
 
-    private static final int STROLL_COOLDOWN_TICKS = 100; // 5 seconds
     private long lastStrollTime;
 
     public StrollInArea() {
@@ -35,7 +35,7 @@ public class StrollInArea extends Behavior<MiniRobotEntity> {
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, MiniRobotEntity owner) {
         // Only stroll if enough time has passed since the last stroll
-        return owner.level().getGameTime() - this.lastStrollTime >= STROLL_COOLDOWN_TICKS;
+        return owner.level().getGameTime() - this.lastStrollTime >= IRobotConfig.STROLL_IN_AREA_COOLDOWN_TICKS.get();
     }
 
     @Override
