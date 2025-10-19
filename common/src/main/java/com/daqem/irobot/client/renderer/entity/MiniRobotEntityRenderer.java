@@ -43,4 +43,9 @@ public class MiniRobotEntityRenderer<R extends LivingEntityRenderState & GeoRend
             }
         });
     }
+
+    @Override
+    public int getRenderColor(MiniRobotEntity animatable, Void relatedObject, float partialTick) {
+        return animatable.getColor();
+    }
 }

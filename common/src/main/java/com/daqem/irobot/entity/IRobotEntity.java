@@ -26,6 +26,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.Profiler;
@@ -48,7 +49,9 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
@@ -64,6 +67,7 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 
@@ -71,6 +75,9 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
     private static final EntityDataAccessor<Boolean> IS_MINING = SynchedEntityData.defineId(IRobotEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_FARMING = SynchedEntityData.defineId(IRobotEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> DATA_COLOR = SynchedEntityData.defineId(IRobotEntity.class, EntityDataSerializers.INT);
+
+    private static final int DEFAULT_COLOR = 0x707080;
 
     private static final EnumMap<ModuleItem.ModuleType, ResourceLocation> ATTRIBUTE_MODIFIER_LOCATIONS = new EnumMap<>(ModuleItem.ModuleType.class);
 
@@ -161,6 +168,38 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
                 .add(Attributes.ATTACK_DAMAGE, IRobotConfig.ATTACK_DAMAGE.get());
     }
 
+    /**
+     * Blends a list of integer colors by averaging their RGB components.
+     *
+     * @param colors A list of integer colors to blend.
+     * @return The resulting blended integer color.
+     */
+    public static int mixColors(List<Integer> colors) {
+        if (colors == null || colors.isEmpty()) {
+            return DEFAULT_COLOR;
+        }
+        if (colors.size() == 1) {
+            return colors.get(0);
+        }
+
+        int totalRed = 0;
+        int totalGreen = 0;
+        int totalBlue = 0;
+        int colorCount = colors.size();
+
+        for (int color : colors) {
+            totalRed += (color >> 16) & 0xFF;
+            totalGreen += (color >> 8) & 0xFF;
+            totalBlue += color & 0xFF;
+        }
+
+        int avgRed = totalRed / colorCount;
+        int avgGreen = totalGreen / colorCount;
+        int avgBlue = totalBlue / colorCount;
+
+        return (avgRed << 16) | (avgGreen << 8) | avgBlue;
+    }
+
     public int getActiveActivityIndex() {
         return this.getBrain().getActiveNonCoreActivity().map(IRobotEntity::getIndexByActivity).orElse(0);
     }
@@ -175,6 +214,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
         super.defineSynchedData(builder);
         builder.define(IS_MINING, false);
         builder.define(IS_FARMING, false);
+        builder.define(DATA_COLOR, DEFAULT_COLOR);
     }
 
     public boolean isMining() {
@@ -191,6 +231,14 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
     public void setFarming(boolean farming) {
         this.entityData.set(IS_FARMING, farming);
+    }
+
+    public int getColor() {
+        return this.entityData.get(DATA_COLOR);
+    }
+
+    public void setColor(int color) {
+        this.entityData.set(DATA_COLOR, color);
     }
 
     @Override
@@ -320,6 +368,34 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
             }
 
             ItemStack itemInHand = player.getItemInHand(hand);
+
+            if (itemInHand.getItem() instanceof DyeItem dyeItem) {
+                int currentColor = this.getColor();
+                int dyeColor = dyeItem.getDyeColor().getTextureDiffuseColor();
+                List<Integer> colorsToBlend = new ArrayList<>();
+                if (currentColor != DEFAULT_COLOR) {
+                    colorsToBlend.add(currentColor);
+                }
+                colorsToBlend.add(dyeColor);
+                this.setColor(mixColors(colorsToBlend));
+                if (!player.getAbilities().instabuild) {
+                    itemInHand.shrink(1);
+                }
+                this.playSound(SoundEvents.DYE_USE, 1.0F, 1.0F);
+                return InteractionResult.SUCCESS;
+            }
+
+            if (itemInHand.is(Items.WATER_BUCKET)) {
+                if (this.getColor() != DEFAULT_COLOR) {
+                    this.setColor(DEFAULT_COLOR);
+                    if (!player.getAbilities().instabuild) {
+                        player.setItemInHand(hand, new ItemStack(Items.BUCKET));
+                    }
+                    this.playSound(SoundEvents.BUCKET_EMPTY, 1.0F, 1.0F);
+                    return InteractionResult.SUCCESS;
+                }
+            }
+
             InteractionResult itemResult = handleItemInteraction(serverPlayer, itemInHand, hand);
             if (itemResult.consumesAction()) {
                 return itemResult;
@@ -348,6 +424,9 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
         this.inventory.save(output.list("Inventory", ItemStackWithSlot.CODEC));
+        if (this.getColor() != DEFAULT_COLOR) {
+            output.putInt("Color", this.getColor());
+        }
     }
 
     @Override
@@ -357,6 +436,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
         if (this.level() instanceof ServerLevel) {
             recalculateAttributes();
         }
+        this.setColor(input.getIntOr("Color", DEFAULT_COLOR));
     }
 
     //region Interaction and GUI
