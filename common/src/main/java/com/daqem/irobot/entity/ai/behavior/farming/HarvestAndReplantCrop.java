@@ -2,6 +2,7 @@ package com.daqem.irobot.entity.ai.behavior.farming;
 
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
+import com.daqem.irobot.item.module.ModuleItem;
 import com.daqem.irobot.util.CropUtils;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.BlockPos;
@@ -86,24 +87,28 @@ public class HarvestAndReplantCrop extends Behavior<MiniRobotEntity> {
 
             robot.swing(InteractionHand.MAIN_HAND);
             level.destroyBlock(this.targetPos, true, robot);
-            robot.setEnergy(robot.getEnergy() - 1); // Small energy cost for harvesting
+            robot.setEnergy(robot.getEnergy() - (1 * robot.getEnergyConsumptionModifier())); // Small energy cost for harvesting
 
-            seedItemOpt.ifPresent(seedItem -> {
-                if (tryReplant(level, robot, this.targetPos, seedItem)) {
-                    robot.swing(InteractionHand.MAIN_HAND);
-                    robot.setEnergy(robot.getEnergy() - 1); // Small energy cost for replanting
-                }
-            });
+            if (robot.hasModule(ModuleItem.ModuleType.CROP_REPLANT)) {
+                seedItemOpt.ifPresent(seedItem -> {
+                    if (tryReplant(level, robot, this.targetPos, seedItem)) {
+                        robot.swing(InteractionHand.MAIN_HAND);
+                        robot.setEnergy(robot.getEnergy() - (1 * robot.getEnergyConsumptionModifier())); // Small energy cost for replanting
+                    }
+                });
+            }
 
             // Case 2: Plant on empty farmland
         } else if (cropState.isAir() && (level.getBlockState(this.targetPos.below()).is(Blocks.FARMLAND) || level.getBlockState(this.targetPos.below()).is(Blocks.SOUL_SAND))) {
-            Optional<Item> seedToPlant = findSeedInInventory(robot, level, this.targetPos);
-            seedToPlant.ifPresent(seedItem -> {
-                if (tryReplant(level, robot, this.targetPos, seedItem)) {
-                    robot.swing(InteractionHand.MAIN_HAND);
-                    robot.setEnergy(robot.getEnergy() - 1); // Small energy cost for planting
-                }
-            });
+            if (robot.hasModule(ModuleItem.ModuleType.CROP_REPLANT)) {
+                Optional<Item> seedToPlant = findSeedInInventory(robot, level, this.targetPos);
+                seedToPlant.ifPresent(seedItem -> {
+                    if (tryReplant(level, robot, this.targetPos, seedItem)) {
+                        robot.swing(InteractionHand.MAIN_HAND);
+                        robot.setEnergy(robot.getEnergy() - (1 * robot.getEnergyConsumptionModifier())); // Small energy cost for planting
+                    }
+                });
+            }
         }
 
         // Done with this crop

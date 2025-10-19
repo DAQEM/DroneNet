@@ -1,5 +1,6 @@
 package com.daqem.irobot.entity;
 
+import com.daqem.irobot.IRobot;
 import com.daqem.irobot.client.renderer.OutlineRenderer;
 import com.daqem.irobot.entity.ai.IRobotActivities;
 import com.daqem.irobot.entity.ai.IRobotBrain;
@@ -9,13 +10,18 @@ import com.daqem.irobot.item.data.BatteryDataComponent;
 import com.daqem.irobot.item.data.IRobotDataComponents;
 import com.daqem.irobot.item.data.TaskDataComponent;
 import com.daqem.irobot.item.data.TaskMarkerDataComponent;
+import com.daqem.irobot.item.module.ModuleItem;
 import com.daqem.irobot.menu.RobotMenu;
 import com.daqem.irobot.stats.IRobotStats;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import com.mojang.serialization.Dynamic;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.FluidTags;
@@ -31,6 +37,8 @@ import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -42,6 +50,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -53,6 +62,7 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.EnumMap;
 import java.util.List;
 
 public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, InteractableRobot {
@@ -64,6 +74,15 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
     private static final double REGENERATION_ENERGY_COST = 10.0; // Energy cost per half-heart
     private static final float REGENERATION_AMOUNT = 1.0F; // Heal 1.0F (half a heart)
     private int regenerationCooldown = 0;
+
+    private static final EnumMap<ModuleItem.ModuleType, ResourceLocation> ATTRIBUTE_MODIFIER_LOCATIONS = new EnumMap<>(ModuleItem.ModuleType.class);
+
+    static {
+        ATTRIBUTE_MODIFIER_LOCATIONS.put(ModuleItem.ModuleType.SPEED_BOOST, IRobot.getId("speed_boost_module"));
+        ATTRIBUTE_MODIFIER_LOCATIONS.put(ModuleItem.ModuleType.MINING_SPEED, IRobot.getId("mining_speed_module"));
+        ATTRIBUTE_MODIFIER_LOCATIONS.put(ModuleItem.ModuleType.ATTACK_DAMAGE, IRobot.getId("attack_damage_module"));
+        ATTRIBUTE_MODIFIER_LOCATIONS.put(ModuleItem.ModuleType.DURABILITY, IRobot.getId("durability_module"));
+    }
 
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
     protected final RobotInventory inventory;
@@ -208,6 +227,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
             }
         }
         this.lastPos = this.position();
+        recalculateAttributes();
     }
 
     @Override
@@ -225,12 +245,13 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
             if (this.tickCount % 20 == 0) {
                 double energyCost = this.distanceSqAccumulator / 16.0;
                 if (energyCost > 0) {
-                    setEnergy(getEnergy() - energyCost);
+                    setEnergy(getEnergy() - (energyCost * getEnergyConsumptionModifier()));
                 }
                 this.distanceSqAccumulator = 0.0;
             }
 
             handleHealthRegeneration();
+            handleSolarCharging();
         }
 
         super.customServerAiStep(level);
@@ -242,16 +263,37 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
                 this.regenerationCooldown--;
             } else {
                 this.heal(REGENERATION_AMOUNT);
-                this.setEnergy(this.getEnergy() - REGENERATION_ENERGY_COST);
+                this.setEnergy(this.getEnergy() - (REGENERATION_ENERGY_COST * getEnergyConsumptionModifier()));
                 this.regenerationCooldown = REGENERATION_COOLDOWN_TICKS;
             }
         }
     }
 
+    private void handleSolarCharging() {
+        if (hasModule(ModuleItem.ModuleType.SOLAR_PANEL) && this.isDay() && this.level().canSeeSky(this.blockPosition())) {
+            if (this.tickCount % 20 == 0) { // Every second
+                double energyToGen = 2.0; // 2 energy per second
+                setEnergy(getEnergy() + energyToGen);
+            }
+        }
+    }
+
+    private boolean isDay() {
+        int i = level().getBrightness(LightLayer.SKY, blockPosition()) - level().getSkyDarken();
+        float f = level().getSunAngle(1.0F);
+        float g = f < (float) Math.PI ? 0.0F : (float) (Math.PI * 2);
+        f += (g - f) * 0.2F;
+        i = Math.round(i * Mth.cos(f));
+
+        i = Mth.clamp(i, 0, 15);
+        return i >= 8;
+    }
+
+
     @Override
     public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount) {
         boolean wasHurt = super.hurtServer(level, damageSource, amount);
-        if (wasHurt) {
+        if (wasHurt && !this.level().isClientSide()) {
             Entity attacker = damageSource.getEntity();
             if (attacker instanceof LivingEntity livingAttacker) {
                 // Don't attack players who damage the robot
@@ -312,6 +354,9 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
     protected void readAdditionalSaveData(ValueInput input) {
         super.readAdditionalSaveData(input);
         this.inventory.load(input.listOrEmpty("Inventory", ItemStackWithSlot.CODEC));
+        if (this.level() instanceof ServerLevel) {
+            recalculateAttributes();
+        }
     }
 
     //region Interaction and GUI
@@ -344,7 +389,7 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
     @Override
     public boolean stillValid(Player player) {
-        return this.getInteractingPlayer() == player && this.isAlive() && player.canInteractWithEntity(this, 4.0);
+        return this.getInteractingPlayer() == player && this.isAlive() && this.distanceToSqr(player) < 64.0;
     }
 
     @Override
@@ -477,9 +522,65 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
         return data != null ? data.maxEnergy() : 0;
     }
 
+    //endregion
+
+    //region Modules
+    public void recalculateAttributes() {
+        this.getAttributes().removeAttributeModifiers(createAttributeMap(false));
+        this.getAttributes().addTransientAttributeModifiers(createAttributeMap(true));
+    }
+
+    private Multimap<Holder<Attribute>, AttributeModifier> createAttributeMap(boolean add) {
+        ImmutableMultimap.Builder<Holder<Attribute>, AttributeModifier> builder = ImmutableMultimap.builder();
+        for (ModuleItem module : this.inventory.getEquippedModules()) {
+            double amount = add ? getModuleValue(module.getType()) : 0.0;
+            AttributeModifier.Operation operation = getModuleOperation(module.getType());
+            switch (module.getType()) {
+                case SPEED_BOOST ->
+                        builder.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(ATTRIBUTE_MODIFIER_LOCATIONS.get(module.getType()), amount, operation));
+                case MINING_SPEED ->
+                        builder.put(Attributes.MINING_EFFICIENCY, new AttributeModifier(ATTRIBUTE_MODIFIER_LOCATIONS.get(module.getType()), amount, operation));
+                case ATTACK_DAMAGE ->
+                        builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ATTRIBUTE_MODIFIER_LOCATIONS.get(module.getType()), amount, operation));
+                case DURABILITY ->
+                        builder.put(Attributes.MAX_HEALTH, new AttributeModifier(ATTRIBUTE_MODIFIER_LOCATIONS.get(module.getType()), amount, operation));
+            }
+        }
+        return builder.build();
+    }
+
+    private double getModuleValue(ModuleItem.ModuleType type) {
+        return switch (type) {
+            case SPEED_BOOST -> 0.5;
+            case MINING_SPEED -> 2.0;
+            case ATTACK_DAMAGE -> 4.0;
+            case DURABILITY -> 20.0;
+            default -> 0.0;
+        };
+    }
+
+    private AttributeModifier.Operation getModuleOperation(ModuleItem.ModuleType type) {
+        if (type == ModuleItem.ModuleType.SPEED_BOOST) {
+            return AttributeModifier.Operation.ADD_MULTIPLIED_BASE;
+        }
+        return AttributeModifier.Operation.ADD_VALUE;
+    }
+
+    public boolean hasModule(ModuleItem.ModuleType type) {
+        return this.inventory.getEquippedModules().stream().anyMatch(m -> m.getType() == type);
+    }
+
+    public double getEnergyConsumptionModifier() {
+        if (hasModule(ModuleItem.ModuleType.BATTERY_EFFICIENCY)) {
+            return 0.75; // 25% less energy consumption
+        }
+        return 1.0;
+    }
+
     public boolean needsRecharging() {
         return this.getEnergy() < getRechargeThreshold();
     }
+
     //endregion
 
     @Override

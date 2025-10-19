@@ -4,6 +4,7 @@ import com.daqem.irobot.client.renderer.OutlineRenderer;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.daqem.irobot.entity.task.RobotTask;
+import com.daqem.irobot.item.module.ModuleItem;
 import com.daqem.irobot.util.TreeUtils;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.BlockPos;
@@ -76,11 +77,14 @@ public class FindNextTreeToCut extends Behavior<MiniRobotEntity> {
 
             robot.getBrain().setMemory(IRobotMemoryModuleTypes.TREE_TARGET_POS.get(), GlobalPos.of(level.dimension(), treePos));
             robot.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(bestPos, 0.5f, 1));
-            BlockState logState = level.getBlockState(treePos);
-            TreeUtils.getSaplingFromLog(logState).ifPresent(sapling -> {
-                robot.getBrain().setMemory(IRobotMemoryModuleTypes.SAPLING_TO_PLANT.get(), sapling);
-                robot.getBrain().setMemory(IRobotMemoryModuleTypes.REPLANT_POS.get(), treePos);
-            });
+
+            if (robot.hasModule(ModuleItem.ModuleType.REFORESTATION)) {
+                BlockState logState = level.getBlockState(treePos);
+                TreeUtils.getSaplingFromLog(logState).ifPresent(sapling -> {
+                    robot.getBrain().setMemory(IRobotMemoryModuleTypes.SAPLING_TO_PLANT.get(), sapling);
+                    robot.getBrain().setMemory(IRobotMemoryModuleTypes.REPLANT_POS.get(), treePos);
+                });
+            }
         });
     }
 

@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.BlockPosTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -118,8 +117,8 @@ public class MineBlock extends Behavior<MiniRobotEntity> {
         }
 
         if (this.miningProgress >= 1.0F) {
-            if (level.destroyBlock(currentTargetPos, blockState.requiresCorrectToolForDrops() && robot.hasCorrectToolForDrops(blockState), robot)) {
-                robot.setEnergy(robot.getEnergy() - 5);
+            if (level.destroyBlock(currentTargetPos, robot.hasCorrectToolForDrops(blockState), robot)) {
+                robot.setEnergy(robot.getEnergy() - (5 * robot.getEnergyConsumptionModifier()));
             }
             doStop(level, robot, gameTime);
         }

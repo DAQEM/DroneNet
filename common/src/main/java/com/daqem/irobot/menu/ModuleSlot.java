@@ -1,22 +1,21 @@
 package com.daqem.irobot.menu;
 
 import com.daqem.irobot.IRobot;
-import com.daqem.irobot.item.BatteryItem;
+import com.daqem.irobot.item.module.IModuleItem;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-public class BatterySlot extends Slot {
+public class ModuleSlot extends AbstractEmptyIconSlot {
 
-    public BatterySlot(Container container, int slot, int x, int y) {
-        super(container, slot, x, y);
+    public ModuleSlot(Container container, int slot, int x, int y) {
+        super(container, slot, x, y, IRobot.getId("robot/module_empty"));
     }
 
     @Override
     public boolean mayPlace(ItemStack stack) {
-        return stack.getItem() instanceof BatteryItem;
+        return stack.getItem() instanceof IModuleItem;
     }
 
     @Override
@@ -26,6 +25,6 @@ public class BatterySlot extends Slot {
 
     @Override
     public @Nullable ResourceLocation getNoItemIcon() {
-        return IRobot.getId("robot/battery_empty");
+        return IRobot.getId("robot/module_empty");
     }
 }

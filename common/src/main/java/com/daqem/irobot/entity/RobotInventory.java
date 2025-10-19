@@ -2,6 +2,8 @@ package com.daqem.irobot.entity;
 
 import com.daqem.irobot.item.BatteryItem;
 import com.daqem.irobot.item.TaskItem;
+import com.daqem.irobot.item.module.IModuleItem;
+import com.daqem.irobot.item.module.ModuleItem;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.CrashReport;
@@ -16,11 +18,9 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.ItemStackWithSlot;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityEquipment;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -30,13 +30,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -47,18 +46,21 @@ public class RobotInventory implements Container {
     public static final int INVENTORY_SIZE = 24;
     public static final int BATTERY_SLOT_INDEX = INVENTORY_SIZE;
     public static final int TASK_SLOT_INDEX = INVENTORY_SIZE + 1;
+    public static final int MODULE_SLOT_1_INDEX = INVENTORY_SIZE + 2;
+    public static final int MODULE_SLOT_2_INDEX = INVENTORY_SIZE + 3;
     public static final Int2ObjectMap<EquipmentSlot> EQUIPMENT_SLOT_MAPPING;
 
     static {
         Int2ObjectArrayMap<EquipmentSlot> map = new Int2ObjectArrayMap<>();
-        map.put(EquipmentSlot.FEET.getIndex(INVENTORY_SIZE + 2), EquipmentSlot.FEET);
-        map.put(EquipmentSlot.LEGS.getIndex(INVENTORY_SIZE + 2), EquipmentSlot.LEGS);
-        map.put(EquipmentSlot.CHEST.getIndex(INVENTORY_SIZE + 2), EquipmentSlot.CHEST);
-        map.put(EquipmentSlot.HEAD.getIndex(INVENTORY_SIZE + 2), EquipmentSlot.HEAD);
+        int baseIndex = INVENTORY_SIZE + 4;
+        map.put(EquipmentSlot.FEET.getIndex(baseIndex), EquipmentSlot.FEET);
+        map.put(EquipmentSlot.LEGS.getIndex(baseIndex), EquipmentSlot.LEGS);
+        map.put(EquipmentSlot.CHEST.getIndex(baseIndex), EquipmentSlot.CHEST);
+        map.put(EquipmentSlot.HEAD.getIndex(baseIndex), EquipmentSlot.HEAD);
         EQUIPMENT_SLOT_MAPPING = map;
     }
 
-    private final NonNullList<ItemStack> items = NonNullList.withSize(INVENTORY_SIZE + 2, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> items = NonNullList.withSize(INVENTORY_SIZE + 4, ItemStack.EMPTY);
     private int selected;
     public final IRobotEntity robot;
     private final EntityEquipment equipment;
@@ -117,6 +119,16 @@ public class RobotInventory implements Container {
                 if (taskSlotStack.isEmpty()) {
                     this.items.set(TASK_SLOT_INDEX, stack.split(1));
                     return stack;
+                }
+            }
+            if (stack.getItem() instanceof IModuleItem) {
+                if (this.items.get(MODULE_SLOT_1_INDEX).isEmpty()) {
+                    this.items.set(MODULE_SLOT_1_INDEX, stack.split(1));
+                    if (stack.isEmpty()) return ItemStack.EMPTY;
+                }
+                if (this.items.get(MODULE_SLOT_2_INDEX).isEmpty()) {
+                    this.items.set(MODULE_SLOT_2_INDEX, stack.split(1));
+                    if (stack.isEmpty()) return ItemStack.EMPTY;
                 }
             }
             ItemStack itemStack = stack.copy();
@@ -470,6 +482,9 @@ public class RobotInventory implements Container {
     public void setItem(int slot, ItemStack stack) {
         if (slot < this.items.size()) {
             this.items.set(slot, stack);
+            if (!this.robot.level().isClientSide() && (slot == MODULE_SLOT_1_INDEX || slot == MODULE_SLOT_2_INDEX)) {
+                this.robot.recalculateAttributes();
+            }
             return;
         }
         EquipmentSlot equipmentSlot = EQUIPMENT_SLOT_MAPPING.get(slot);
@@ -609,7 +624,7 @@ public class RobotInventory implements Container {
         int bestSlot = -1;
         float bestSpeed = 1.0f;
 
-        for (int i = 0; i < this.items.size(); i++) {
+        for (int i = 0; i < INVENTORY_SIZE; i++) {
             ItemStack itemStack = this.getItem(i);
             float speed = itemStack.getDestroySpeed(blockState);
             if (speed > bestSpeed) {
@@ -657,31 +672,40 @@ public class RobotInventory implements Container {
     }
 
     public void selectBestWeapon(LivingEntity target) {
-        if (this.robot.level() instanceof ServerLevel serverLevel) {
-            int bestSlot = -1;
-            float bestDamage = 1.0f;
+        float bestDamage = 1.0f;
+        int bestSlot = this.selected;
 
-            for (int i = 0; i < this.items.size(); i++) {
-                ItemStack itemStack = this.getItem(i);
-                if (itemStack.isEmpty()) {
-                    continue;
+        for(int i = 0; i < INVENTORY_SIZE; ++i) {
+            ItemStack itemStack = this.getItem(i);
+            if (!itemStack.isEmpty()) {
+                ItemAttributeModifiers itemAttributeModifiers = itemStack.get(DataComponents.ATTRIBUTE_MODIFIERS);
+                if (itemAttributeModifiers != null) {
+                    Optional<Float> optional = itemAttributeModifiers.modifiers().stream().filter((attributeModifier) -> {
+                        return attributeModifier.attribute().is(Attributes.ATTACK_DAMAGE);
+                    }).findFirst().map((attributeModifier) -> {
+                        return (float)attributeModifier.modifier().amount();
+                    });
+                    if (optional.isPresent() && optional.get() > bestDamage) {
+                        bestDamage = optional.get();
+                        bestSlot = i;
+                    }
                 }
-                float damage = (float) robot.getAttributeValue(Attributes.ATTACK_DAMAGE);
-                DamageSource damageSource = Optional.ofNullable(itemStack.getItem().getDamageSource(robot)).orElse(robot.damageSources().mobAttack(robot));
-                damage = EnchantmentHelper.modifyDamage(serverLevel, itemStack, target, damageSource, damage);
-                damage += itemStack.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY).modifiers().stream()
-                        .filter(modifier -> Attributes.ATTACK_DAMAGE.is(modifier.attribute().unwrapKey().orElseThrow()))
-                        .map(x -> (float) x.modifier().amount())
-                        .reduce(0f, Float::sum);
-                if (damage > bestDamage) {
-                    bestDamage = damage;
-                    bestSlot = i;
-                }
-            }
-
-            if (bestSlot != -1) {
-                this.setSelectedSlot(bestSlot);
             }
         }
+
+        this.setSelectedSlot(bestSlot);
+    }
+
+    public List<ModuleItem> getEquippedModules() {
+        List<ModuleItem> modules = new ArrayList<>();
+        ItemStack module1 = getItem(MODULE_SLOT_1_INDEX);
+        if (module1.getItem() instanceof ModuleItem moduleItem) {
+            modules.add(moduleItem);
+        }
+        ItemStack module2 = getItem(MODULE_SLOT_2_INDEX);
+        if (module2.getItem() instanceof ModuleItem moduleItem) {
+            modules.add(moduleItem);
+        }
+        return modules;
     }
 }

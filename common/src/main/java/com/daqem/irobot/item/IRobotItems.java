@@ -2,6 +2,7 @@ package com.daqem.irobot.item;
 
 import com.daqem.irobot.IRobot;
 import com.daqem.irobot.block.IRobotBlocks;
+import com.daqem.irobot.item.module.ModuleItem;
 import dev.architectury.registry.registries.Registrar;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.registries.Registries;
@@ -25,6 +26,15 @@ public interface IRobotItems {
     RegistrySupplier<BatteryItem> SMALL_BATTERY = register("small_battery", p -> new BatteryItem(p, 500));
     RegistrySupplier<BatteryItem> MEDIUM_BATTERY = register("medium_battery", p -> new BatteryItem(p, 1500));
     RegistrySupplier<BatteryItem> LARGE_BATTERY = register("large_battery", p -> new BatteryItem(p, 3000));
+
+    RegistrySupplier<ModuleItem> SPEED_BOOST_MODULE = register("speed_boost_module", p -> new ModuleItem(p, ModuleItem.ModuleType.SPEED_BOOST));
+    RegistrySupplier<ModuleItem> MINING_SPEED_MODULE = register("mining_speed_module", p -> new ModuleItem(p, ModuleItem.ModuleType.MINING_SPEED));
+    RegistrySupplier<ModuleItem> ATTACK_DAMAGE_MODULE = register("attack_damage_module", p -> new ModuleItem(p, ModuleItem.ModuleType.ATTACK_DAMAGE));
+    RegistrySupplier<ModuleItem> DURABILITY_MODULE = register("durability_module", p -> new ModuleItem(p, ModuleItem.ModuleType.DURABILITY));
+    RegistrySupplier<ModuleItem> BATTERY_EFFICIENCY_MODULE = register("battery_efficiency_module", p -> new ModuleItem(p, ModuleItem.ModuleType.BATTERY_EFFICIENCY));
+    RegistrySupplier<ModuleItem> SOLAR_PANEL_MODULE = register("solar_panel_module", p -> new ModuleItem(p, ModuleItem.ModuleType.SOLAR_PANEL));
+    RegistrySupplier<ModuleItem> REFORESTATION_MODULE = register("reforestation_module", p -> new ModuleItem(p, ModuleItem.ModuleType.REFORESTATION));
+    RegistrySupplier<ModuleItem> CROP_REPLANT_MODULE = register("crop_replant_module", p -> new ModuleItem(p, ModuleItem.ModuleType.CROP_REPLANT));
 
 
     static void init() {

@@ -20,6 +20,11 @@ public class TaskSlot extends Slot {
     }
 
     @Override
+    public int getMaxStackSize() {
+        return 1;
+    }
+
+    @Override
     public @Nullable ResourceLocation getNoItemIcon() {
         return IRobot.getId("robot/task_empty");
     }

@@ -7,6 +7,7 @@ import com.daqem.irobot.entity.InteractableRobot;
 import com.daqem.irobot.entity.RobotInventory;
 import com.daqem.irobot.item.BatteryItem;
 import com.daqem.irobot.item.TaskItem;
+import com.daqem.irobot.item.module.IModuleItem;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -42,7 +43,7 @@ public class RobotMenu extends AbstractContainerMenu {
     public RobotMenu(int windowId, Inventory playerInventory, InteractableRobot robot) {
         super(IRobotMenuTypes.ROBOT_MENU.get(), windowId);
         this.robot = robot;
-        int baseArmorSlotIndex = RobotInventory.INVENTORY_SIZE + 2;
+        int baseArmorSlotIndex = RobotInventory.INVENTORY_SIZE + 4;
 
         for (int i = 0; i < 4; i++) {
             EquipmentSlot equipmentSlot = SLOT_IDS[i];
@@ -52,6 +53,9 @@ public class RobotMenu extends AbstractContainerMenu {
 
         this.addSlot(new BatterySlot(robot.getInventory(), RobotInventory.BATTERY_SLOT_INDEX, 119, 19));
         this.addSlot(new TaskSlot(robot.getInventory(), RobotInventory.TASK_SLOT_INDEX, 119, 41));
+        this.addSlot(new ModuleSlot(robot.getInventory(), RobotInventory.MODULE_SLOT_1_INDEX, 119, 63));
+        this.addSlot(new ModuleSlot(robot.getInventory(), RobotInventory.MODULE_SLOT_2_INDEX, 119, 85));
+
 
         for (int slotX = 0; slotX < 6; slotX++) {
             this.addSlot(new Slot(robot.getInventory(), slotX, 24 + slotX * 19, 187));
@@ -100,11 +104,15 @@ public class RobotMenu extends AbstractContainerMenu {
                 if (!this.moveItemStackTo(sourceStack, 5, 6, false)) {
                     return ItemStack.EMPTY;
                 }
+            } else if (sourceStack.getItem() instanceof IModuleItem) {
+                if (!this.moveItemStackTo(sourceStack, 6, 8, false)) {
+                    return ItemStack.EMPTY;
+                }
             } else if (sourceStack.get(DataComponents.EQUIPPABLE) != null) {
                 EquipmentSlot equipmentSlot = sourceStack.get(DataComponents.EQUIPPABLE).slot();
                 int armorSlotIndex = 3 - equipmentSlot.getIndex();
                 if (!this.moveItemStackTo(sourceStack, armorSlotIndex, armorSlotIndex + 1, false)) {
-                    if (!this.moveItemStackTo(sourceStack, 6, containerSize, false)) {
+                    if (!this.moveItemStackTo(sourceStack, 8, containerSize, false)) {
                         return ItemStack.EMPTY;
                     }
                 }
@@ -116,7 +124,7 @@ public class RobotMenu extends AbstractContainerMenu {
                 if (!this.moveItemStackTo(sourceStack, containerSize, containerSize + 27, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (!this.moveItemStackTo(sourceStack, 6, containerSize, false)) {
+            } else if (!this.moveItemStackTo(sourceStack, 8, containerSize, false)) {
                 return ItemStack.EMPTY;
             }
 

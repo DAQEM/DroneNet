@@ -1,6 +1,7 @@
 package com.daqem.irobot.client.entity;
 
 import com.daqem.irobot.entity.InteractableRobot;
+import com.daqem.irobot.entity.RobotInventory;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -10,7 +11,7 @@ import net.minecraft.world.inventory.SimpleContainerData;
 public class ClientSideInteractableRobot implements InteractableRobot {
 
     private final ContainerData containerData = new SimpleContainerData(6);
-    private final Container inventory = new SimpleContainer(30);
+    private final Container inventory = new SimpleContainer(RobotInventory.INVENTORY_SIZE + 8);
     private Player interactingPlayer;
 
     public ClientSideInteractableRobot(Player interactingPlayer) {
