@@ -15,11 +15,11 @@ public class LeftClickBlockEvent {
         InteractionEvent.LEFT_CLICK_BLOCK.register((player, hand, pos, face) -> {
             ItemStack stack = player.getItemInHand(hand);
             if (stack.getItem() instanceof TaskMarkerItem taskMarkerItem) {
-                if (player instanceof ServerPlayer serverPlayer){
+                if (player instanceof ServerPlayer serverPlayer) {
                     if (player.isCrouching()) {
                         pos = pos.offset(face.getUnitVec3i());
                     }
-                    taskMarkerItem.setFirstPos(stack, new GlobalPos(player.level().dimension(),pos));
+                    taskMarkerItem.setFirstPos(stack, new GlobalPos(player.level().dimension(), pos));
                     serverPlayer.sendSystemMessage(IRobot.translatable("item.task_marker.first_pos_set").withStyle(ChatFormatting.AQUA), true);
                 }
                 return InteractionResult.SUCCESS;

@@ -29,7 +29,6 @@ import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -60,14 +59,26 @@ public class RobotInventory implements Container {
         EQUIPMENT_SLOT_MAPPING = map;
     }
 
-    private final NonNullList<ItemStack> items = NonNullList.withSize(INVENTORY_SIZE + 4, ItemStack.EMPTY);
-    private int selected;
     public final IRobotEntity robot;
+    private final NonNullList<ItemStack> items = NonNullList.withSize(INVENTORY_SIZE + 4, ItemStack.EMPTY);
     private final EntityEquipment equipment;
+    private int selected;
 
     public RobotInventory(IRobotEntity robot, EntityEquipment equipment) {
         this.robot = robot;
         this.equipment = equipment;
+    }
+
+    public static int getSelectionSize() {
+        return 9;
+    }
+
+    public static boolean isHotbarSlot(int index) {
+        return index >= 0 && index < 9;
+    }
+
+    public static boolean isUsableForCrafting(ItemStack stack) {
+        return !stack.isDamaged() && !stack.isEnchanted() && !stack.has(DataComponents.CUSTOM_NAME);
     }
 
     public void pickUpItem(ServerLevel level, ItemEntity itemEntity) {
@@ -196,10 +207,6 @@ public class RobotInventory implements Container {
         return this.items.set(this.selected, stack);
     }
 
-    public static int getSelectionSize() {
-        return 9;
-    }
-
     public NonNullList<ItemStack> getNonEquipmentItems() {
         return this.items;
     }
@@ -253,10 +260,6 @@ public class RobotInventory implements Container {
         this.items.set(index, itemStack);
     }
 
-    public static boolean isHotbarSlot(int index) {
-        return index >= 0 && index < 9;
-    }
-
     public int findSlotMatchingItem(ItemStack stack) {
         for (int i = 0; i < this.items.size(); i++) {
             if (!this.items.get(i).isEmpty() && ItemStack.isSameItemSameComponents(stack, this.items.get(i))) {
@@ -265,10 +268,6 @@ public class RobotInventory implements Container {
         }
 
         return -1;
-    }
-
-    public static boolean isUsableForCrafting(ItemStack stack) {
-        return !stack.isDamaged() && !stack.isEnchanted() && !stack.has(DataComponents.CUSTOM_NAME);
     }
 
     public int findSlotMatchingCraftingIngredient(Holder<Item> item, ItemStack stack) {
@@ -675,7 +674,7 @@ public class RobotInventory implements Container {
         float bestDamage = 1.0f;
         int bestSlot = this.selected;
 
-        for(int i = 0; i < INVENTORY_SIZE; ++i) {
+        for (int i = 0; i < INVENTORY_SIZE; ++i) {
             ItemStack itemStack = this.getItem(i);
             if (!itemStack.isEmpty()) {
                 ItemAttributeModifiers itemAttributeModifiers = itemStack.get(DataComponents.ATTRIBUTE_MODIFIERS);
@@ -683,7 +682,7 @@ public class RobotInventory implements Container {
                     Optional<Float> optional = itemAttributeModifiers.modifiers().stream().filter((attributeModifier) -> {
                         return attributeModifier.attribute().is(Attributes.ATTACK_DAMAGE);
                     }).findFirst().map((attributeModifier) -> {
-                        return (float)attributeModifier.modifier().amount();
+                        return (float) attributeModifier.modifier().amount();
                     });
                     if (optional.isPresent() && optional.get() > bestDamage) {
                         bestDamage = optional.get();

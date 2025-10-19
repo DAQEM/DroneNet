@@ -23,7 +23,7 @@ public class RightClickBlockEvent {
                     if (player.isCrouching()) {
                         pos = pos.offset(face.getUnitVec3i());
                     }
-                    taskMarkerItem.setSecondPos(stack, new GlobalPos(player.level().dimension(),pos));
+                    taskMarkerItem.setSecondPos(stack, new GlobalPos(player.level().dimension(), pos));
                     serverPlayer.sendSystemMessage(IRobot.translatable("item.task_marker.second_pos_set").withStyle(ChatFormatting.AQUA), true);
                 }
                 return InteractionResult.SUCCESS;

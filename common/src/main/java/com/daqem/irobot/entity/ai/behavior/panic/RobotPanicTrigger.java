@@ -18,6 +18,10 @@ public class RobotPanicTrigger extends Behavior<MiniRobotEntity> {
         super(ImmutableMap.of());
     }
 
+    public static boolean isHurt(LivingEntity entity) {
+        return entity.getBrain().hasMemoryValue(MemoryModuleType.HURT_BY);
+    }
+
     private boolean isDoingCombatTask(MiniRobotEntity robot) {
         Optional<Activity> activity = robot.getBrain().getActiveNonCoreActivity();
         if (activity.isEmpty()) {
@@ -50,9 +54,5 @@ public class RobotPanicTrigger extends Behavior<MiniRobotEntity> {
 
             brain.setActiveActivityIfPossible(Activity.PANIC);
         }
-    }
-
-    public static boolean isHurt(LivingEntity entity) {
-        return entity.getBrain().hasMemoryValue(MemoryModuleType.HURT_BY);
     }
 }

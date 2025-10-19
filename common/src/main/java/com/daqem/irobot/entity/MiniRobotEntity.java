@@ -28,8 +28,6 @@ import java.util.EnumMap;
 
 public class MiniRobotEntity extends IRobotEntity {
 
-    private static final float RECHARGE_THRESHOLD_PERCENTAGE = 0.2F;
-
     public static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
             MemoryModuleType.WALK_TARGET,
             MemoryModuleType.LOOK_TARGET,
@@ -56,11 +54,11 @@ public class MiniRobotEntity extends IRobotEntity {
             IRobotMemoryModuleTypes.REPLANT_POS.get(),
             IRobotMemoryModuleTypes.FARM_TARGET_POS.get()
     );
-
     public static final ImmutableList<SensorType<? extends Sensor<? super MiniRobotEntity>>> SENSOR_TYPES = ImmutableList.of(
             SensorType.NEAREST_LIVING_ENTITIES,
             SensorType.HURT_BY
     );
+    private static final float RECHARGE_THRESHOLD_PERCENTAGE = 0.2F;
 
     public MiniRobotEntity(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);

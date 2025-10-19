@@ -21,12 +21,12 @@ import java.util.Set;
 
 public class CutDownTree extends Behavior<MiniRobotEntity> {
 
+    private static final double MAX_REACH_DISTANCE_SQ = 3.5 * 3.5;
+    private static final double PREFERRED_REACH_DISTANCE_SQ = 2.5 * 2.5;
     private int ticksSinceStarted;
     private int totalTicksToCut;
     private BlockPos targetPos;
     private int retryCounter = 0;
-    private static final double MAX_REACH_DISTANCE_SQ = 3.5 * 3.5;
-    private static final double PREFERRED_REACH_DISTANCE_SQ = 2.5 * 2.5;
 
     public CutDownTree() {
         super(ImmutableMap.of(

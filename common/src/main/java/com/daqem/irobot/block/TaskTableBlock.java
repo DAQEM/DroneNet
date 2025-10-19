@@ -6,9 +6,7 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
@@ -16,7 +14,6 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -36,10 +33,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 
 public class TaskTableBlock extends BaseEntityBlock {
-    public static final MapCodec<TaskTableBlock> CODEC = simpleCodec(TaskTableBlock::new);
     public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty HAS_TASK_AREA = BlockStateProperties.HAS_BOOK;
     public static final BooleanProperty HAS_TASK = BlockStateProperties.HAS_RECORD;
+    public static final MapCodec<TaskTableBlock> CODEC = simpleCodec(TaskTableBlock::new);
     private static final VoxelShape SHAPE_COLLISION = Shapes.or(
             Block.column(6.0, 0.0, 3.0),
             Block.column(4.0, 3.0, 9.0),
@@ -56,15 +53,15 @@ public class TaskTableBlock extends BaseEntityBlock {
             )
     );
 
-    @Override
-    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
-    }
-
     public TaskTableBlock(BlockBehaviour.Properties properties) {
         super(properties.mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(2.0f, 6.0f));
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(HAS_TASK, false).setValue(HAS_TASK_AREA, false));
 
+    }
+
+    @Override
+    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
     }
 
     @Override

@@ -18,12 +18,11 @@ import java.util.Optional;
 
 public class MineBlock extends Behavior<MiniRobotEntity> {
 
+    private static final double MAX_REACH_DISTANCE_SQ = 4.5 * 4.5;
+    private static final double PREFERRED_REACH_DISTANCE_SQ = 3.0 * 3.0;
     private float miningProgress;
     private int lastBreakProgress = -1;
     private int retryCounter = 0;
-    private static final double MAX_REACH_DISTANCE_SQ = 4.5 * 4.5;
-    private static final double PREFERRED_REACH_DISTANCE_SQ = 3.0 * 3.0;
-
     private BlockPos targetPos;
     private int miningTicks;
 

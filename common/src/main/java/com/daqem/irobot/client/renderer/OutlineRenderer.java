@@ -2,8 +2,8 @@ package com.daqem.irobot.client.renderer;
 
 import com.daqem.irobot.item.TaskItem;
 import com.daqem.irobot.item.TaskMarkerItem;
-import com.daqem.irobot.item.data.TaskMarkerDataComponent;
 import com.daqem.irobot.item.data.IRobotDataComponents;
+import com.daqem.irobot.item.data.TaskMarkerDataComponent;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -140,7 +140,8 @@ public class OutlineRenderer {
     /**
      * Creates an AABB from two BlockPos, ensuring both positions are included regardless of positive or negative coordinates.
      * Applies slight offsets to avoid z-fighting.
-     * @param firstPos The first position of the box.
+     *
+     * @param firstPos  The first position of the box.
      * @param secondPos The second position of the box.
      * @return The constructed AABB.
      */

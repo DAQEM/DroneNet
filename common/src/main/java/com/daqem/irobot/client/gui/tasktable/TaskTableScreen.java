@@ -5,7 +5,6 @@ import com.daqem.irobot.client.gui.tasktable.components.TaskTableComponent;
 import com.daqem.irobot.menu.TaskTableMenu;
 import com.daqem.uilib.gui.AbstractContainerScreen;
 import com.daqem.uilib.gui.background.BlurredBackground;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;

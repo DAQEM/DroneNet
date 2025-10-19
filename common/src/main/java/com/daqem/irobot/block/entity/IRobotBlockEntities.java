@@ -17,12 +17,8 @@ public interface IRobotBlockEntities {
 
     Registrar<BlockEntityType<?>> BLOCK_ENTITY_TYPES = IRobot.MANAGER.get().get(Registries.BLOCK_ENTITY_TYPE);
 
-    RegistrySupplier<BlockEntityType<RobotStationBlockEntity>> ROBOT_STATION = register("robot_station", RobotStationBlockEntity::new, IRobotBlocks.ROBOT_STATION);
-    RegistrySupplier<BlockEntityType<TaskTableBlockEntity>> TASK_TABLE = register("task_table", TaskTableBlockEntity::new, IRobotBlocks.TASK_TABLE);
-    RegistrySupplier<BlockEntityType<DropoffChestBlockEntity>> DROPOFF_CHEST = register("dropoff_chest", DropoffChestBlockEntity::new, IRobotBlocks.DROPOFF_CHEST);
-
     static void init() {
-    }
+    }    RegistrySupplier<BlockEntityType<RobotStationBlockEntity>> ROBOT_STATION = register("robot_station", RobotStationBlockEntity::new, IRobotBlocks.ROBOT_STATION);
 
     @SafeVarargs
     static <T extends BlockEntity> RegistrySupplier<BlockEntityType<T>> register(String name, BlockEntityType.BlockEntitySupplier<T> supplier, RegistrySupplier<? extends Block>... validBlockSuppliers) {
@@ -32,5 +28,10 @@ public interface IRobotBlockEntities {
                     .collect(Collectors.toSet());
             return new BlockEntityType<>(supplier, validBlocks);
         });
-    }
+    }    RegistrySupplier<BlockEntityType<TaskTableBlockEntity>> TASK_TABLE = register("task_table", TaskTableBlockEntity::new, IRobotBlocks.TASK_TABLE);
+    RegistrySupplier<BlockEntityType<DropoffChestBlockEntity>> DROPOFF_CHEST = register("dropoff_chest", DropoffChestBlockEntity::new, IRobotBlocks.DROPOFF_CHEST);
+
+
+
+
 }

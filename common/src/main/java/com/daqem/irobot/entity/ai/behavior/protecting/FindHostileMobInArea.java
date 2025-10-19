@@ -56,6 +56,6 @@ public class FindHostileMobInArea extends Behavior<MiniRobotEntity> {
         // Find the closest hostile mob to the robot to prioritize the nearest threat.
         return hostilesInArea.stream()
                 .min(Comparator.comparingDouble(hostile -> hostile.distanceToSqr(robot)))
-                .map(monster -> (LivingEntity) monster);
+                .map(monster -> monster);
     }
 }

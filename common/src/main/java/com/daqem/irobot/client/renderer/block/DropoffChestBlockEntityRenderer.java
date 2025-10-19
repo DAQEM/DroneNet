@@ -54,7 +54,7 @@ public class DropoffChestBlockEntityRenderer<T extends BlockEntity & LidBlockEnt
         if (blockState.getBlock() instanceof AbstractChestBlock<?> abstractChestBlock) {
             boolean bl2 = chestType != ChestType.SINGLE;
             poseStack.pushPose();
-            float f = ((Direction) blockState.getValue(ChestBlock.FACING)).toYRot();
+            float f = blockState.getValue(ChestBlock.FACING).toYRot();
             poseStack.translate(0.5F, 0.5F, 0.5F);
             poseStack.mulPose(Axis.YP.rotationDegrees(-f));
             poseStack.translate(-0.5F, -0.5F, -0.5F);

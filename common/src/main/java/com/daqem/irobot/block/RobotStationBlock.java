@@ -23,13 +23,13 @@ import org.jetbrains.annotations.Nullable;
 public class RobotStationBlock extends BaseEntityBlock {
     public static final MapCodec<RobotStationBlock> CODEC = simpleCodec(RobotStationBlock::new);
 
+    public RobotStationBlock(Properties properties) {
+        super(properties.mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(2.0f, 6.0f));
+    }
+
     @Override
     protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
-    }
-
-    public RobotStationBlock(Properties properties) {
-        super(properties.mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(2.0f, 6.0f));
     }
 
     @Override

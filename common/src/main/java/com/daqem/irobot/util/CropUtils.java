@@ -1,17 +1,13 @@
 package com.daqem.irobot.util;
 
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class CropUtils {
 
@@ -29,6 +25,7 @@ public class CropUtils {
 
     /**
      * Checks if a given block state represents a crop that the robot can farm.
+     *
      * @param blockState The BlockState to check.
      * @return true if it's a farmable crop, false otherwise.
      */
@@ -38,6 +35,7 @@ public class CropUtils {
 
     /**
      * Checks if a farmable crop is fully grown and ready for harvest.
+     *
      * @param blockState The BlockState of the crop.
      * @return true if the crop is mature, false otherwise.
      */
@@ -53,6 +51,7 @@ public class CropUtils {
 
     /**
      * Retrieves the seed item required to plant a given crop.
+     *
      * @param cropState The BlockState of the crop.
      * @return An Optional containing the seed Item if found, otherwise an empty Optional.
      */
@@ -62,6 +61,7 @@ public class CropUtils {
 
     /**
      * Checks if an item is a seed or plantable crop.
+     *
      * @param item The Item to check.
      * @return true if the item can be planted, false otherwise.
      */

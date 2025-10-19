@@ -26,20 +26,18 @@ import java.util.List;
 public class TaskTableMenu extends AbstractContainerMenu {
 
     private final ContainerLevelAccess access;
-    private final Container inputContainer = new SimpleContainer(1) {
+    private final Slot inputSlot;    private final Container inputContainer = new SimpleContainer(1) {
         @Override
         public void setChanged() {
             super.setChanged();
             TaskTableMenu.this.slotsChanged(this);
         }
     };
-    private final Slot inputSlot;
     private final ResultContainer resultContainer = new ResultContainer();
     private final Slot resultSlot;
+    private final ContainerData data;
     private long lastSoundTime;
     private @Nullable RobotTask selectedTask = null;
-    private final ContainerData data;
-
     public TaskTableMenu(int containerId, Inventory playerInventory) {
         this(containerId, playerInventory, ContainerLevelAccess.NULL);
     }
@@ -227,4 +225,6 @@ public class TaskTableMenu extends AbstractContainerMenu {
         this.resultContainer.removeItemNoUpdate(1);
         this.access.execute((level, blockPos) -> this.clearContainer(player, this.inputContainer));
     }
+
+
 }

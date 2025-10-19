@@ -1,25 +1,17 @@
 package com.daqem.irobot.item;
 
 import com.daqem.irobot.IRobot;
-import com.daqem.irobot.entity.IRobotEntity;
-import com.daqem.irobot.item.data.TaskMarkerDataComponent;
 import com.daqem.irobot.item.data.IRobotDataComponents;
+import com.daqem.irobot.item.data.TaskMarkerDataComponent;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 

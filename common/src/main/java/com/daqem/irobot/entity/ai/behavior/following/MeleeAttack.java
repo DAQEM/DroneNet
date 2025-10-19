@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.EntityTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -33,6 +32,19 @@ public class MeleeAttack extends Behavior<IRobotEntity> {
         ));
         this.attackCooldown = attackCooldown;
         this.canAttackPredicate = canAttackPredicate;
+    }
+
+    private static boolean isTargetVisible(IRobotEntity mob, LivingEntity target) {
+        return mob.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
+                .map(nearest -> nearest.contains(target))
+                .orElse(false);
+    }
+
+    private static boolean isHoldingUsableProjectileWeapon(IRobotEntity mob) {
+        return mob.isHolding((itemStack) -> {
+            Item item = itemStack.getItem();
+            return item instanceof ProjectileWeaponItem && mob.canFireProjectileWeapon((ProjectileWeaponItem) item);
+        });
     }
 
     @Override
@@ -67,18 +79,5 @@ public class MeleeAttack extends Behavior<IRobotEntity> {
 
     private LivingEntity getAttackTarget(IRobotEntity mob) {
         return mob.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);
-    }
-
-    private static boolean isTargetVisible(IRobotEntity mob, LivingEntity target) {
-        return mob.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
-                .map(nearest -> nearest.contains(target))
-                .orElse(false);
-    }
-
-    private static boolean isHoldingUsableProjectileWeapon(IRobotEntity mob) {
-        return mob.isHolding((itemStack) -> {
-            Item item = itemStack.getItem();
-            return item instanceof ProjectileWeaponItem && mob.canFireProjectileWeapon((ProjectileWeaponItem) item);
-        });
     }
 }

@@ -73,8 +73,6 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
     private static final int REGENERATION_COOLDOWN_TICKS = 20; // 1 second
     private static final double REGENERATION_ENERGY_COST = 10.0; // Energy cost per half-heart
     private static final float REGENERATION_AMOUNT = 1.0F; // Heal 1.0F (half a heart)
-    private int regenerationCooldown = 0;
-
     private static final EnumMap<ModuleItem.ModuleType, ResourceLocation> ATTRIBUTE_MODIFIER_LOCATIONS = new EnumMap<>(ModuleItem.ModuleType.class);
 
     static {
@@ -84,12 +82,8 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
         ATTRIBUTE_MODIFIER_LOCATIONS.put(ModuleItem.ModuleType.DURABILITY, IRobot.getId("durability_module"));
     }
 
-    private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
     protected final RobotInventory inventory;
-    private @Nullable Player interactingPlayer;
-    private Vec3 lastPos;
-    private double distanceSqAccumulator;
-
+    private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
     private final ContainerData containerData = new ContainerData() {
         @Override
         public int get(int index) {
@@ -114,9 +108,19 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
             return 6;
         }
     };
+    private int regenerationCooldown = 0;
+    private @Nullable Player interactingPlayer;
+    private Vec3 lastPos;
+    private double distanceSqAccumulator;
 
-    public int getActiveActivityIndex() {
-        return this.getBrain().getActiveNonCoreActivity().map(IRobotEntity::getIndexByActivity).orElse(0);
+    protected IRobotEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
+        super(entityType, level);
+        this.inventory = new RobotInventory(this, this.equipment);
+        this.getNavigation().setCanOpenDoors(true);
+        this.getNavigation().setCanFloat(true);
+        this.getNavigation().setRequiredPathLength(48.0F);
+        this.setCanPickUpLoot(true);
+        this.lastPos = this.position();
     }
 
     public static Activity getActivityByIndex(int index) {
@@ -147,14 +151,19 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
         return 0;
     }
 
-    protected IRobotEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
-        super(entityType, level);
-        this.inventory = new RobotInventory(this, this.equipment);
-        this.getNavigation().setCanOpenDoors(true);
-        this.getNavigation().setCanFloat(true);
-        this.getNavigation().setRequiredPathLength(48.0F);
-        this.setCanPickUpLoot(true);
-        this.lastPos = this.position();
+    public static AttributeSupplier.Builder createRobotAttributes() {
+        return LivingEntity.createLivingAttributes()
+                .add(Attributes.FOLLOW_RANGE, 16.0)
+                .add(Attributes.MOVEMENT_SPEED, 0.5)
+                .add(Attributes.MAX_HEALTH, 20.0)
+                .add(Attributes.BLOCK_BREAK_SPEED, 1.0)
+                .add(Attributes.MINING_EFFICIENCY, 0.0)
+                .add(Attributes.SUBMERGED_MINING_SPEED, 0.2)
+                .add(Attributes.ATTACK_DAMAGE, 4.0);
+    }
+
+    public int getActiveActivityIndex() {
+        return this.getBrain().getActiveNonCoreActivity().map(IRobotEntity::getIndexByActivity).orElse(0);
     }
 
     // Methods for subclasses to implement
@@ -183,17 +192,6 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
     public void setFarming(boolean farming) {
         this.entityData.set(IS_FARMING, farming);
-    }
-
-    public static AttributeSupplier.Builder createRobotAttributes() {
-        return LivingEntity.createLivingAttributes()
-                .add(Attributes.FOLLOW_RANGE, 16.0)
-                .add(Attributes.MOVEMENT_SPEED, 0.5)
-                .add(Attributes.MAX_HEALTH, 20.0)
-                .add(Attributes.BLOCK_BREAK_SPEED, 1.0)
-                .add(Attributes.MINING_EFFICIENCY, 0.0)
-                .add(Attributes.SUBMERGED_MINING_SPEED, 0.2)
-                .add(Attributes.ATTACK_DAMAGE, 4.0);
     }
 
     @Override
@@ -563,14 +561,10 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
             if (id != null) {
                 AttributeModifier modifier = new AttributeModifier(id, amount, operation);
                 switch (module.getType()) {
-                    case SPEED_BOOST ->
-                            builder.put(Attributes.MOVEMENT_SPEED, modifier);
-                    case MINING_SPEED ->
-                            builder.put(Attributes.MINING_EFFICIENCY, modifier);
-                    case ATTACK_DAMAGE ->
-                            builder.put(Attributes.ATTACK_DAMAGE, modifier);
-                    case DURABILITY ->
-                            builder.put(Attributes.MAX_HEALTH, modifier);
+                    case SPEED_BOOST -> builder.put(Attributes.MOVEMENT_SPEED, modifier);
+                    case MINING_SPEED -> builder.put(Attributes.MINING_EFFICIENCY, modifier);
+                    case ATTACK_DAMAGE -> builder.put(Attributes.ATTACK_DAMAGE, modifier);
+                    case DURABILITY -> builder.put(Attributes.MAX_HEALTH, modifier);
                 }
             }
         }

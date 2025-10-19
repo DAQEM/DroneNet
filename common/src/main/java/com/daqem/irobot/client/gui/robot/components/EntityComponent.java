@@ -34,8 +34,8 @@ public class EntityComponent extends AbstractComponent {
             float f = (getTotalX() + getTotalX() + getWidth()) / 2.0F;
             float g = (getTotalY() + getTotalY() + getHeight()) / 2.0F;
             guiGraphics.enableScissor(getTotalX(), getTotalY(), getTotalX() + getWidth(), getTotalY() + getHeight());
-            float h = (float)Math.atan((f - mouseX) / 40.0F);
-            float i = (float)Math.atan((g - mouseY) / 40.0F);
+            float h = (float) Math.atan((f - mouseX) / 40.0F);
+            float i = (float) Math.atan((g - mouseY) / 40.0F);
             Quaternionf quaternionf = new Quaternionf().rotateZ((float) Math.PI);
             Quaternionf quaternionf2 = new Quaternionf().rotateX(i * 20.0F * (float) (Math.PI / 180.0));
             quaternionf.mul(quaternionf2);
