@@ -2,7 +2,6 @@ package com.daqem.irobot.util;
 
 import com.google.common.collect.Sets;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.Item;
@@ -62,10 +61,18 @@ public class TreeUtils {
             toCheck.remove(currentPos);
             treeBlocks.add(currentPos);
 
-            for (Direction direction : Direction.values()) {
-                BlockPos neighbor = currentPos.relative(direction);
-                if (level.getBlockState(neighbor).is(BlockTags.LOGS) && !treeBlocks.contains(neighbor)) {
-                    toCheck.add(neighbor);
+            for (int x = -1; x <= 1; x++) {
+                for (int y = -1; y <= 1; y++) {
+                    for (int z = -1; z <= 1; z++) {
+                        if (x == 0 && y == 0 && z == 0) {
+                            continue;
+                        }
+
+                        BlockPos neighbor = currentPos.offset(x, y, z);
+                        if (level.getBlockState(neighbor).is(BlockTags.LOGS) && !treeBlocks.contains(neighbor)) {
+                            toCheck.add(neighbor);
+                        }
+                    }
                 }
             }
         }

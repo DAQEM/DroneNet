@@ -4,6 +4,7 @@ import com.daqem.irobot.client.renderer.OutlineRenderer;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.daqem.irobot.entity.task.RobotTask;
+import com.daqem.irobot.item.module.ModuleItem;
 import com.daqem.irobot.util.CropUtils;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.BlockPos;
@@ -59,11 +60,13 @@ public class FindFarmableBlock extends Behavior<MiniRobotEntity> {
             return;
         }
 
-        // If no mature crops, look for an empty spot to plant.
-        findClosestEmptyFarmland(level, robot, searchArea).ifPresent(emptySpot -> {
-            robot.getBrain().setMemory(IRobotMemoryModuleTypes.FARM_TARGET_POS.get(), GlobalPos.of(level.dimension(), emptySpot));
-            robot.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(emptySpot, 0.5f, 1));
-        });
+        if (robot.hasModule(ModuleItem.ModuleType.CROP_REPLANT)) {
+            // If no mature crops, look for an empty spot to plant.
+            findClosestEmptyFarmland(level, robot, searchArea).ifPresent(emptySpot -> {
+                robot.getBrain().setMemory(IRobotMemoryModuleTypes.FARM_TARGET_POS.get(), GlobalPos.of(level.dimension(), emptySpot));
+                robot.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(emptySpot, 0.5f, 1));
+            });
+        }
     }
 
     private Optional<BlockPos> findClosestMatureCrop(ServerLevel level, MiniRobotEntity robot, AABB searchArea) {

@@ -526,28 +526,57 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
 
     //region Modules
     public void recalculateAttributes() {
-        this.getAttributes().removeAttributeModifiers(createAttributeMap(false));
-        this.getAttributes().addTransientAttributeModifiers(createAttributeMap(true));
+        // Build a map of ALL possible modifiers to remove them all.
+        ImmutableMultimap.Builder<Holder<Attribute>, AttributeModifier> allPossibleModifiersBuilder = ImmutableMultimap.builder();
+        for (ModuleItem.ModuleType type : ATTRIBUTE_MODIFIER_LOCATIONS.keySet()) {
+            double amount = getModuleValue(type);
+            AttributeModifier.Operation operation = getModuleOperation(type);
+            ResourceLocation id = ATTRIBUTE_MODIFIER_LOCATIONS.get(type);
+            AttributeModifier modifier = new AttributeModifier(id, amount, operation);
+
+            switch (type) {
+                case SPEED_BOOST -> allPossibleModifiersBuilder.put(Attributes.MOVEMENT_SPEED, modifier);
+                case MINING_SPEED -> allPossibleModifiersBuilder.put(Attributes.MINING_EFFICIENCY, modifier);
+                case ATTACK_DAMAGE -> allPossibleModifiersBuilder.put(Attributes.ATTACK_DAMAGE, modifier);
+                case DURABILITY -> allPossibleModifiersBuilder.put(Attributes.MAX_HEALTH, modifier);
+            }
+        }
+
+        // Remove all possible module modifiers.
+        this.getAttributes().removeAttributeModifiers(allPossibleModifiersBuilder.build());
+
+        // Add back the modifiers for the currently equipped modules.
+        this.getAttributes().addTransientAttributeModifiers(createCurrentAttributeMap());
+
+        // Clamp health.
+        if (this.getHealth() > this.getMaxHealth()) {
+            this.setHealth(this.getMaxHealth());
+        }
     }
 
-    private Multimap<Holder<Attribute>, AttributeModifier> createAttributeMap(boolean add) {
+    private Multimap<Holder<Attribute>, AttributeModifier> createCurrentAttributeMap() {
         ImmutableMultimap.Builder<Holder<Attribute>, AttributeModifier> builder = ImmutableMultimap.builder();
         for (ModuleItem module : this.inventory.getEquippedModules()) {
-            double amount = add ? getModuleValue(module.getType()) : 0.0;
+            double amount = getModuleValue(module.getType());
             AttributeModifier.Operation operation = getModuleOperation(module.getType());
-            switch (module.getType()) {
-                case SPEED_BOOST ->
-                        builder.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(ATTRIBUTE_MODIFIER_LOCATIONS.get(module.getType()), amount, operation));
-                case MINING_SPEED ->
-                        builder.put(Attributes.MINING_EFFICIENCY, new AttributeModifier(ATTRIBUTE_MODIFIER_LOCATIONS.get(module.getType()), amount, operation));
-                case ATTACK_DAMAGE ->
-                        builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ATTRIBUTE_MODIFIER_LOCATIONS.get(module.getType()), amount, operation));
-                case DURABILITY ->
-                        builder.put(Attributes.MAX_HEALTH, new AttributeModifier(ATTRIBUTE_MODIFIER_LOCATIONS.get(module.getType()), amount, operation));
+            ResourceLocation id = ATTRIBUTE_MODIFIER_LOCATIONS.get(module.getType());
+            if (id != null) {
+                AttributeModifier modifier = new AttributeModifier(id, amount, operation);
+                switch (module.getType()) {
+                    case SPEED_BOOST ->
+                            builder.put(Attributes.MOVEMENT_SPEED, modifier);
+                    case MINING_SPEED ->
+                            builder.put(Attributes.MINING_EFFICIENCY, modifier);
+                    case ATTACK_DAMAGE ->
+                            builder.put(Attributes.ATTACK_DAMAGE, modifier);
+                    case DURABILITY ->
+                            builder.put(Attributes.MAX_HEALTH, modifier);
+                }
             }
         }
         return builder.build();
     }
+
 
     private double getModuleValue(ModuleItem.ModuleType type) {
         return switch (type) {
