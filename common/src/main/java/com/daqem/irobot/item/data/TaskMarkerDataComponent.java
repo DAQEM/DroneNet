@@ -10,26 +10,16 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class TaskMarkerDataComponent {
+public record TaskMarkerDataComponent(GlobalPos firstPos, GlobalPos secondPos) {
 
-    private final GlobalPos firstPos;
-    private final GlobalPos secondPos;
-
-    public TaskMarkerDataComponent() {
-        this(
-                GlobalPos.of(Level.OVERWORLD, BlockPos.ZERO),
-                GlobalPos.of(Level.OVERWORLD, BlockPos.ZERO)
-        );
-    }
-
-    public TaskMarkerDataComponent(GlobalPos firstPos, GlobalPos secondPos) {
-        this.firstPos = firstPos;
-        this.secondPos = secondPos;
-    }
+    public static final TaskMarkerDataComponent EMPTY = new TaskMarkerDataComponent(
+            GlobalPos.of(Level.OVERWORLD, BlockPos.ZERO),
+            GlobalPos.of(Level.OVERWORLD, BlockPos.ZERO)
+    );
 
     public static final Codec<TaskMarkerDataComponent> CODEC = Codec.lazyInitialized(() -> RecordCodecBuilder.create(instance -> instance.group(
-            GlobalPos.CODEC.fieldOf("first_pos").forGetter(TaskMarkerDataComponent::getFirstPos),
-            GlobalPos.CODEC.fieldOf("second_pos").forGetter(TaskMarkerDataComponent::getSecondPos)
+            GlobalPos.CODEC.fieldOf("first_pos").forGetter(TaskMarkerDataComponent::firstPos),
+            GlobalPos.CODEC.fieldOf("second_pos").forGetter(TaskMarkerDataComponent::secondPos)
     ).apply(instance, TaskMarkerDataComponent::new)));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, TaskMarkerDataComponent> STREAM_CODEC = new StreamCodec<>() {
@@ -53,14 +43,6 @@ public class TaskMarkerDataComponent {
             buf.writeGlobalPos(packet.secondPos);
         }
     };
-
-    public GlobalPos getFirstPos() {
-        return firstPos;
-    }
-
-    public GlobalPos getSecondPos() {
-        return secondPos;
-    }
 
     public TaskMarkerDataComponent withFirstPos(GlobalPos blockPos) {
         return new TaskMarkerDataComponent(blockPos, this.secondPos);

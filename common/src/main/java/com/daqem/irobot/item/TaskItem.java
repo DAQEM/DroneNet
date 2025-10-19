@@ -30,14 +30,14 @@ public class TaskItem extends Item {
             if (markerData == null) {
                 tooltipAdder.accept(IRobot.translatable("tooltip.task_item.no_marker_data").withStyle(ChatFormatting.RED));
             } else {
-                GlobalPos firstPos = markerData.getFirstPos();
+                GlobalPos firstPos = markerData.firstPos();
                 if (firstPos != null && firstPos.pos() != BlockPos.ZERO) {
                     tooltipAdder.accept(IRobot.translatable("tooltip.task_item.first_position", firstPos.pos().getX(), firstPos.pos().getY(), firstPos.pos().getZ()).withStyle(ChatFormatting.GRAY));
                 } else {
                     tooltipAdder.accept(IRobot.translatable("tooltip.task_item.first_position_none").withStyle(ChatFormatting.RED));
                 }
-                GlobalPos secondPos = markerData.getSecondPos();
-                if (markerData.getSecondPos() != null && secondPos.pos() != BlockPos.ZERO) {
+                GlobalPos secondPos = markerData.secondPos();
+                if (secondPos != null && secondPos.pos() != BlockPos.ZERO) {
                     tooltipAdder.accept(IRobot.translatable("tooltip.task_item.second_position", secondPos.pos().getX(), secondPos.pos().getY(), secondPos.pos().getZ()).withStyle(ChatFormatting.GRAY));
                 } else {
                     tooltipAdder.accept(IRobot.translatable("tooltip.task_item.second_position_none").withStyle(ChatFormatting.RED));

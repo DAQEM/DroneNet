@@ -41,7 +41,6 @@ public class IRobot {
 
     public static void init() {
         IRobotBlocks.init();
-        IRobotPoiTypes.init();
         IRobotStats.init();
         IRobotMenuTypes.init();
         IRobotBlockEntities.init();
@@ -50,6 +49,7 @@ public class IRobot {
         IRobotEntities.init();
         IRobotActivities.init();
         IRobotMemoryModuleTypes.init();
+        IRobotPoiTypes.init();
 
         RightClickBlockEvent.registerEvent();
         LeftClickBlockEvent.registerEvent();

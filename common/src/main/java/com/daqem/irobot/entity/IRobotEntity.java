@@ -657,10 +657,10 @@ public abstract class IRobotEntity extends TamableAnimal implements GeoEntity, I
             AABB searchArea = this.getBoundingBox().inflate(16.0, 3.0, 16.0);
             if (this.hasTaskItem()) {
                 TaskMarkerDataComponent taskMarkerData = this.getTaskMarkerData();
-                if (taskMarkerData != null && this.level().dimension().equals(taskMarkerData.getFirstPos().dimension())) {
+                if (taskMarkerData != null && this.level().dimension().equals(taskMarkerData.firstPos().dimension())) {
                     searchArea = OutlineRenderer.createBoundingBox(
-                            taskMarkerData.getFirstPos().pos(),
-                            taskMarkerData.getSecondPos().pos()
+                            taskMarkerData.firstPos().pos(),
+                            taskMarkerData.secondPos().pos()
                     ).inflate(2);
                 }
             }

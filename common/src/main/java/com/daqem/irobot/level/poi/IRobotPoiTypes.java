@@ -18,8 +18,8 @@ public interface IRobotPoiTypes {
 
     Registrar<PoiType> POI_TYPES = IRobot.MANAGER.get().get(Registries.POINT_OF_INTEREST_TYPE);
 
-    RegistrySupplier<PoiType> ROBOT_STATION = register("robot_station", getAllStates(IRobotBlocks.ROBOT_STATION.get()), 1, 1);
-    RegistrySupplier<PoiType> DROPOFF_CHEST = register("dropoff_chest", getAllStates(IRobotBlocks.DROPOFF_CHEST.get()), 32, 1);
+    RegistrySupplier<PoiType> ROBOT_STATION = register("robot_station", IRobotBlocks.ROBOT_STATION, 1, 1);
+    RegistrySupplier<PoiType> DROPOFF_CHEST = register("dropoff_chest", IRobotBlocks.DROPOFF_CHEST, 32, 1);
 
     static void init() {
     }
@@ -28,11 +28,14 @@ public interface IRobotPoiTypes {
         return ImmutableSet.copyOf(block.getStateDefinition().getPossibleStates());
     }
 
-    private static RegistrySupplier<PoiType> register(String name, Set<BlockState> states, int maxTickets, int validRange) {
-        RegistrySupplier<PoiType> holder = POI_TYPES.register(IRobot.getId(name), () -> new PoiType(states, maxTickets, validRange));
+    private static RegistrySupplier<PoiType> register(String name, RegistrySupplier<Block> blockSupplier, int maxTickets, int validRange) {
+        RegistrySupplier<PoiType> holder = POI_TYPES.register(IRobot.getId(name), () -> {
+            Set<BlockState> states = getAllStates(blockSupplier.get());
+            return new PoiType(states, maxTickets, validRange);
+        });
 
         if (ArchitecturyTarget.getCurrentTarget().equals("fabric")) {
-            PoiTypesAccessor.guildmasters$registerBlockStates(holder, states);
+            PoiTypesAccessor.guildmasters$registerBlockStates(holder, getAllStates(blockSupplier.get()));
         }
 
         return holder;

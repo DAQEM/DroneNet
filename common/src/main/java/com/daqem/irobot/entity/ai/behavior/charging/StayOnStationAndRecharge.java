@@ -46,7 +46,7 @@ public class StayOnStationAndRecharge extends Behavior<IRobotEntity> {
         // Reserve the station
         BlockPos stationPos = entity.blockPosition();
         level.getPoiManager().take(
-                poiTypeHolder -> poiTypeHolder.is(IRobotPoiTypes.ROBOT_STATION.getKey()),
+                poiTypeHolder -> poiTypeHolder.is(IRobotPoiTypes.ROBOT_STATION.getId()),
                 (poiTypeHolder, blockPos) -> blockPos.equals(stationPos),
                 stationPos,
                 0

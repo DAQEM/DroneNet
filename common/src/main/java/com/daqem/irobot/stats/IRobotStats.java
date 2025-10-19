@@ -19,8 +19,6 @@ public interface IRobotStats {
 
     static RegistrySupplier<ResourceLocation> register(String name) {
         ResourceLocation location = IRobot.getId(name);
-        RegistrySupplier<ResourceLocation> stat = STATS.register(location, () -> location);
-        Stats.CUSTOM.get(location, StatFormatter.DEFAULT);
-        return stat;
+        return STATS.register(location, () -> location);
     }
 }

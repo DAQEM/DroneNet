@@ -34,7 +34,7 @@ public class FindRechargeStation extends Behavior<MiniRobotEntity> {
     @Override
     protected void start(ServerLevel level, MiniRobotEntity robot, long gameTime) {
         level.getPoiManager().findClosestWithType(
-                poiTypeHolder -> poiTypeHolder.is(IRobotPoiTypes.ROBOT_STATION.getKey()),
+                poiTypeHolder -> poiTypeHolder.is(IRobotPoiTypes.ROBOT_STATION.getId()),
                 robot.blockPosition(),
                 128,
                 PoiManager.Occupancy.HAS_SPACE

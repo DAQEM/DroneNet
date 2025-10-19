@@ -39,8 +39,8 @@ public class OutlineRenderer {
         TaskMarkerDataComponent data = getTaskMarkerData(itemStack);
         if (data == null) return;
 
-        GlobalPos firstPos = data.getFirstPos();
-        GlobalPos secondPos = data.getSecondPos();
+        GlobalPos firstPos = data.firstPos();
+        GlobalPos secondPos = data.secondPos();
         if (!isValidBox(firstPos, secondPos)) return;
 
         renderBoxOutline(poseStack, firstPos, secondPos);

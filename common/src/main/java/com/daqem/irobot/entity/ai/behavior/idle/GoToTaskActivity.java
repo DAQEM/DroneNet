@@ -29,8 +29,8 @@ public class GoToTaskActivity extends Behavior<IRobotEntity> {
         TaskMarkerDataComponent markerData = robot.getTaskMarkerData();
         if (taskData != null && markerData != null) {
             robot.getBrain().setMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get(), taskData.task());
-            robot.getBrain().setMemory(IRobotMemoryModuleTypes.TASK_AREA_START.get(), markerData.getFirstPos());
-            robot.getBrain().setMemory(IRobotMemoryModuleTypes.TASK_AREA_END.get(), markerData.getSecondPos());
+            robot.getBrain().setMemory(IRobotMemoryModuleTypes.TASK_AREA_START.get(), markerData.firstPos());
+            robot.getBrain().setMemory(IRobotMemoryModuleTypes.TASK_AREA_END.get(), markerData.secondPos());
             robot.getBrain().setActiveActivityIfPossible(taskData.task().getActivity());
         }
     }

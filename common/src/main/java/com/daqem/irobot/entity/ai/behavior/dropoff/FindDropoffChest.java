@@ -30,7 +30,7 @@ public class FindDropoffChest extends Behavior<IRobotEntity> {
     @Override
     protected void start(ServerLevel level, IRobotEntity robot, long gameTime) {
         level.getPoiManager().findClosest(
-                poiTypeHolder -> poiTypeHolder.is(IRobotPoiTypes.DROPOFF_CHEST.getKey()),
+                poiTypeHolder -> poiTypeHolder.is(IRobotPoiTypes.DROPOFF_CHEST.getId()),
                 blockPos -> level.getBlockEntity(blockPos) instanceof Container container && robot.getInventory().canAddItem(container),
                 robot.blockPosition(),
                 128,

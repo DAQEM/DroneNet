@@ -29,24 +29,14 @@ public class TaskMarkerItem extends Item {
         super(properties);
     }
 
-    public GlobalPos getFirstPos(ItemStack stack) {
-        DataComponentType<TaskMarkerDataComponent> component = IRobotDataComponents.TASK_MARKER_DATA.get();
-        return stack.getOrDefault(component, new TaskMarkerDataComponent()).getFirstPos();
-    }
-
     public void setFirstPos(ItemStack stack, GlobalPos pos) {
         DataComponentType<TaskMarkerDataComponent> component = IRobotDataComponents.TASK_MARKER_DATA.get();
-        stack.update(component, new TaskMarkerDataComponent(), pos, TaskMarkerDataComponent::withFirstPos);
-    }
-
-    public GlobalPos getSecondPos(ItemStack stack) {
-        DataComponentType<TaskMarkerDataComponent> component = IRobotDataComponents.TASK_MARKER_DATA.get();
-        return stack.getOrDefault(component, new TaskMarkerDataComponent()).getSecondPos();
+        stack.update(component, TaskMarkerDataComponent.EMPTY, pos, TaskMarkerDataComponent::withFirstPos);
     }
 
     public void setSecondPos(ItemStack stack, GlobalPos pos) {
         DataComponentType<TaskMarkerDataComponent> component = IRobotDataComponents.TASK_MARKER_DATA.get();
-        stack.update(component, new TaskMarkerDataComponent(), pos, TaskMarkerDataComponent::withSecondPos);
+        stack.update(component, TaskMarkerDataComponent.EMPTY, pos, TaskMarkerDataComponent::withSecondPos);
     }
 
     @SuppressWarnings("deprecation")

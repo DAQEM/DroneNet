@@ -202,7 +202,7 @@ public class TaskTableMenu extends AbstractContainerMenu {
                 return;
             }
             TaskMarkerDataComponent markerData = inputStack.get(IRobotDataComponents.TASK_MARKER_DATA.get());
-            if (markerData == null || markerData.getFirstPos().pos() == BlockPos.ZERO || markerData.getSecondPos().pos() == BlockPos.ZERO) {
+            if (markerData == null || markerData.firstPos().pos() == BlockPos.ZERO || markerData.secondPos().pos() == BlockPos.ZERO) {
                 this.data.set(0, 1); // Error: Task requires a defined area.
                 return;
             }
