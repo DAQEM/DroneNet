@@ -15,10 +15,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.ResultContainer;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -41,6 +38,7 @@ public class TaskTableMenu extends AbstractContainerMenu {
     private final Slot resultSlot;
     private long lastSoundTime;
     private @Nullable RobotTask selectedTask = null;
+    private final ContainerData data;
 
     public TaskTableMenu(int containerId, Inventory playerInventory) {
         this(containerId, playerInventory, ContainerLevelAccess.NULL);
@@ -49,6 +47,7 @@ public class TaskTableMenu extends AbstractContainerMenu {
     public TaskTableMenu(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
         super(IRobotMenuTypes.TASK_TABLE_MENU.get(), containerId);
         this.access = access;
+        this.data = new SimpleContainerData(1);
 
         this.inputSlot = this.addSlot(new Slot(this.inputContainer, 0, 111, 42) {
             @Override
@@ -77,10 +76,14 @@ public class TaskTableMenu extends AbstractContainerMenu {
             public void onTake(Player player, ItemStack stack) {
                 stack.onCraftedBy(player, stack.getCount());
                 TaskTableMenu.this.resultContainer.awardUsedRecipes(player, this.getRelevantItems());
-                ItemStack itemStack = TaskTableMenu.this.inputSlot.remove(1);
-                if (!itemStack.isEmpty()) {
-                    TaskTableMenu.this.createResult();
+
+                TaskDataComponent taskData = stack.get(IRobotDataComponents.TASK_DATA.get());
+                if (taskData != null && taskData.task().requiresArea()) {
+                    TaskTableMenu.this.inputSlot.remove(1);
                 }
+
+                TaskTableMenu.this.createResult();
+
                 access.execute((level, blockPos) -> {
                     long l = level.getGameTime();
                     if (TaskTableMenu.this.lastSoundTime != l) {
@@ -105,6 +108,8 @@ public class TaskTableMenu extends AbstractContainerMenu {
         for (int slotX = 0; slotX < 9; slotX++) {
             this.addSlot(new Slot(playerInventory, slotX, slotX * 19 + 92, 187));
         }
+
+        this.addDataSlots(this.data);
     }
 
     @Override
@@ -175,9 +180,7 @@ public class TaskTableMenu extends AbstractContainerMenu {
     public boolean clickMenuButton(Player player, int id) {
         if (id >= 0 && id < RobotTask.values().length) {
             this.selectedTask = RobotTask.values()[id];
-            if (!this.inputContainer.isEmpty()) {
-                this.createResult();
-            }
+            this.createResult();
             return true;
         }
         return false;
@@ -185,21 +188,37 @@ public class TaskTableMenu extends AbstractContainerMenu {
 
     private void createResult() {
         this.resultSlot.set(ItemStack.EMPTY);
+        this.data.set(0, 0); // No error
 
-        if (this.selectedTask == null) return;
+        if (this.selectedTask == null) {
+            return;
+        }
 
-        ItemStack itemStack = this.inputContainer.getItem(0);
-        if (itemStack.isEmpty()) return;
+        ItemStack inputStack = this.inputContainer.getItem(0);
 
-        if (itemStack.has(IRobotDataComponents.TASK_MARKER_DATA.get())) {
-            TaskMarkerDataComponent dataComponent = itemStack.get(IRobotDataComponents.TASK_MARKER_DATA.get());
-            if (dataComponent == null || dataComponent.getFirstPos().pos() == BlockPos.ZERO || dataComponent.getSecondPos().pos() == BlockPos.ZERO)
+        if (this.selectedTask.requiresArea()) {
+            if (inputStack.isEmpty() || !inputStack.is(IRobotItems.TASK_MARKER.get())) {
+                this.data.set(0, 2); // Error: Please insert a Task Marker.
                 return;
+            }
+            TaskMarkerDataComponent markerData = inputStack.get(IRobotDataComponents.TASK_MARKER_DATA.get());
+            if (markerData == null || markerData.getFirstPos().pos() == BlockPos.ZERO || markerData.getSecondPos().pos() == BlockPos.ZERO) {
+                this.data.set(0, 1); // Error: Task requires a defined area.
+                return;
+            }
             ItemStack resultStack = IRobotItems.TASK.get().getDefaultInstance();
-            resultStack.set(IRobotDataComponents.TASK_MARKER_DATA.get(), dataComponent);
+            resultStack.set(IRobotDataComponents.TASK_MARKER_DATA.get(), markerData);
+            resultStack.set(IRobotDataComponents.TASK_DATA.get(), new TaskDataComponent(this.selectedTask));
+            this.resultSlot.set(resultStack);
+        } else {
+            ItemStack resultStack = IRobotItems.TASK.get().getDefaultInstance();
             resultStack.set(IRobotDataComponents.TASK_DATA.get(), new TaskDataComponent(this.selectedTask));
             this.resultSlot.set(resultStack);
         }
+    }
+
+    public int getErrorState() {
+        return this.data.get(0);
     }
 
     @Override

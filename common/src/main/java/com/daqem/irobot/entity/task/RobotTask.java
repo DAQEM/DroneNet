@@ -9,18 +9,20 @@ import net.minecraft.world.entity.schedule.Activity;
 import org.jetbrains.annotations.NotNull;
 
 public enum RobotTask implements StringRepresentable {
-    PROTECTING("protecting"),
-    MINING("mining"),
-    WOODCUTTING("woodcutting"),
-    FARMING("farming"),
-    FOLLOWING("following");
+    PROTECTING("protecting", true),
+    MINING("mining", true),
+    WOODCUTTING("woodcutting", true),
+    FARMING("farming", true),
+    FOLLOWING("following", false);
 
     public static final Codec<RobotTask> CODEC = StringRepresentable.fromEnum(RobotTask::values);
 
     private final String name;
+    private final boolean requiresArea;
 
-    RobotTask(String name) {
+    RobotTask(String name, boolean requiresArea) {
         this.name = name;
+        this.requiresArea = requiresArea;
     }
 
     @Override
@@ -30,6 +32,10 @@ public enum RobotTask implements StringRepresentable {
 
     public Component getName() {
         return IRobot.translatable("task." + this.name);
+    }
+
+    public boolean requiresArea() {
+        return this.requiresArea;
     }
 
     public Activity getActivity() {

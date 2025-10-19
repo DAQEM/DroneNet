@@ -26,20 +26,22 @@ public class TaskItem extends Item {
         super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, flag);
         TaskMarkerDataComponent markerData = stack.get(IRobotDataComponents.TASK_MARKER_DATA.get());
         TaskDataComponent taskData = stack.get(IRobotDataComponents.TASK_DATA.get());
-        if (markerData == null) {
-            tooltipAdder.accept(IRobot.translatable("tooltip.task_item.no_marker_data").withStyle(ChatFormatting.RED));
-        } else {
-            GlobalPos firstPos = markerData.getFirstPos();
-            if (firstPos != null && firstPos.pos() != BlockPos.ZERO) {
-                tooltipAdder.accept(IRobot.translatable("tooltip.task_item.first_position", firstPos.pos().getX(), firstPos.pos().getY(), firstPos.pos().getZ()).withStyle(ChatFormatting.GRAY));
+        if (taskData != null && taskData.task().requiresArea()) {
+            if (markerData == null) {
+                tooltipAdder.accept(IRobot.translatable("tooltip.task_item.no_marker_data").withStyle(ChatFormatting.RED));
             } else {
-                tooltipAdder.accept(IRobot.translatable("tooltip.task_item.first_position_none").withStyle(ChatFormatting.RED));
-            }
-            GlobalPos secondPos = markerData.getSecondPos();
-            if (markerData.getSecondPos() != null && secondPos.pos() != BlockPos.ZERO) {
-                tooltipAdder.accept(IRobot.translatable("tooltip.task_item.second_position", secondPos.pos().getX(), secondPos.pos().getY(), secondPos.pos().getZ()).withStyle(ChatFormatting.GRAY));
-            } else {
-                tooltipAdder.accept(IRobot.translatable("tooltip.task_item.second_position_none").withStyle(ChatFormatting.RED));
+                GlobalPos firstPos = markerData.getFirstPos();
+                if (firstPos != null && firstPos.pos() != BlockPos.ZERO) {
+                    tooltipAdder.accept(IRobot.translatable("tooltip.task_item.first_position", firstPos.pos().getX(), firstPos.pos().getY(), firstPos.pos().getZ()).withStyle(ChatFormatting.GRAY));
+                } else {
+                    tooltipAdder.accept(IRobot.translatable("tooltip.task_item.first_position_none").withStyle(ChatFormatting.RED));
+                }
+                GlobalPos secondPos = markerData.getSecondPos();
+                if (markerData.getSecondPos() != null && secondPos.pos() != BlockPos.ZERO) {
+                    tooltipAdder.accept(IRobot.translatable("tooltip.task_item.second_position", secondPos.pos().getX(), secondPos.pos().getY(), secondPos.pos().getZ()).withStyle(ChatFormatting.GRAY));
+                } else {
+                    tooltipAdder.accept(IRobot.translatable("tooltip.task_item.second_position_none").withStyle(ChatFormatting.RED));
+                }
             }
         }
 

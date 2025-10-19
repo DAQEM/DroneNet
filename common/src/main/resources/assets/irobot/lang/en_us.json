@@ -2,21 +2,18 @@
   "irobot.error.robot.not_owner": "You are not the owner of this robot.",
   "irobot.error.robot.marker_not_set": "Both positions on the Area Marker must be set first.",
   "irobot.robot.error.task_slot_full": "Robot's task slot is already occupied.",
-
   "irobot.robot.task.assigned_mining": "Assigned mining task to robot.",
   "irobot.robot.task.mining_complete": "Mining task complete.",
   "irobot.robot.task.mining_stuck": "Cannot reach any more blocks in the mining area.",
   "irobot.robot.task.mining_stopped_inventory_full": "Mining task stopped: inventory is full.",
   "irobot.robot.error.cant_find_station": "Robot %s cannot find a station to recharge at: X%d, Y%d, Z%d.",
   "irobot.robot.error.cant_find_dropoff": "Robot %s cannot find a dropoff chest.",
-
   "irobot.item.task_marker.description": "Use to create an area for a task.",
   "irobot.item.task_marker.description.left_click": "Left click a block to set the primary position.",
   "irobot.item.task_marker.description.right_click": "Right click a block to set the secondary position.",
   "irobot.item.task_marker.description.finalize": "Use a Task Table to create a Task item.",
   "irobot.item.task_marker.first_pos_set": "Primary position set.",
   "irobot.item.task_marker.second_pos_set": "Secondary position set.",
-
   "irobot.tooltip.task_item.no_marker_data": "Missing area data. Use a Task Marker to set an area first.",
   "irobot.tooltip.task_item.first_position": "First Position: X%s Y%s Z%s.",
   "irobot.tooltip.task_item.first_position_none": "First Position not set.",
@@ -25,16 +22,17 @@
   "irobot.tooltip.task_item.task_name": "Task: %s.",
   "irobot.tooltip.task_item.no_task_data": "No task assigned.",
   "tooltip.irobot.energy": "Energy: %s / %s",
-
   "irobot.task.protecting": "Protecting",
   "irobot.task.mining": "Mining",
   "irobot.task.woodcutting": "Woodcutting",
   "irobot.task.farming": "Farming",
   "irobot.task.following": "Following",
-
   "irobot.gui.robot.title": "Robot",
   "irobot.gui.tasktable.title": "Task Table",
   "irobot.gui.tasktable.modes": "Modes",
+  "irobot.gui.tasktable.error.no_task_selected": "Please select a task.",
+  "irobot.gui.tasktable.error.area_not_defined": "Task requires a defined area.",
+  "irobot.gui.tasktable.error.no_marker": "Task requires a Task Marker.",
   "irobot.gui.robot.stats": "Stats",
   "irobot.gui.robot.health": "Health: %d / %d",
   "irobot.gui.robot.energy": "Energy: %d / %d",
@@ -48,9 +46,7 @@
   "irobot.gui.robot.activity.follow": "Following",
   "irobot.gui.robot.activity.recharge": "Recharging",
   "irobot.gui.robot.activity.dropoff": "Dropping Off Items",
-
   "itemGroup.irobot.irobot_tab": "iRobot",
-
   "item.irobot.robot_station": "Robot Station",
   "item.irobot.mini_robot": "Mini Robot",
   "item.irobot.task_marker": "Task Marker",
@@ -60,16 +56,12 @@
   "item.irobot.small_battery": "Small Battery",
   "item.irobot.medium_battery": "Medium Battery",
   "item.irobot.large_battery": "Large Battery",
-
   "stat.irobot.talked_to_robot": "Talked to Robot",
-
   "entity.irobot.mini_robot": "Mini Robot",
-
   "block.irobot.robot_station": "Robot Station",
   "block.irobot.task_table": "Task Table",
   "block.irobot.dropoff_chest": "Dropoff Chest",
   "container.irobot.dropoff_chest": "Dropoff Chest",
-
   "activity.irobot.mine": "Mining",
   "activity.irobot.recharge": "Recharging",
   "activity.irobot.follow": "Following",
