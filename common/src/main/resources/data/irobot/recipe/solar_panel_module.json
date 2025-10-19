@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "irobot:module_base",
+    "minecraft:daylight_detector",
+    "minecraft:daylight_detector",
+    "minecraft:daylight_detector",
+    "minecraft:glass_pane",
+    "minecraft:glass_pane",
+    "minecraft:glass_pane"
+  ],
+  "result": {
+    "id": "irobot:solar_panel_module"
+  }
+}

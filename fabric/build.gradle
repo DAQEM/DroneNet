@@ -42,6 +42,8 @@ dependencies {
     modImplementation "curse.maven:yaml-config-1128669:${project.config_library_file_fabric}"
     modImplementation "curse.maven:ui-933200:${project.ui_library_file_fabric}"
     modImplementation "software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}"
+
+    modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:20.0.811"
 }
 
 processResources {

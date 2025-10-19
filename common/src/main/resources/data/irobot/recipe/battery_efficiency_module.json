@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "irobot:module_base",
+    "irobot:advanced_microchip",
+    "minecraft:redstone_block",
+    "minecraft:redstone_block"
+  ],
+  "result": {
+    "id": "irobot:battery_efficiency_module"
+  }
+}

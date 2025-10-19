@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "irobot:module_base",
+    "minecraft:diamond_chestplate",
+    "minecraft:iron_block",
+    "minecraft:iron_block"
+  ],
+  "result": {
+    "id": "irobot:durability_module"
+  }
+}

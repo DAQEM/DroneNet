@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:chest",
+    "minecraft:hopper"
+  ],
+  "result": {
+    "id": "irobot:dropoff_chest",
+    "count": 1
+  }
+}

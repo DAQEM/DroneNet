@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "irobot:module_base",
+    "minecraft:diamond_sword",
+    "minecraft:redstone_block",
+    "minecraft:redstone_block"
+  ],
+  "result": {
+    "id": "irobot:attack_damage_module"
+  }
+}

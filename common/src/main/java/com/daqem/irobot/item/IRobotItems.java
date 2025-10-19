@@ -36,6 +36,10 @@ public interface IRobotItems {
     RegistrySupplier<ModuleItem> REFORESTATION_MODULE = register("reforestation_module", p -> new ModuleItem(p, ModuleItem.ModuleType.REFORESTATION));
     RegistrySupplier<ModuleItem> CROP_REPLANT_MODULE = register("crop_replant_module", p -> new ModuleItem(p, ModuleItem.ModuleType.CROP_REPLANT));
 
+    RegistrySupplier<Item> MICROCHIP = register("microchip", Item::new);
+    RegistrySupplier<Item> ADVANCED_MICROCHIP = register("advanced_microchip", Item::new);
+    RegistrySupplier<Item> MODULE_BASE = register("module_base", Item::new);
+    RegistrySupplier<Item> BASIC_ROBOT_CHASSIS = register("basic_robot_chassis", Item::new);
 
     static void init() {
     }

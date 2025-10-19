@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "irobot:medium_battery",
+    "minecraft:diamond",
+    "minecraft:diamond",
+    "minecraft:redstone_block",
+    "minecraft:redstone_block"
+  ],
+  "result": {
+    "id": "irobot:large_battery",
+    "count": 1
+  }
+}

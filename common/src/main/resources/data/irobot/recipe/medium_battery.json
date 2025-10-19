@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "irobot:small_battery",
+    "minecraft:gold_ingot",
+    "minecraft:gold_ingot",
+    "minecraft:redstone_block",
+    "minecraft:redstone_block"
+  ],
+  "result": {
+    "id": "irobot:medium_battery",
+    "count": 1
+  }
+}

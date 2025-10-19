@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "irobot:module_base",
+    "minecraft:sugar",
+    "minecraft:sugar",
+    "minecraft:feather",
+    "minecraft:feather"
+  ],
+  "result": {
+    "id": "irobot:speed_boost_module"
+  }
+}
