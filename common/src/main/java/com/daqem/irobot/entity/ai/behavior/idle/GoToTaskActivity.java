@@ -27,10 +27,12 @@ public class GoToTaskActivity extends Behavior<IRobotEntity> {
     protected void start(ServerLevel level, IRobotEntity robot, long gameTime) {
         TaskDataComponent taskData = robot.getTaskItemData();
         TaskMarkerDataComponent markerData = robot.getTaskMarkerData();
-        if (taskData != null && markerData != null) {
+        if (taskData != null && (!taskData.task().requiresArea() || markerData != null)) {
             robot.getBrain().setMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get(), taskData.task());
-            robot.getBrain().setMemory(IRobotMemoryModuleTypes.TASK_AREA_START.get(), markerData.firstPos());
-            robot.getBrain().setMemory(IRobotMemoryModuleTypes.TASK_AREA_END.get(), markerData.secondPos());
+            if (taskData.task().requiresArea()) {
+                robot.getBrain().setMemory(IRobotMemoryModuleTypes.TASK_AREA_START.get(), markerData.firstPos());
+                robot.getBrain().setMemory(IRobotMemoryModuleTypes.TASK_AREA_END.get(), markerData.secondPos());
+            }
             robot.getBrain().setActiveActivityIfPossible(taskData.task().getActivity());
         }
     }

@@ -34,6 +34,8 @@ public class ArmorSlot extends AbstractEmptyIconSlot {
     @Override
     public boolean mayPickup(Player player) {
         ItemStack itemStack = this.getItem();
-        return (itemStack.isEmpty() || player.isCreative() || !EnchantmentHelper.has(itemStack, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE)) && super.mayPickup(player);
+        return !itemStack.isEmpty() && !player.isCreative() && EnchantmentHelper.has(itemStack, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE)
+                ? false
+                : super.mayPickup(player);
     }
 }

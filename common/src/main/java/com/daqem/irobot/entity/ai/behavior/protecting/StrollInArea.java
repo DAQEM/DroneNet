@@ -2,6 +2,7 @@ package com.daqem.irobot.entity.ai.behavior.protecting;
 
 import com.daqem.irobot.client.renderer.OutlineRenderer;
 import com.daqem.irobot.config.IRobotConfig;
+import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.google.common.collect.ImmutableMap;
@@ -19,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
 
-public class StrollInArea extends Behavior<MiniRobotEntity> {
+public class StrollInArea extends Behavior<IRobotEntity> {
 
     private long lastStrollTime;
 
@@ -33,13 +34,13 @@ public class StrollInArea extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected boolean checkExtraStartConditions(ServerLevel level, MiniRobotEntity owner) {
+    protected boolean checkExtraStartConditions(ServerLevel level, IRobotEntity owner) {
         // Only stroll if enough time has passed since the last stroll
         return owner.level().getGameTime() - this.lastStrollTime >= IRobotConfig.STROLL_IN_AREA_COOLDOWN_TICKS.get();
     }
 
     @Override
-    protected void start(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected void start(ServerLevel level, IRobotEntity robot, long gameTime) {
         Optional<GlobalPos> startPosOpt = robot.getBrain().getMemory(IRobotMemoryModuleTypes.TASK_AREA_START.get());
         Optional<GlobalPos> endPosOpt = robot.getBrain().getMemory(IRobotMemoryModuleTypes.TASK_AREA_END.get());
 
@@ -56,7 +57,7 @@ public class StrollInArea extends Behavior<MiniRobotEntity> {
         });
     }
 
-    private Optional<Vec3> findRandomPosInAABB(MiniRobotEntity robot, AABB aabb) {
+    private Optional<Vec3> findRandomPosInAABB(IRobotEntity robot, AABB aabb) {
         RandomSource random = robot.getRandom();
         // Try a few times to find a valid position
         for (int i = 0; i < 10; i++) {

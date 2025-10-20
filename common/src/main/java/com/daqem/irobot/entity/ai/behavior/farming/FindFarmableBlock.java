@@ -1,6 +1,7 @@
 package com.daqem.irobot.entity.ai.behavior.farming;
 
 import com.daqem.irobot.client.renderer.OutlineRenderer;
+import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.daqem.irobot.entity.task.RobotTask;
@@ -24,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Comparator;
 import java.util.Optional;
 
-public class FindFarmableBlock extends Behavior<MiniRobotEntity> {
+public class FindFarmableBlock extends Behavior<IRobotEntity> {
 
     public FindFarmableBlock() {
         super(ImmutableMap.of(
@@ -37,12 +38,12 @@ public class FindFarmableBlock extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected boolean checkExtraStartConditions(@NotNull ServerLevel level, @NotNull MiniRobotEntity robot) {
+    protected boolean checkExtraStartConditions(@NotNull ServerLevel level, @NotNull IRobotEntity robot) {
         return robot.getBrain().getMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get()).orElse(null) == RobotTask.FARMING;
     }
 
     @Override
-    protected void start(@NotNull ServerLevel level, @NotNull MiniRobotEntity robot, long gameTime) {
+    protected void start(@NotNull ServerLevel level, @NotNull IRobotEntity robot, long gameTime) {
         Optional<GlobalPos> startPosOpt = robot.getBrain().getMemory(IRobotMemoryModuleTypes.TASK_AREA_START.get());
         Optional<GlobalPos> endPosOpt = robot.getBrain().getMemory(IRobotMemoryModuleTypes.TASK_AREA_END.get());
 
@@ -67,21 +68,21 @@ public class FindFarmableBlock extends Behavior<MiniRobotEntity> {
         }
     }
 
-    private Optional<BlockPos> findClosestMatureCrop(ServerLevel level, MiniRobotEntity robot, AABB searchArea) {
+    private Optional<BlockPos> findClosestMatureCrop(ServerLevel level, IRobotEntity robot, AABB searchArea) {
         return BlockPos.betweenClosedStream(searchArea)
                 .map(BlockPos::immutable)
                 .filter(pos -> CropUtils.isFarmableCrop(level.getBlockState(pos)) && CropUtils.isMature(level.getBlockState(pos)))
                 .min(Comparator.comparingDouble(pos -> pos.distSqr(robot.blockPosition())));
     }
 
-    private Optional<BlockPos> findClosestEmptyFarmland(ServerLevel level, MiniRobotEntity robot, AABB searchArea) {
+    private Optional<BlockPos> findClosestEmptyFarmland(ServerLevel level, IRobotEntity robot, AABB searchArea) {
         return BlockPos.betweenClosedStream(searchArea)
                 .map(BlockPos::immutable)
                 .filter(pos -> level.getBlockState(pos).isAir() && isPlantableSpot(level, pos, robot))
                 .min(Comparator.comparingDouble(pos -> pos.distSqr(robot.blockPosition())));
     }
 
-    private boolean isPlantableSpot(ServerLevel level, BlockPos pos, MiniRobotEntity robot) {
+    private boolean isPlantableSpot(ServerLevel level, BlockPos pos, IRobotEntity robot) {
         BlockState ground = level.getBlockState(pos.below());
         if (!ground.is(Blocks.FARMLAND) && !ground.is(Blocks.SOUL_SAND)) {
             return false;

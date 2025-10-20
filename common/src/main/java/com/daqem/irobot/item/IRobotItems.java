@@ -22,6 +22,7 @@ public interface IRobotItems {
     RegistrySupplier<TaskTableItem> TASK_TABLE = register("task_table", TaskTableItem::new);
     RegistrySupplier<BlockItem> DROPOFF_CHEST = register("dropoff_chest", p -> new BlockItem(IRobotBlocks.DROPOFF_CHEST.get(), p));
     RegistrySupplier<MiniRobotItem> MINI_ROBOT = register("mini_robot", MiniRobotItem::new);
+    RegistrySupplier<GyroRobotItem> GYRO_ROBOT = register("gyro_robot", GyroRobotItem::new);
     RegistrySupplier<TaskMarkerItem> TASK_MARKER = register("task_marker", TaskMarkerItem::new);
     RegistrySupplier<TaskItem> TASK = register("task", TaskItem::new);
     RegistrySupplier<BatteryItem> SMALL_BATTERY = register("small_battery", p -> new BatteryItem(p, IRobotConfig.SMALL_BATTERY_CAPACITY.get()));
@@ -41,6 +42,8 @@ public interface IRobotItems {
     RegistrySupplier<Item> ADVANCED_MICROCHIP = register("advanced_microchip", Item::new);
     RegistrySupplier<Item> MODULE_BASE = register("module_base", Item::new);
     RegistrySupplier<Item> BASIC_ROBOT_CHASSIS = register("basic_robot_chassis", Item::new);
+    RegistrySupplier<Item> ROLLING_ROBOT_CHASSIS = register("rolling_robot_chassis", Item::new);
+    RegistrySupplier<Item> ROBOT_WHEEL = register("robot_wheel", Item::new);
 
     static void init() {
     }

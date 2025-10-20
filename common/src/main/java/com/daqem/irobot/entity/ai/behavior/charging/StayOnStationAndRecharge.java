@@ -63,7 +63,9 @@ public class StayOnStationAndRecharge extends Behavior<IRobotEntity> {
     @Override
     protected void stop(ServerLevel level, IRobotEntity robot, long gameTime) {
         robot.getBrain().getMemory(IRobotMemoryModuleTypes.STATION_POS.get()).ifPresent(globalPos -> {
-            level.getPoiManager().release(globalPos.pos());
+            if (level.getPoiManager().exists(globalPos.pos(), poiTypeHolder -> true)) {
+                level.getPoiManager().release(globalPos.pos());
+            }
         });
         robot.getBrain().eraseMemory(IRobotMemoryModuleTypes.STATION_POS.get());
         robot.getBrain().eraseMemory(IRobotMemoryModuleTypes.IS_CHARING.get());

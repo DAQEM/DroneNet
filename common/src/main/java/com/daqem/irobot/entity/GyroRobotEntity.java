@@ -27,9 +27,40 @@ import software.bernie.geckolib.constant.DefaultAnimations;
 
 import java.util.EnumMap;
 
-public class MiniRobotEntity extends IRobotEntity {
+public class GyroRobotEntity extends IRobotEntity {
 
-    public MiniRobotEntity(EntityType<? extends TamableAnimal> type, Level level) {
+    public static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
+            MemoryModuleType.WALK_TARGET,
+            MemoryModuleType.LOOK_TARGET,
+            MemoryModuleType.ATTACK_TARGET,
+            MemoryModuleType.ATTACK_COOLING_DOWN,
+            MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
+            MemoryModuleType.PATH,
+            MemoryModuleType.DOORS_TO_CLOSE,
+            MemoryModuleType.NEAREST_LIVING_ENTITIES,
+            MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
+            MemoryModuleType.INTERACTION_TARGET,
+            MemoryModuleType.HURT_BY,
+            IRobotMemoryModuleTypes.ASSIGNED_TASK.get(),
+            IRobotMemoryModuleTypes.TASK_AREA_START.get(),
+            IRobotMemoryModuleTypes.TASK_AREA_END.get(),
+            IRobotMemoryModuleTypes.MINE_TARGET_POS.get(),
+            IRobotMemoryModuleTypes.TREE_TARGET_POS.get(),
+            IRobotMemoryModuleTypes.STATION_POS.get(),
+            IRobotMemoryModuleTypes.MINING_DIRECTION.get(),
+            IRobotMemoryModuleTypes.LANE_DIRECTION.get(),
+            IRobotMemoryModuleTypes.DROPOFF_TARGET_POS.get(),
+            IRobotMemoryModuleTypes.IS_CHARING.get(),
+            IRobotMemoryModuleTypes.SAPLING_TO_PLANT.get(),
+            IRobotMemoryModuleTypes.REPLANT_POS.get(),
+            IRobotMemoryModuleTypes.FARM_TARGET_POS.get()
+    );
+    public static final ImmutableList<SensorType<? extends Sensor<? super GyroRobotEntity>>> SENSOR_TYPES = ImmutableList.of(
+            SensorType.NEAREST_LIVING_ENTITIES,
+            SensorType.HURT_BY
+    );
+
+    public GyroRobotEntity(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
     }
 
@@ -39,7 +70,7 @@ public class MiniRobotEntity extends IRobotEntity {
 
     @Override
     public int getDefaultColor() {
-        return 0x707080;
+        return 0xB0B0C0;
     }
 
     @Override

@@ -30,6 +30,7 @@
     "minecraft": ">=${minecraft_version}",
     "architectury": ">=${architectury_version}",
     "yamlconfig": ">=${config_library_version}",
-    "uilib": ">=${ui_library_version}"
+    "uilib": ">=${ui_library_version}",
+    "geckolib" : ">=${geckolib_version}"
   }
 }

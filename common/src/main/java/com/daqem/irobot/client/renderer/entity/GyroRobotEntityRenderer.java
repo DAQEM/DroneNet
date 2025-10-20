@@ -1,9 +1,9 @@
 package com.daqem.irobot.client.renderer.entity;
 
 import com.daqem.irobot.IRobot;
-import com.daqem.irobot.client.model.entity.MiniRobotModel;
+import com.daqem.irobot.client.model.entity.GyroRobotModel;
 import com.daqem.irobot.entity.IRobotEntity;
-import com.daqem.irobot.entity.MiniRobotEntity;
+import com.daqem.irobot.entity.GyroRobotEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -24,10 +24,10 @@ import software.bernie.geckolib.renderer.layer.ItemInHandGeoLayer;
 
 import java.util.List;
 
-public class MiniRobotEntityRenderer<R extends LivingEntityRenderState & GeoRenderState> extends GeoEntityRenderer<MiniRobotEntity, R> {
+public class GyroRobotEntityRenderer<R extends LivingEntityRenderState & GeoRenderState> extends GeoEntityRenderer<GyroRobotEntity, R> {
 
-    public MiniRobotEntityRenderer(EntityRendererProvider.Context context) {
-        super(context, new MiniRobotModel());
+    public GyroRobotEntityRenderer(EntityRendererProvider.Context context) {
+        super(context, new GyroRobotModel());
 
         addRenderLayer(new ItemInHandGeoLayer<>(this) {
             @Override
@@ -51,7 +51,7 @@ public class MiniRobotEntityRenderer<R extends LivingEntityRenderState & GeoRend
         });
 
         addRenderLayer(new GeoRenderLayer<>(this) {
-            private static final ResourceLocation EYES_TEXTURE = IRobot.getId("textures/entity/mini_robot_eyes.png");
+            private static final ResourceLocation EYES_TEXTURE = IRobot.getId("textures/entity/gyro_robot_eyes.png");
 
             @Override
             public void render(R renderState, PoseStack poseStack, BakedGeoModel bakedModel, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight, int packedOverlay, int renderColor) {
@@ -62,7 +62,7 @@ public class MiniRobotEntityRenderer<R extends LivingEntityRenderState & GeoRend
         });
 
         addRenderLayer(new GeoRenderLayer<>(this) {
-            private static final ResourceLocation OVERLAY_TEXTURE = IRobot.getId("textures/entity/mini_robot_overlay.png");
+            private static final ResourceLocation OVERLAY_TEXTURE = IRobot.getId("textures/entity/gyro_robot_overlay.png");
 
             @Override
             public void render(R renderState, PoseStack poseStack, BakedGeoModel bakedModel, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight, int packedOverlay, int renderColor) {
@@ -78,13 +78,13 @@ public class MiniRobotEntityRenderer<R extends LivingEntityRenderState & GeoRend
     }
 
     @Override
-    public void addRenderData(MiniRobotEntity animatable, Void relatedObject, R renderState) {
+    public void addRenderData(GyroRobotEntity animatable, Void relatedObject, R renderState) {
         super.addRenderData(animatable, relatedObject, renderState);
         renderState.addGeckolibData(IRobotEntity.OVERLAY_COLOR_TICKET, animatable.getOverlayColor());
     }
 
     @Override
-    public int getRenderColor(MiniRobotEntity animatable, Void relatedObject, float partialTick) {
+    public int getRenderColor(GyroRobotEntity animatable, Void relatedObject, float partialTick) {
         return animatable.getColor() | 0xFF000000;
     }
 }

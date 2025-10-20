@@ -14,6 +14,7 @@ import java.util.function.Predicate;
 public class GoToDropOffActivity extends Behavior<IRobotEntity> {
 
     private final Predicate<IRobotEntity> condition;
+    private long lastCheckTime = 0L;
 
     public GoToDropOffActivity(Predicate<IRobotEntity> condition) {
         super(Map.of(
@@ -30,6 +31,10 @@ public class GoToDropOffActivity extends Behavior<IRobotEntity> {
 
     @Override
     protected void start(ServerLevel level, IRobotEntity entity, long gameTime) {
+        if (gameTime - this.lastCheckTime < 100L) {
+            return;
+        }
         entity.getBrain().setActiveActivityIfPossible(IRobotActivities.DROPOFF.get());
+        this.lastCheckTime = gameTime;
     }
 }

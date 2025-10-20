@@ -1,6 +1,7 @@
 package com.daqem.irobot.entity.ai;
 
-import com.daqem.irobot.entity.MiniRobotEntity;
+import com.daqem.irobot.entity.IRobotEntity;
+import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.entity.ai.behavior.charging.FindRechargeStation;
 import com.daqem.irobot.entity.ai.behavior.charging.StayOnStationAndRecharge;
 import com.daqem.irobot.entity.ai.behavior.core.GoToChargingActivity;
@@ -41,14 +42,14 @@ import java.util.List;
 
 public class RobotBrainPackages {
 
-    public static Brain.Provider<MiniRobotEntity> createBrainProvider() {
+    public static Brain.Provider<IRobotEntity> createBrainProvider() {
         return Brain.provider(
-                MiniRobotEntity.MEMORY_TYPES,
-                MiniRobotEntity.SENSOR_TYPES
+                IRobotEntity.MEMORY_TYPES,
+                IRobotEntity.SENSOR_TYPES
         );
     }
 
-    public static void registerBrainGoals(Brain<MiniRobotEntity> brain) {
+    public static void registerBrainGoals(Brain<IRobotEntity> brain) {
         brain.addActivity(Activity.CORE, getCorePackage());
         brain.addActivityWithConditions(IRobotActivities.PROTECT.get(), getProtectingPackage(),
                 ImmutableSet.of(Pair.of(IRobotMemoryModuleTypes.ASSIGNED_TASK.get(), MemoryStatus.VALUE_PRESENT))
@@ -76,14 +77,14 @@ public class RobotBrainPackages {
         brain.setActiveActivityIfPossible(Activity.IDLE);
     }
 
-    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getCorePackage() {
+    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> getCorePackage() {
         return ImmutableList.of(
                 Pair.of(0, new GoToRestActivity())
         );
     }
 
-    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getIdlePackage() {
-        List<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
+    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> getIdlePackage() {
+        List<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
         behaviors.addAll(List.of(
                 Pair.of(0, new GoToTaskActivity()),
                 Pair.of(1, new RandomLookAround(UniformInt.of(150, 250), 30.0F, 0.0F, 0.0F)),
@@ -93,8 +94,8 @@ public class RobotBrainPackages {
         return ImmutableList.copyOf(behaviors);
     }
 
-    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getProtectingPackage() {
-        List<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
+    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> getProtectingPackage() {
+        List<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
         behaviors.addAll(List.of(
                 Pair.of(0, StopAttackingIfTargetInvalid.create()),
                 Pair.of(1, SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(0.75F)),
@@ -105,8 +106,8 @@ public class RobotBrainPackages {
         return ImmutableList.copyOf(behaviors);
     }
 
-    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getMiningPackage() {
-        List<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
+    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> getMiningPackage() {
+        List<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
         behaviors.addAll(List.of(
                 Pair.of(2, new FindNextBlockToMine()),
                 Pair.of(3, new MineBlock())
@@ -114,8 +115,8 @@ public class RobotBrainPackages {
         return ImmutableList.copyOf(behaviors);
     }
 
-    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getWoodcuttingPackage() {
-        List<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
+    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> getWoodcuttingPackage() {
+        List<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
         behaviors.addAll(List.of(
                 Pair.of(2, new ReplantTree()),
                 Pair.of(3, new FindNextTreeToCut()),
@@ -124,8 +125,8 @@ public class RobotBrainPackages {
         return ImmutableList.copyOf(behaviors);
     }
 
-    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getFarmingPackage() {
-        List<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
+    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> getFarmingPackage() {
+        List<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
         behaviors.addAll(List.of(
                 Pair.of(1, new FindFarmableBlock()),
                 Pair.of(2, new HarvestAndReplantCrop())
@@ -133,8 +134,8 @@ public class RobotBrainPackages {
         return ImmutableList.copyOf(behaviors);
     }
 
-    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getFollowingPackage() {
-        List<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
+    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> getFollowingPackage() {
+        List<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
         behaviors.addAll(List.of(
                 Pair.of(0, StopAttackingIfTargetInvalid.create()),
                 Pair.of(1, SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(0.75F)),
@@ -144,8 +145,8 @@ public class RobotBrainPackages {
         return ImmutableList.copyOf(behaviors);
     }
 
-    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getRechargePackage() {
-        List<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
+    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> getRechargePackage() {
+        List<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
         behaviors.addAll(List.of(
                 Pair.of(0, new FindRechargeStation()),
                 Pair.of(1, new StayOnStationAndRecharge())
@@ -153,8 +154,8 @@ public class RobotBrainPackages {
         return ImmutableList.copyOf(behaviors);
     }
 
-    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getDropoffPackage() {
-        List<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
+    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> getDropoffPackage() {
+        List<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
         behaviors.addAll(List.of(
                 Pair.of(0, new FindDropoffChest()),
                 Pair.of(1, new DepositItemsAtDropoff())
@@ -162,15 +163,15 @@ public class RobotBrainPackages {
         return ImmutableList.copyOf(behaviors);
     }
 
-    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getRestPackage() {
+    private static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> getRestPackage() {
         return ImmutableList.of(
                 Pair.of(0, new GoToIdleActivity())
         );
     }
 
-    public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getPanicPackage() {
+    public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> getPanicPackage() {
         float speed = 0.75F;
-        List<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
+        List<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> behaviors = new ArrayList<>(getDefaultPackage());
         behaviors.addAll(List.of(
                 Pair.of(0, new RobotCalmDown()),
                 Pair.of(1, SetWalkTargetAwayFrom.entity(MemoryModuleType.HURT_BY_ENTITY, speed, 6, false)),
@@ -179,7 +180,7 @@ public class RobotBrainPackages {
         return ImmutableList.copyOf(behaviors);
     }
 
-    private static List<Pair<Integer, ? extends BehaviorControl<? super MiniRobotEntity>>> getDefaultPackage() {
+    private static List<Pair<Integer, ? extends BehaviorControl<? super IRobotEntity>>> getDefaultPackage() {
         return List.of(
                 Pair.of(0, new Swim<>(0.8F)),
                 Pair.of(0, InteractWithDoor.create()),
@@ -188,12 +189,12 @@ public class RobotBrainPackages {
                 Pair.of(1, new MoveToTargetSink() {
                     @Override
                     protected boolean checkExtraStartConditions(ServerLevel level, Mob owner) {
-                        return super.checkExtraStartConditions(level, owner) && owner instanceof MiniRobotEntity robot && robot.getEnergy() > 0;
+                        return super.checkExtraStartConditions(level, owner) && owner instanceof IRobotEntity robot && robot.getEnergy() > 0;
                     }
 
                     @Override
                     protected boolean canStillUse(ServerLevel level, Mob entity, long gameTime) {
-                        return super.canStillUse(level, entity, gameTime) && entity instanceof MiniRobotEntity robot && robot.getEnergy() > 0;
+                        return super.canStillUse(level, entity, gameTime) && entity instanceof IRobotEntity robot && robot.getEnergy() > 0;
                     }
                 }),
                 Pair.of(2, new GoToChargingActivity()),

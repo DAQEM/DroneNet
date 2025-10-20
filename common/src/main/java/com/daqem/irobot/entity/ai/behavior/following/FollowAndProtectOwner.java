@@ -1,6 +1,7 @@
 package com.daqem.irobot.entity.ai.behavior.following;
 
 import com.daqem.irobot.config.IRobotConfig;
+import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.server.level.ServerLevel;
@@ -15,7 +16,7 @@ import net.minecraft.world.entity.monster.Monster;
 
 import java.util.Optional;
 
-public class FollowAndProtectOwner extends Behavior<MiniRobotEntity> {
+public class FollowAndProtectOwner extends Behavior<IRobotEntity> {
 
     public FollowAndProtectOwner() {
         super(ImmutableMap.of(
@@ -24,18 +25,18 @@ public class FollowAndProtectOwner extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected boolean checkExtraStartConditions(ServerLevel level, MiniRobotEntity robot) {
+    protected boolean checkExtraStartConditions(ServerLevel level, IRobotEntity robot) {
         LivingEntity owner = robot.getOwner();
         return owner != null && !robot.isLeashed() && !robot.unableToMoveToOwner();
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, MiniRobotEntity entity, long gameTime) {
+    protected boolean canStillUse(ServerLevel level, IRobotEntity entity, long gameTime) {
         return checkExtraStartConditions(level, entity);
     }
 
     @Override
-    protected void tick(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected void tick(ServerLevel level, IRobotEntity robot, long gameTime) {
         LivingEntity owner = robot.getOwner();
         if (owner == null) {
             return;
@@ -69,7 +70,7 @@ public class FollowAndProtectOwner extends Behavior<MiniRobotEntity> {
         }
     }
 
-    private Optional<LivingEntity> findNearestAttacker(MiniRobotEntity robot, LivingEntity owner) {
+    private Optional<LivingEntity> findNearestAttacker(IRobotEntity robot, LivingEntity owner) {
         int protectionRange = IRobotConfig.PROTECT_OWNER_RANGE.get();
         return robot.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES)
                 .flatMap(entities -> entities.stream()

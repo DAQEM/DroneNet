@@ -1,6 +1,7 @@
 package com.daqem.irobot.entity.ai.behavior.mining;
 
 import com.daqem.irobot.client.renderer.OutlineRenderer;
+import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.daqem.irobot.entity.task.RobotTask;
@@ -23,7 +24,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
-public class FindNextBlockToMine extends Behavior<MiniRobotEntity> {
+public class FindNextBlockToMine extends Behavior<IRobotEntity> {
 
     private static final int SCAN_STEP_SIZE = 1;
     private static final int LANE_WIDTH = 3;
@@ -39,12 +40,12 @@ public class FindNextBlockToMine extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected boolean checkExtraStartConditions(ServerLevel level, MiniRobotEntity robot) {
+    protected boolean checkExtraStartConditions(ServerLevel level, IRobotEntity robot) {
         return robot.getBrain().getMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get()).orElse(null) == RobotTask.MINING;
     }
 
     @Override
-    protected void start(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected void start(ServerLevel level, IRobotEntity robot, long gameTime) {
         Optional<GlobalPos> startPosOpt = robot.getBrain().getMemory(IRobotMemoryModuleTypes.TASK_AREA_START.get());
         Optional<GlobalPos> endPosOpt = robot.getBrain().getMemory(IRobotMemoryModuleTypes.TASK_AREA_END.get());
 
@@ -93,7 +94,7 @@ public class FindNextBlockToMine extends Behavior<MiniRobotEntity> {
     /**
      * Scans for the nearest non-air block in the robot's immediate vicinity.
      */
-    private Optional<BlockPos> findNearestBlock(ServerLevel level, MiniRobotEntity robot, AABB miningArea) {
+    private Optional<BlockPos> findNearestBlock(ServerLevel level, IRobotEntity robot, AABB miningArea) {
         BlockPos robotBlockPos = robot.blockPosition();
         AABB aroundRobot = new AABB(robotBlockPos).inflate(3, 2, 3);
         AABB searchBox = aroundRobot.intersect(miningArea);
@@ -123,7 +124,7 @@ public class FindNextBlockToMine extends Behavior<MiniRobotEntity> {
     /**
      * Scans forward to find the next wall of blocks, or moves to the next lane if a row is complete.
      */
-    private void findNextMiningFace(ServerLevel level, MiniRobotEntity robot, AABB miningArea, long gameTime) {
+    private void findNextMiningFace(ServerLevel level, IRobotEntity robot, AABB miningArea, long gameTime) {
         Direction miningDir = robot.getBrain().getMemory(IRobotMemoryModuleTypes.MINING_DIRECTION.get()).orElse(Direction.EAST);
         BlockPos robotPos = robot.blockPosition();
 
@@ -183,7 +184,7 @@ public class FindNextBlockToMine extends Behavior<MiniRobotEntity> {
     /**
      * Instead of finishing the task, performs a last-resort search for a walkable block in a large radius.
      */
-    private void lastResortSearch(ServerLevel level, MiniRobotEntity robot, AABB miningArea) {
+    private void lastResortSearch(ServerLevel level, IRobotEntity robot, AABB miningArea) {
         BlockPos robotPos = robot.blockPosition();
         AABB searchBox = new AABB(robotPos).inflate(50, 5, 50).intersect(miningArea);
         PathNavigation navigator = robot.getNavigation();
@@ -216,7 +217,7 @@ public class FindNextBlockToMine extends Behavior<MiniRobotEntity> {
     /**
      * Clears all mining-related memories from the robot's brain.
      */
-    private void finishMiningTask(MiniRobotEntity robot) {
+    private void finishMiningTask(IRobotEntity robot) {
         robot.getBrain().eraseMemory(IRobotMemoryModuleTypes.MINE_TARGET_POS.get());
         robot.getBrain().eraseMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get());
         robot.getBrain().eraseMemory(IRobotMemoryModuleTypes.TASK_AREA_START.get());

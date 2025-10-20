@@ -1,6 +1,7 @@
 package com.daqem.irobot.entity.ai.behavior.mining;
 
 import com.daqem.irobot.config.IRobotConfig;
+import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.google.common.collect.ImmutableMap;
@@ -17,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
 
-public class MineBlock extends Behavior<MiniRobotEntity> {
+public class MineBlock extends Behavior<IRobotEntity> {
 
     private static final double MAX_REACH_DISTANCE_SQ = 4.5 * 4.5;
     private static final double PREFERRED_REACH_DISTANCE_SQ = 3.0 * 3.0;
@@ -34,7 +35,7 @@ public class MineBlock extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected void start(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected void start(ServerLevel level, IRobotEntity robot, long gameTime) {
         this.miningProgress = 0;
         this.lastBreakProgress = -1;
         this.retryCounter = 0;
@@ -54,7 +55,7 @@ public class MineBlock extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected void stop(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected void stop(ServerLevel level, IRobotEntity robot, long gameTime) {
         robot.setMining(false);
         if (this.targetPos != null) {
             level.destroyBlockProgress(robot.getId(), this.targetPos, -1);
@@ -65,7 +66,7 @@ public class MineBlock extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected void tick(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected void tick(ServerLevel level, IRobotEntity robot, long gameTime) {
         Optional<GlobalPos> minePosOpt = robot.getBrain().getMemory(IRobotMemoryModuleTypes.MINE_TARGET_POS.get());
         if (minePosOpt.isEmpty() || !minePosOpt.get().pos().equals(this.targetPos)) {
             doStop(level, robot, gameTime);
@@ -125,7 +126,7 @@ public class MineBlock extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected boolean canStillUse(ServerLevel level, IRobotEntity robot, long gameTime) {
         if (this.targetPos == null) {
             return false;
         }

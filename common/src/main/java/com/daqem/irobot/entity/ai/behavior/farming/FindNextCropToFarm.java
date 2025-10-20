@@ -1,6 +1,7 @@
 package com.daqem.irobot.entity.ai.behavior.farming;
 
 import com.daqem.irobot.client.renderer.OutlineRenderer;
+import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.daqem.irobot.entity.task.RobotTask;
@@ -19,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Comparator;
 import java.util.Optional;
 
-public class FindNextCropToFarm extends Behavior<MiniRobotEntity> {
+public class FindNextCropToFarm extends Behavior<IRobotEntity> {
 
     public FindNextCropToFarm() {
         super(ImmutableMap.of(
@@ -32,12 +33,12 @@ public class FindNextCropToFarm extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected boolean checkExtraStartConditions(@NotNull ServerLevel level, @NotNull MiniRobotEntity robot) {
+    protected boolean checkExtraStartConditions(@NotNull ServerLevel level, @NotNull IRobotEntity robot) {
         return robot.getBrain().getMemory(IRobotMemoryModuleTypes.ASSIGNED_TASK.get()).orElse(null) == RobotTask.FARMING;
     }
 
     @Override
-    protected void start(@NotNull ServerLevel level, @NotNull MiniRobotEntity robot, long gameTime) {
+    protected void start(@NotNull ServerLevel level, @NotNull IRobotEntity robot, long gameTime) {
         Optional<GlobalPos> startPosOpt = robot.getBrain().getMemory(IRobotMemoryModuleTypes.TASK_AREA_START.get());
         Optional<GlobalPos> endPosOpt = robot.getBrain().getMemory(IRobotMemoryModuleTypes.TASK_AREA_END.get());
 
@@ -56,7 +57,7 @@ public class FindNextCropToFarm extends Behavior<MiniRobotEntity> {
         });
     }
 
-    private Optional<BlockPos> findClosestMatureCrop(ServerLevel level, MiniRobotEntity robot, AABB searchArea) {
+    private Optional<BlockPos> findClosestMatureCrop(ServerLevel level, IRobotEntity robot, AABB searchArea) {
         BlockPos robotPos = robot.blockPosition();
         return BlockPos.betweenClosedStream(searchArea)
                 .map(BlockPos::immutable)

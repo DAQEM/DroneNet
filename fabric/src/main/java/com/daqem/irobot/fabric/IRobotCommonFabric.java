@@ -1,6 +1,7 @@
 package com.daqem.irobot.fabric;
 
 import com.daqem.irobot.IRobot;
+import com.daqem.irobot.entity.GyroRobotEntity;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.IRobotEntities;
 import net.fabricmc.api.ModInitializer;
@@ -17,5 +18,6 @@ public class IRobotCommonFabric implements ModInitializer {
 
     private void createEntityAttributes() {
         FabricDefaultAttributeRegistry.register(IRobotEntities.MINI_ROBOT.get(), MiniRobotEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(IRobotEntities.GYRO_ROBOT.get(), GyroRobotEntity.createAttributes());
     }
 }

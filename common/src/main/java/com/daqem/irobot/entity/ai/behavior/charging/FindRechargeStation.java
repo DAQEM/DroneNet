@@ -3,6 +3,7 @@ package com.daqem.irobot.entity.ai.behavior.charging;
 import com.daqem.irobot.IRobot;
 import com.daqem.irobot.block.IRobotBlocks;
 import com.daqem.irobot.config.IRobotConfig;
+import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.level.poi.IRobotPoiTypes;
 import com.google.common.collect.ImmutableMap;
@@ -18,7 +19,7 @@ import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-public class FindRechargeStation extends Behavior<MiniRobotEntity> {
+public class FindRechargeStation extends Behavior<IRobotEntity> {
 
     public FindRechargeStation() {
         super(ImmutableMap.of(
@@ -27,13 +28,13 @@ public class FindRechargeStation extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected boolean checkExtraStartConditions(ServerLevel level, MiniRobotEntity robot) {
+    protected boolean checkExtraStartConditions(ServerLevel level, IRobotEntity robot) {
         boolean isOnStation = level.getBlockState(robot.blockPosition()).is(IRobotBlocks.ROBOT_STATION.get());
         return robot.needsRecharging() && !isOnStation;
     }
 
     @Override
-    protected void start(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected void start(ServerLevel level, IRobotEntity robot, long gameTime) {
         level.getPoiManager().findClosestWithType(
                 poiTypeHolder -> poiTypeHolder.is(IRobotPoiTypes.ROBOT_STATION.getId()),
                 robot.blockPosition(),

@@ -1,5 +1,6 @@
 package com.daqem.irobot.entity.ai.behavior.panic;
 
+import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.server.level.ServerLevel;
@@ -8,7 +9,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.schedule.Activity;
 
-public class RobotCalmDown extends Behavior<MiniRobotEntity> {
+public class RobotCalmDown extends Behavior<IRobotEntity> {
 
     private static final int CALM_DOWN_DURATION = 100; // 5 seconds
     private long calmDownStartedAt;
@@ -20,19 +21,19 @@ public class RobotCalmDown extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected void start(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected void start(ServerLevel level, IRobotEntity robot, long gameTime) {
         this.calmDownStartedAt = gameTime;
     }
 
     @Override
-    protected void tick(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected void tick(ServerLevel level, IRobotEntity robot, long gameTime) {
         if (gameTime - this.calmDownStartedAt >= CALM_DOWN_DURATION) {
             this.doStop(level, robot, gameTime);
         }
     }
 
     @Override
-    protected void stop(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected void stop(ServerLevel level, IRobotEntity robot, long gameTime) {
         robot.getBrain().eraseMemory(MemoryModuleType.HURT_BY);
         robot.getBrain().eraseMemory(MemoryModuleType.HURT_BY_ENTITY);
         if (robot.getBrain().isActive(Activity.PANIC)) {
@@ -41,7 +42,7 @@ public class RobotCalmDown extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected boolean canStillUse(ServerLevel level, IRobotEntity robot, long gameTime) {
         return this.checkExtraStartConditions(level, robot) && robot.getBrain().hasMemoryValue(MemoryModuleType.HURT_BY);
     }
 }

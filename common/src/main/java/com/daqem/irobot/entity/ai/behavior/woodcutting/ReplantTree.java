@@ -1,6 +1,7 @@
 package com.daqem.irobot.entity.ai.behavior.woodcutting;
 
 import com.daqem.irobot.config.IRobotConfig;
+import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.google.common.collect.ImmutableMap;
@@ -17,7 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Optional;
 
-public class ReplantTree extends Behavior<MiniRobotEntity> {
+public class ReplantTree extends Behavior<IRobotEntity> {
 
     public ReplantTree() {
         super(ImmutableMap.of(
@@ -28,12 +29,12 @@ public class ReplantTree extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected boolean checkExtraStartConditions(ServerLevel level, MiniRobotEntity robot) {
+    protected boolean checkExtraStartConditions(ServerLevel level, IRobotEntity robot) {
         return robot.getBrain().getMemory(IRobotMemoryModuleTypes.TREE_TARGET_POS.get()).isEmpty();
     }
 
     @Override
-    protected void start(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected void start(ServerLevel level, IRobotEntity robot, long gameTime) {
         Optional<BlockPos> replantPosOpt = robot.getBrain().getMemory(IRobotMemoryModuleTypes.REPLANT_POS.get());
         Optional<Item> saplingItemOpt = robot.getBrain().getMemory(IRobotMemoryModuleTypes.SAPLING_TO_PLANT.get());
 
@@ -58,7 +59,7 @@ public class ReplantTree extends Behavior<MiniRobotEntity> {
         this.doStop(level, robot, gameTime);
     }
 
-    private boolean tryReplant(ServerLevel level, MiniRobotEntity robot, BlockPos pos, Item saplingItem) {
+    private boolean tryReplant(ServerLevel level, IRobotEntity robot, BlockPos pos, Item saplingItem) {
         if (!(saplingItem instanceof BlockItem)) {
             return false;
         }
@@ -87,7 +88,7 @@ public class ReplantTree extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected void stop(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected void stop(ServerLevel level, IRobotEntity robot, long gameTime) {
         robot.getBrain().eraseMemory(IRobotMemoryModuleTypes.REPLANT_POS.get());
         robot.getBrain().eraseMemory(IRobotMemoryModuleTypes.SAPLING_TO_PLANT.get());
     }
