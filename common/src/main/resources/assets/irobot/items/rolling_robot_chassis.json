@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "irobot:item/rolling_robot_chassis"
+  }
+}

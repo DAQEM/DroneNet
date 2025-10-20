@@ -1,6 +1,7 @@
 package com.daqem.irobot.entity.ai.behavior.protecting;
 
 import com.daqem.irobot.client.renderer.OutlineRenderer;
+import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.google.common.collect.ImmutableMap;
@@ -18,7 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-public class FindHostileMobInArea extends Behavior<MiniRobotEntity> {
+public class FindHostileMobInArea extends Behavior<IRobotEntity> {
 
     public FindHostileMobInArea() {
         super(ImmutableMap.of(
@@ -29,7 +30,7 @@ public class FindHostileMobInArea extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected void start(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected void start(ServerLevel level, IRobotEntity robot, long gameTime) {
         Optional<GlobalPos> startPosOpt = robot.getBrain().getMemory(IRobotMemoryModuleTypes.TASK_AREA_START.get());
         Optional<GlobalPos> endPosOpt = robot.getBrain().getMemory(IRobotMemoryModuleTypes.TASK_AREA_END.get());
 
@@ -45,7 +46,7 @@ public class FindHostileMobInArea extends Behavior<MiniRobotEntity> {
         });
     }
 
-    private Optional<LivingEntity> findNearestHostileMob(ServerLevel level, MiniRobotEntity robot, AABB protectionArea) {
+    private Optional<LivingEntity> findNearestHostileMob(ServerLevel level, IRobotEntity robot, AABB protectionArea) {
         List<Monster> hostilesInArea = level.getEntitiesOfClass(Monster.class, protectionArea, entity -> entity.isAlive() && robot.canAttack(entity));
 
         if (hostilesInArea.isEmpty()) {

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "I I",
+    "ICI",
+    "IWI"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "C": "minecraft:chest",
+    "W": "irobot:robot_wheel"
+  },
+  "result": {
+    "id": "irobot:rolling_robot_chassis",
+    "count": 1
+  }
+}

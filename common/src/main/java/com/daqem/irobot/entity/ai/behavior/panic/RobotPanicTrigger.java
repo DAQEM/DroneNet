@@ -1,5 +1,6 @@
 package com.daqem.irobot.entity.ai.behavior.panic;
 
+import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotActivities;
 import com.google.common.collect.ImmutableMap;
@@ -12,7 +13,7 @@ import net.minecraft.world.entity.schedule.Activity;
 
 import java.util.Optional;
 
-public class RobotPanicTrigger extends Behavior<MiniRobotEntity> {
+public class RobotPanicTrigger extends Behavior<IRobotEntity> {
 
     public RobotPanicTrigger() {
         super(ImmutableMap.of());
@@ -22,7 +23,7 @@ public class RobotPanicTrigger extends Behavior<MiniRobotEntity> {
         return entity.getBrain().hasMemoryValue(MemoryModuleType.HURT_BY);
     }
 
-    private boolean isDoingCombatTask(MiniRobotEntity robot) {
+    private boolean isDoingCombatTask(IRobotEntity robot) {
         Optional<Activity> activity = robot.getBrain().getActiveNonCoreActivity();
         if (activity.isEmpty()) {
             return false;
@@ -32,15 +33,15 @@ public class RobotPanicTrigger extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected boolean checkExtraStartConditions(ServerLevel level, MiniRobotEntity owner) {
+    protected boolean checkExtraStartConditions(ServerLevel level, IRobotEntity owner) {
         return isHurt(owner) && !isDoingCombatTask(owner);
     }
 
-    protected boolean canStillUse(ServerLevel level, MiniRobotEntity entity, long gameTime) {
+    protected boolean canStillUse(ServerLevel level, IRobotEntity entity, long gameTime) {
         return isHurt(entity);
     }
 
-    protected void start(ServerLevel level, MiniRobotEntity entity, long gameTime) {
+    protected void start(ServerLevel level, IRobotEntity entity, long gameTime) {
         if (isHurt(entity)) {
             Brain<?> brain = entity.getBrain();
             if (!brain.isActive(Activity.PANIC)) {

@@ -2,6 +2,7 @@ package com.daqem.irobot.entity.ai.behavior.woodcutting;
 
 import com.daqem.irobot.IRobot;
 import com.daqem.irobot.config.IRobotConfig;
+import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.daqem.irobot.util.TreeUtils;
@@ -21,7 +22,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Optional;
 import java.util.Set;
 
-public class CutDownTree extends Behavior<MiniRobotEntity> {
+public class CutDownTree extends Behavior<IRobotEntity> {
 
     private static final double MAX_REACH_DISTANCE_SQ = 3.5 * 3.5;
     private static final double PREFERRED_REACH_DISTANCE_SQ = 2.5 * 2.5;
@@ -42,7 +43,7 @@ public class CutDownTree extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected void start(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected void start(ServerLevel level, IRobotEntity robot, long gameTime) {
         this.ticksSinceStarted = 0;
         this.retryCounter = 0;
         robot.getBrain().getMemory(IRobotMemoryModuleTypes.TREE_TARGET_POS.get()).ifPresent(globalPos -> {
@@ -68,7 +69,7 @@ public class CutDownTree extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected void stop(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected void stop(ServerLevel level, IRobotEntity robot, long gameTime) {
         robot.setMining(false);
         if (this.targetPos != null) {
             level.destroyBlockProgress(robot.getId(), this.targetPos, -1);
@@ -79,7 +80,7 @@ public class CutDownTree extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected void tick(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected void tick(ServerLevel level, IRobotEntity robot, long gameTime) {
         Optional<GlobalPos> treePosOpt = robot.getBrain().getMemory(IRobotMemoryModuleTypes.TREE_TARGET_POS.get());
         if (treePosOpt.isEmpty() || !treePosOpt.get().pos().equals(this.targetPos)) {
             doStop(level, robot, gameTime);
@@ -125,7 +126,7 @@ public class CutDownTree extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected boolean canStillUse(ServerLevel level, IRobotEntity robot, long gameTime) {
         if (this.targetPos == null) {
             return false;
         }

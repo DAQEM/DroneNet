@@ -1,6 +1,7 @@
 package com.daqem.irobot.entity.ai.behavior.farming;
 
 import com.daqem.irobot.config.IRobotConfig;
+import com.daqem.irobot.entity.IRobotEntity;
 import com.daqem.irobot.entity.MiniRobotEntity;
 import com.daqem.irobot.entity.ai.IRobotMemoryModuleTypes;
 import com.daqem.irobot.item.module.ModuleItem;
@@ -22,7 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Optional;
 
-public class HarvestAndReplantCrop extends Behavior<MiniRobotEntity> {
+public class HarvestAndReplantCrop extends Behavior<IRobotEntity> {
 
     private int ticksSinceStarted;
     private BlockPos targetPos;
@@ -35,7 +36,7 @@ public class HarvestAndReplantCrop extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected boolean checkExtraStartConditions(ServerLevel level, MiniRobotEntity robot) {
+    protected boolean checkExtraStartConditions(ServerLevel level, IRobotEntity robot) {
         Optional<GlobalPos> farmPos = robot.getBrain().getMemory(IRobotMemoryModuleTypes.FARM_TARGET_POS.get());
         boolean hasPos = farmPos.isPresent();
         if (hasPos) {
@@ -49,7 +50,7 @@ public class HarvestAndReplantCrop extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected void start(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected void start(ServerLevel level, IRobotEntity robot, long gameTime) {
         this.ticksSinceStarted = 0;
         robot.getBrain().getMemory(IRobotMemoryModuleTypes.FARM_TARGET_POS.get()).ifPresent(globalPos -> {
             this.targetPos = globalPos.pos();
@@ -59,7 +60,7 @@ public class HarvestAndReplantCrop extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected void stop(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected void stop(ServerLevel level, IRobotEntity robot, long gameTime) {
         robot.getBrain().eraseMemory(IRobotMemoryModuleTypes.FARM_TARGET_POS.get());
         robot.getBrain().eraseMemory(MemoryModuleType.LOOK_TARGET);
         this.targetPos = null;
@@ -67,7 +68,7 @@ public class HarvestAndReplantCrop extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected void tick(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected void tick(ServerLevel level, IRobotEntity robot, long gameTime) {
         if (this.targetPos == null) {
             this.doStop(level, robot, gameTime);
             return;
@@ -114,7 +115,7 @@ public class HarvestAndReplantCrop extends Behavior<MiniRobotEntity> {
         this.doStop(level, robot, gameTime);
     }
 
-    private Optional<Item> findSeedInInventory(MiniRobotEntity robot, ServerLevel level, BlockPos plantPos) {
+    private Optional<Item> findSeedInInventory(IRobotEntity robot, ServerLevel level, BlockPos plantPos) {
         for (int i = 0; i < robot.getInventory().getContainerSize(); i++) {
             ItemStack stack = robot.getInventory().getItem(i);
             if (!stack.isEmpty() && stack.getItem() instanceof BlockItem blockItem && CropUtils.isPlantable(stack.getItem())) {
@@ -126,7 +127,7 @@ public class HarvestAndReplantCrop extends Behavior<MiniRobotEntity> {
         return Optional.empty();
     }
 
-    private boolean tryReplant(ServerLevel level, MiniRobotEntity robot, BlockPos pos, Item seedItem) {
+    private boolean tryReplant(ServerLevel level, IRobotEntity robot, BlockPos pos, Item seedItem) {
         if (!(seedItem instanceof BlockItem blockItem)) {
             return false;
         }
@@ -156,7 +157,7 @@ public class HarvestAndReplantCrop extends Behavior<MiniRobotEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, MiniRobotEntity robot, long gameTime) {
+    protected boolean canStillUse(ServerLevel level, IRobotEntity robot, long gameTime) {
         if (this.targetPos == null) {
             return false;
         }

@@ -1,5 +1,6 @@
 package com.daqem.irobot.client;
 
+import com.daqem.irobot.client.renderer.entity.GyroRobotEntityRenderer;
 import com.daqem.irobot.client.renderer.entity.MiniRobotEntityRenderer;
 import com.daqem.irobot.client.config.IRobotClientConfig;
 import com.daqem.irobot.entity.IRobotEntities;
@@ -9,5 +10,6 @@ public class IRobotClient {
     public static void init() {
         IRobotClientConfig.init();
         EntityRendererRegistry.register(IRobotEntities.MINI_ROBOT, MiniRobotEntityRenderer::new);
+        EntityRendererRegistry.register(IRobotEntities.GYRO_ROBOT, GyroRobotEntityRenderer::new);
     }
 }
